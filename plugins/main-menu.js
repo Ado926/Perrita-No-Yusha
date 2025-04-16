@@ -302,8 +302,8 @@ Aquí tienes la lista de comandos:
 💌🤫 #confesiones • #confesar
 ✦ Confiesa tus sentimientos a alguien de manera anónima.
 
+🌺🌿 Grupos 🌿🌺
 
-  🌺🌿 Grupos 🌿🌺
 ❍ Comandos de grupos para una mejor gestión de ellos.
 🌸🛠 #config • #on
 > ✦ Ver opciones de configuración de grupos.
