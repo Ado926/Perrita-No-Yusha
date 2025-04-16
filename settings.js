@@ -39,13 +39,14 @@ global.yukiJadibts = true
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
-global.packname = '⪛✰ 𝐘𝐮𝐤𝐢-𝐒𝐮𝐨𝐮-𝐁𝐨𝐭 ✰⪜'
-global.botname = 'ᥡᥙkі-sᥙ᥆ᥙ-ᑲ᥆𝗍'
-global.wm = 'ৎ୭࠭͢𝐘𝐮𝐤𝐢_𝐒𝐮𝐨𝐮-𝐁𝐨𝐭ⷭ𓆪͟͞ '
-global.author = 'Made By ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜'
-global.dev = '© ⍴᥆ᥕᥱrᥱძ ᑲᥡ ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜'
-global.textbot = 'Yυƙι-Sυσυ-Bσƚ • Powered By ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜'
-global.etiqueta = 'ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜'
+global.packname = '✿❀✧ 𖧷 𝐏𝐞𝐫𝐫𝐢𝐭𝐚 𝐧𝐨 𝐘ū𝐬𝐡𝐚 𖧷 ✧❀✿'
+global.botname = '⟦🩷 ᥣᥱ Pᥱrrιtᥲ ᥒ᥆ Yū᥂hᥲ 🩷⟧'
+global.wm = '𖦹꙰ꦿᰔᩚ 𝐏𝐞𝐫𝐫𝐢𝐭𝐚_𝐧𝐨_𝐘ū𝐬𝐡𝐚 - 𝐁𝐨𝐭︎︎︎︎ ✿ 𓆩⟡𓆪'
+
+global.author = '🌳🌿 𝘔𝘢𝘥𝘦 𝘉𝘺 𝓜ᥲᥡᥴ᥆ᥣ & ᭙ᥱ𝗂𝗋𝗄 🌿🌳'
+global.dev = '🌳✨ 𝖯𝗈𝗐𝖾𝗋𝖾𝖽 𝖻𝗒 𝓜ᥲᥡᥴ᥆ᥣ & ᭙ᥱ𝗂𝗋𝗄 ✨🌳'
+global.textbot = '🍀 𝒫𝑒𝓇𝓇𝒾𝓉𝒶 𝓃𝑜 𝒴ū𝓈𝒽𝒶 • 𝒫𝑜𝓌𝑒𝓇𝑒𝒹 𝒷𝓎 🌳 𝓜ᥲᥡᥴ᥆ᥣ & ᭙ᥱ𝗂𝗋𝗄 🌳'
+global.etiqueta = '✰ 𝘉𝘺 Wirk & 𝘔𝘢𝘺𝘤𝘰𝘭 ✰'
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
