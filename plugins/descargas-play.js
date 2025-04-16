@@ -8,6 +8,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       return conn.reply(m.chat, `❀ Por favor, ingresa el nombre de la música a descargar.`, m)
     }
 
+    m.react('✨'); // Reacción antes del mensaje
+
     const search = await yts(text)
     if (!search.all || search.all.length === 0) {
       return m.reply('✧ No se encontraron resultados para tu búsqueda.')
@@ -26,15 +28,22 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     const vistas = formatViews(views)
     const canal = author.name ? author.name : 'Desconocido'
-    const infoMessage = `「✦」Descargando *<${title || 'Desconocido'}>*\n\n> ✦ Canal » *${canal}*\n> ✰ Vistas » *${vistas || 'Desconocido'}*\n> ⴵ Duración » *${timestamp || 'Desconocido'}*\n> ✐ Publicación » *${ago || 'Desconocido'}*\n> 🜸 Link » ${url}`
+    const infoMessage = `╭━━━〔 *Descargando Audio* 〕━━━╮\n` +
+                        `┃ 🎧 *Título:* ${title}\n` +
+                        `┃ 🏷 *Canal:* ${canal}\n` +
+                        `┃ 👁 *Vistas:* ${vistas}\n` +
+                        `┃ ⏱ *Duración:* ${timestamp}\n` +
+                        `┃ 📅 *Publicado:* ${ago}\n` +
+                        `┃ 🔗 *Enlace:* ${url}\n` +
+                        `╰━━━━━━━━━━━━━━━━━━━━━━━╯`
 
     const thumb = (await conn.getFile(thumbnail))?.data
 
     const JT = {
       contextInfo: {
         externalAdReply: {
-          title: botname,
-          body: dev,
+          title: title,
+          body: canal,
           mediaType: 1,
           previewType: 0,
           mediaUrl: url,
@@ -55,9 +64,15 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
         if (!result) throw new Error('⚠ El enlace de audio no se generó correctamente.')
 
-        await conn.sendMessage(m.chat, { audio: { url: result }, fileName: `${api.result.title}.mp3`, mimetype: 'audio/mpeg' }, { quoted: m })
+        await conn.sendMessage(m.chat, {
+          audio: { url: result },
+          fileName: `${api.result.title}.mp3`,
+          mimetype: 'audio/mpeg',
+          ptt: false
+        }, { quoted: m })
+
       } catch (e) {
-        return conn.reply(m.chat, '⚠︎ No se pudo enviar el audio. Esto puede deberse a que el archivo es demasiado pesado o a un error en la generación de la URL. Por favor, intenta nuevamente más tarde.', m)
+        return conn.reply(m.chat, '⚠︎ No se pudo enviar el audio. Intenta nuevamente más tarde.', m)
       }
     } else if (command === 'play2' || command === 'ytv' || command === 'ytmp4') {
       try {
@@ -68,9 +83,15 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
         if (!resultad || !resultado) throw new Error('⚠ El enlace de video no se generó correctamente.')
 
-        await conn.sendMessage(m.chat, { video: { url: resultado }, fileName: resultad.title, mimetype: 'video/mp4', caption: title }, { quoted: m })
+        await conn.sendMessage(m.chat, {
+          video: { url: resultado },
+          fileName: resultad.title,
+          mimetype: 'video/mp4',
+          caption: title
+        }, { quoted: m })
+
       } catch (e) {
-        return conn.reply(m.chat, '⚠︎ No se pudo enviar el video. Esto puede deberse a que el archivo es demasiado pesado o a un error en la generación de la URL. Por favor, intenta nuevamente más tarde.', m)
+        return conn.reply(m.chat, '⚠︎ No se pudo enviar el video. Intenta nuevamente más tarde.', m)
       }
     } else {
       return conn.reply(m.chat, '✧︎ Comando no reconocido.', m)
@@ -81,23 +102,16 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 }
 
-handler.command = handler.help = ['play', 'yta', 'ytmp3', 'ytv', 'ytmp4']
+handler.command = handler.help = ['play', 'yta', 'ytmp3']
 handler.tags = ['descargas']
 handler.group = true
 
 export default handler
 
 function formatViews(views) {
-  if (views === undefined) {
-    return "No disponible"
-  }
-
-  if (views >= 1_000_000_000) {
-    return `${(views / 1_000_000_000).toFixed(1)}B (${views.toLocaleString()})`
-  } else if (views >= 1_000_000) {
-    return `${(views / 1_000_000).toFixed(1)}M (${views.toLocaleString()})`
-  } else if (views >= 1_000) {
-    return `${(views / 1_000).toFixed(1)}k (${views.toLocaleString()})`
-  }
+  if (views === undefined) return "No disponible"
+  if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)}B (${views.toLocaleString()})`
+  if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)}M (${views.toLocaleString()})`
+  if (views >= 1_000) return `${(views / 1_000).toFixed(1)}k (${views.toLocaleString()})`
   return views.toString()
 }
