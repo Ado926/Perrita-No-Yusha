@@ -44,7 +44,7 @@ let handler = async (m, { conn, args, text }) => {
   await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 };
 
-handler.command = ['yt', 'ytmp4x', 'ytvx'];
+handler.command = ['yt', 'ytmp4', 'ytvx'];
 handler.register = true;
 handler.estrellas = 0;
 
