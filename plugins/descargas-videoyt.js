@@ -28,11 +28,12 @@ let handler = async (m, { conn, args, text }) => {
     return m.reply('《✧》Hubo un error al intentar acceder al link.\n> Si el problema persiste, repórtalo en el grupo de soporte.');
   }
 
-  const title = data.info_do_video?.title || data.title || 'Desconocido';
-  const duration = data.info_do_video?.timestamp || data.duration || 'Desconocida';
-  const quality = data.download?.quality || data.quality || 'Desconocida';
-  const views = data.info_do_video?.views || data.views || 'Desconocidas';
-  const ago = data.info_do_video?.ago || data.ago || 'Desconocido';
+  // Extrae datos con respaldo múltiple
+  const title = data.title || data.info?.title || data.info_do_video?.title || 'Desconocido';
+  const duration = data.duration || data.timestamp || data.info_do_video?.timestamp || 'Desconocida';
+  const quality = data.quality || data.download?.quality || 'Desconocida';
+  const views = data.views || data.info_do_video?.views || 'Desconocidas';
+  const ago = data.ago || data.info_do_video?.ago || 'Desconocido';
 
   const infoMessage = `
 ╭━〔 *Video Encontrado* 〕━╮
@@ -59,7 +60,7 @@ let handler = async (m, { conn, args, text }) => {
   await conn.sendMessage(m.chat, { react: { text: "🚀", key: m.key } });
 };
 
-handler.command = ['ytv', 'ytmp4', 'yt'];
+handler.command = ['ytvx', 'ytmp4x', 'yt'];
 handler.register = true;
 handler.estrellas = 0;
 
