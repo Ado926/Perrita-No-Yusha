@@ -47,7 +47,7 @@ let handler = async (m, { conn, text }) => {
     const waitMessage = `╭━━━〔 *Descargando* 〕━━━╮
 ┃ 🎧 *Título:* ${video.title}
 ┃ 🏷 *Canal:* ${video.author.name}
-┃ 👁 *Vistas:* ${video.views} (${video.viewsNumberFormatted})
+┃ 👁 *Vistas:* ${video.views.toLocaleString()}
 ┃ ⏱ *Duración:* ${video.timestamp}
 ┃ 📅 *Publicado:* ${video.ago}
 ┃ 🔗 *Enlace:* ${video.url}
@@ -77,6 +77,7 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
+handler.customPrefix = /play/i;
 handler.command = ['play'];
 handler.help = ['play'];
 handler.tags = ['play'];
