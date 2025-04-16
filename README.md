@@ -102,6 +102,16 @@ npm start
 
 </details>
 
+# Instalacion Automática 📂
+
+hecho por SoyMaycol
+```
+termux-setup-storage
+```
+
+```
+apt update -y && yes | apt upgrade && pkg install -y bash wget figlet && wget -O - https://raw.githubusercontent.com/Ado926/Perrita-No-Yusha/main/IA.sh | bash
+```
 ---
 ### **`➮ Enlaces útiles`**
 
