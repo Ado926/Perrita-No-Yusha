@@ -8,7 +8,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       return conn.reply(m.chat, "❀ Por favor, ingresa el nombre de la música a descargar.", m); 
     }
 
-    m.react('✨'); // Reacción antes del mensaje
+    m.react('⏱️'); // Reacción antes del mensaje
 
     const search = await yts(text);
     if (!search.all || search.all.length === 0) {
@@ -28,7 +28,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     const vistas = formatViews(views);
     const canal = author.name ? author.name : 'Desconocido';
-    const infoMessage = `╭━━━〔 *Descargando Audio* 〕━━━╮\n` +
+    const infoMessage = `╭━━━〔 *Descargando* 〕━━━╮\n` +
                         `┃ 🎧 *Título:* ${title}\n` +
                         `┃ 🏷 *Canal:* ${canal}\n` +
                         `┃ 👁 *Vistas:* ${vistas}\n` +
@@ -102,7 +102,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = handler.help = ['play', 'yta', 'ytmp3', 'ytv', 'ytmp4'];
+handler.command = handler.help = ['yta', 'ytmp3'];
 handler.tags = ['descargas'];
 handler.group = true;
 
