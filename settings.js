@@ -53,7 +53,7 @@ global.etiqueta = '✰ 𝘉𝘺 Wirk & 𝘔𝘢𝘺𝘤𝘰𝘭 ✰'
 global.moneda = 'PerriCoins'
 global.welcom1 = '❍ Edita Con El Comando setwelcome'
 global.welcom2 = '❍ Edita Con El Comando setbye'
-global.banner = 'https://qu.ax/fetFx.jpg'
+global.banner = 'https://i.postimg.cc/HWFsDwcG/file-000000003fec61f79396e112df9742bd-conversation-id-67ffd6fb-4174-800d-bb5d-5c31e94faa6e-message-i.png'
 global.avatar = 'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1742678797993.jpeg'
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
