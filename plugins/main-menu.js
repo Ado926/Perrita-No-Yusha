@@ -303,7 +303,7 @@ Aquí tienes la lista de comandos:
 ✦ Confiesa tus sentimientos a alguien de manera anónima.
 
 
-🌺🌿 `Grupos` 🌿🌺
+🌺🌿 Grupos 🌿🌺
 ❍ Comandos de grupos para una mejor gestión de ellos.
 🌸🛠 #config • #on
 > ✦ Ver opciones de configuración de grupos.
