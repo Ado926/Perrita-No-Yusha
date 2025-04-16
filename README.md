@@ -1,6 +1,6 @@
-<h1 align="center">✦ Yυƙι-Sυσυ-Bσƚ ✦</h1>
+<h1 align="center">✿❀✧ 𖧷 𝐏𝐞𝐫𝐫𝐢𝐭𝐚 𝐧𝐨 𝐘ū𝐬𝐡𝐚 𖧷 ✧❀✿'</h1>
 
- <img src= "https://files.catbox.moe/om9jai.jpg">
+ <img src= "https://i.postimg.cc/JnJvg40f/file-00000000d66461f7ab450d57bb6b3bb6-conversation-id-67ffd6fb-4174-800d-bb5d-5c31e94faa6e-message-i.png">
     </p>
 
 ### **`❕️ Información importante`**
