@@ -37,8 +37,8 @@ global.namecomu = 'ᰔᩚ ᥡᥙkіᑲ᥆𝗍-mძ • ᥴ᥆mᥙᥒі𝗍ᥡ �
 global.listo = '❀ *Aquí tienes ฅ^•ﻌ•^ฅ*'
 global.fotoperfil = await conn.profilePictureUrl(m.sender, 'image').catch(_ => 'https://files.catbox.moe/xr2m6u.jpg')
 
-global.canalIdM = ["120363322713003916@newsletter", "120363322713003916@newsletter"]
-global.canalNombreM = ["=͟͟͞❀ 𝐘𝐮𝐤𝐢 𝐒𝐮𝐨𝐮 - 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 ⏤͟͟͞͞★", "=͟͟͞❀ 𝐘𝐮𝐤𝐢 𝐒𝐮𝐨𝐮 - 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 ⏤͟͟͞͞★"]
+global.canalIdM = ["120363402846939411@newsletter", "120363399352963944@newsletter"]
+global.canalNombreM = ["Abundantes Bots Channel 👻", "❀✰⏤͟͟͞͞𝑷𝒆𝒓𝒓𝒊𝒕𝒂 𝑵𝒐 𝒀𝒖𝒔𝒉𝒂⏤͟͟͞͞✰❀"]
 global.channelRD = await getRandomChannel()
 
 global.d = new Date(new Date + 3600000)
