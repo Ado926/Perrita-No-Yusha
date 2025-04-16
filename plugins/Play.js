@@ -50,7 +50,7 @@ let handler = async (m, { conn, text }) => {
 ┃ ⏱ *Duración:* ${video.timestamp}
 ┃ 📅 *Publicado:* ${video.ago}
 ┃ 🔗 *Enlace:* ${video.url}
-╰━━━━━━━━━━━━━━━━━━━━╯`;
+╰━━━━━━━━━━━━━━━━━━╯`;
 
     await conn.sendMessage(m.chat, { text: waitMessage.trim() }, { quoted: m });
 
