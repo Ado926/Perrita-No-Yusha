@@ -77,7 +77,6 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.customPrefix = /play/i;
 handler.command = ['play'];
 handler.help = ['play'];
 handler.tags = ['play'];
