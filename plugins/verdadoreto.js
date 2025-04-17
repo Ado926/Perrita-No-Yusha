@@ -1,9 +1,4 @@
-import pkg from '@whiskeysockets/baileys';
-const { generateWAMessageFromContent, proto } = pkg;
-
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-
-  // Listas de preguntas de "Verdad" y "Reto"
   const verdades = [
     '¿Es verdad que alguna vez mentiste para salir de un problema grave?',
     '¿Es verdad que te has enamorado de alguien por internet?',
@@ -33,45 +28,39 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   let text = '';
   let buttons = [];
 
-  // Usamos el "switch" para manejar las opciones
   switch ((args[0] || '').toLowerCase()) {
     case 'verdad':
       text = `🟣 *Verdad:*\n${pickRandom(verdades)}`;
       buttons = [
-        { buttonId: `${usedPrefix}verdadoreto verdad`, buttonText: { displayText: '🟣 Otra Verdad' }, type: 1 },
-        { buttonId: `${usedPrefix}verdadoreto reto`, buttonText: { displayText: '🔴 Ir a Reto' }, type: 1 }
+        { buttonId: `${usedPrefix + command} verdad`, buttonText: { displayText: '🟣 Otra Verdad' }, type: 1 },
+        { buttonId: `${usedPrefix + command} reto`, buttonText: { displayText: '🔴 Ir a Reto' }, type: 1 }
       ];
       break;
 
     case 'reto':
       text = `🔴 *Reto:*\n${pickRandom(retos)}`;
       buttons = [
-        { buttonId: `${usedPrefix}verdadoreto reto`, buttonText: { displayText: '🔴 Otro Reto' }, type: 1 },
-        { buttonId: `${usedPrefix}verdadoreto verdad`, buttonText: { displayText: '🟣 Ir a Verdad' }, type: 1 }
+        { buttonId: `${usedPrefix + command} reto`, buttonText: { displayText: '🔴 Otro Reto' }, type: 1 },
+        { buttonId: `${usedPrefix + command} verdad`, buttonText: { displayText: '🟣 Ir a Verdad' }, type: 1 }
       ];
       break;
 
     default:
       text = `🎮 *Verdad o Reto*\n\nElige una opción para comenzar.`;
       buttons = [
-        { buttonId: `${usedPrefix}verdadoreto verdad`, buttonText: { displayText: '🟣 Verdad' }, type: 1 },
-        { buttonId: `${usedPrefix}verdadoreto reto`, buttonText: { displayText: '🔴 Reto' }, type: 1 }
+        { buttonId: `${usedPrefix + command} verdad`, buttonText: { displayText: '🟣 Verdad' }, type: 1 },
+        { buttonId: `${usedPrefix + command} reto`, buttonText: { displayText: '🔴 Reto' }, type: 1 }
       ];
       break;
   }
 
-  const message = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
-    templateMessage: {
-      hydratedTemplate: {
-        hydratedContentText: text,
-        hydratedFooterText: 'Perrita No Yusha • Verdad o Reto',
-        hydratedButtons: buttons
-      }
-    }
-  }), { quoted: m });
-
-  await conn.relayWAMessage(message);
-}
+  await conn.sendMessage(m.chat, {
+    text,
+    footer: 'Perrita No Yusha • Verdad o Reto',
+    buttons,
+    headerType: 1
+  }, { quoted: m });
+};
 
 handler.help = ['verdadoreto'];
 handler.tags = ['juegos'];
@@ -79,7 +68,6 @@ handler.command = ['verdadoreto', 'vd'];
 
 export default handler;
 
-// Función para elegir un valor aleatorio de una lista
 function pickRandom(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
