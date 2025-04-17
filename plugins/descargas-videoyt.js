@@ -36,7 +36,7 @@ let handler = async (m, { conn, text }) => {
 
   // Mostrar mensaje de descarga con el título del video
   await conn.sendMessage(m.chat, {
-    text: `╭━━〔 *Descargando video...* 〕━━╮\n╰━━━━━━━━━━━━━━━━━━━━╯`,
+    text: `╭━━〔 *Enviando video...* 〕━━╮\n╰━━━━━━━━━━━━━━━━━━━━╯`,
     quoted: m
   });
 
