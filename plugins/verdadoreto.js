@@ -1,4 +1,4 @@
-const handler = async (m, { conn, usedPrefix, command, text }) => {
+const handler = async (m, { conn, usedPrefix, text }) => {
   const verdadList = [
     'Es verdad que alguna vez mentiste para salir de un problema grave.',
     'Es verdad que te has enamorado de alguien por internet.',
@@ -35,25 +35,29 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     return conn.sendMessage(m.chat, { text: `🔴 *Reto:*\n${reto}` }, { quoted: m });
   }
 
-  const name = await conn.getName(m.sender);
-  const texto = `*🎮 Verdad o Reto*\n\nHola ${name.split(' ')[0]}, elige una opción tocando un botón:`;
-  const buttons = [
-    { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Verdad' }, type: 1 },
-    { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Reto' }, type: 1 }
+  const sections = [
+    {
+      title: "Opciones disponibles",
+      rows: [
+        { title: "🟣 Verdad", rowId: `${usedPrefix}vd verdad` },
+        { title: "🔴 Reto", rowId: `${usedPrefix}vd reto` }
+      ]
+    }
   ];
 
-  const buttonMessage = {
-    text: texto,
+  const listMessage = {
+    text: '*🎮 Verdad o Reto*\n\nElige una opción:',
     footer: 'Perrita No Yusha • Juegos',
-    buttons: buttons,
-    headerType: 1
+    title: '¿Qué eliges?',
+    buttonText: 'Toca aquí para elegir',
+    sections
   };
 
-  await conn.sendMessage(m.chat, buttonMessage, { quoted: m });
+  await conn.sendMessage(m.chat, listMessage, { quoted: m });
 };
 
-handler.command = ['vd'];
-handler.tags = ['fun'];
+handler.command = /^vd$/i;
+handler.tags = ['juegos'];
 handler.help = ['vd'];
 handler.register = true;
 
