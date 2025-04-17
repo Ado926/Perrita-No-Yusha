@@ -1,5 +1,5 @@
-const handler = async (m, { conn, usedPrefix, args }) => {
-  const verdadList = [
+const handler = async (m, { conn, args, usedPrefix }) => {
+  const verdades = [
     'Es verdad que alguna vez mentiste para salir de un problema grave.',
     'Es verdad que te has enamorado de alguien por internet.',
     'Es verdad que has espiado el teléfono de alguien sin permiso.',
@@ -12,7 +12,7 @@ const handler = async (m, { conn, usedPrefix, args }) => {
     'Es verdad que tienes una cuenta secreta en redes sociales.'
   ];
 
-  const retoList = [
+  const retos = [
     'Te reto a enviar un audio diciendo "Soy un burrito tierno y feliz".',
     'Te reto a cambiar tu nombre a "El rey de los retos" por 10 minutos.',
     'Te reto a mandar un sticker ridículo en el grupo.',
@@ -25,17 +25,17 @@ const handler = async (m, { conn, usedPrefix, args }) => {
     'Te reto a enviar un mensaje de voz cantando algo.'
   ];
 
-  let text;
+  let text = '';
   let buttons = [];
 
-  if (/^(verdad)$/i.test(args[0])) {
-    text = `🟣 *Verdad:*\n${pickRandom(verdadList)}`;
+  if ((args[0] || '').toLowerCase() === 'verdad') {
+    text = `🟣 *Verdad:*\n${pickRandom(verdades)}`;
     buttons = [
       { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Otra Verdad' }, type: 1 },
       { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Ir a Reto' }, type: 1 }
     ];
-  } else if (/^(reto)$/i.test(args[0])) {
-    text = `🔴 *Reto:*\n${pickRandom(retoList)}`;
+  } else if ((args[0] || '').toLowerCase() === 'reto') {
+    text = `🔴 *Reto:*\n${pickRandom(retos)}`;
     buttons = [
       { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Otro Reto' }, type: 1 },
       { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Ir a Verdad' }, type: 1 }
@@ -50,10 +50,9 @@ const handler = async (m, { conn, usedPrefix, args }) => {
 
   await conn.sendMessage(m.chat, {
     text,
-    footer: 'Perrita No Yusha • Juegos',
+    footer: 'Perrita No Yusha • Verdad o Reto',
     buttons,
-    headerType: 1,
-    mentions: [m.sender]
+    headerType: 1
   }, { quoted: m });
 };
 
@@ -64,6 +63,6 @@ handler.register = true;
 
 export default handler;
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pickRandom(list) {
+  return list[Math.floor(Math.random() * list.length)];
 }
