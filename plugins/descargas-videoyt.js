@@ -5,6 +5,7 @@ let handler = async (m, { conn, args, text }) => {
 
   await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
 
+  // URLs de las APIs para obtener el video
   const urls = [
     `https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`,
     `https://api.fgmods.xyz/api/downloader/ytmp4?url=${text}&quality=480p&apikey=be9NqGwC`,
@@ -19,33 +20,34 @@ let handler = async (m, { conn, args, text }) => {
       let json = await res.json();
       data = json?.data || json?.result || json;
       if (data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0]) break;
-    } catch {}
+    } catch (error) {
+      console.error(error); // Para ver si ocurre algún error en la llamada API
+    }
   }
 
+  // Verificar que el link del video esté presente
   let link = data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0];
-  let title = data?.title || data?.info_do_video?.title || "Video de YouTube";
+  let title = data?.title || data?.info_do_video?.title || "Video de YouTube"; // Título del video
 
   if (!link) {
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
     return m.reply('⚠️ No se pudo descargar el video.');
   }
 
-  // Asegurarse de que el título se esté mostrando correctamente
-  if (!title) {
-    title = "Video de YouTube";
-  }
-
+  // Mostrar mensaje de descarga con el título del video
   await conn.sendMessage(m.chat, {
     text: `╭━━〔 *Descargando video...* 〕━━╮\n┃ 🎬 *${title}*\n╰━━━━━━━━━━━━━━━━━━━━╯`,
     quoted: m
   });
 
+  // Enviar el video con el título en el caption
   await conn.sendMessage(m.chat, {
     video: { url: link },
     mimetype: "video/mp4",
-    caption: `🎬 *${title}*`
+    caption: `🎬 *${title}*` // Título en el caption del video
   }, { quoted: m });
 
+  // Reacción de éxito
   await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 };
 
