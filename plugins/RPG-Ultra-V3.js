@@ -152,10 +152,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
 ║ ➤ ${usedPrefix}rpg dungeon
 ║
 ╠══════════════════════
-║ 🛠️ *CREADORES* 🛠️
+║ ℹ️ *INFO RPG* ℹ️
 ║
-║ ➤ SoyMaycol
-║ ➤ Wirk versión beta
+║ ➤ Creadores
 ╚══════════════════════`
 
   //━━━━━━━━━[ PROCESAMIENTO DE COMANDOS ]━━━━━━━━━//
@@ -236,7 +235,7 @@ Selecciona la categoría de comandos que deseas explorar:
                         id: `${usedPrefix}rpg eat`
                       },
                       {
-                        title: "│ dungeon │MAZMORRA",
+                        title: "│ dungeon 🏰│MAZMORRA",
                         description: "Explora peligrosas mazmorras en busca de tesoros",
                         id: `${usedPrefix}rpg dungeon`
                       }
@@ -395,7 +394,7 @@ Selecciona la categoría de comandos que deseas explorar:
                         id: `${usedPrefix}rpg story`
                       },
                       {
-                        title: "│ dungeon │MAZMORRA",
+                        title: "│ dungeon 🏰│MAZMORRA",
                         description: "Explora peligrosas mazmorras en busca de tesoros",
                         id: `${usedPrefix}rpg dungeon`
                       },
@@ -417,18 +416,13 @@ Selecciona la categoría de comandos que deseas explorar:
                     ]
                   },
                   {
-                    title: '🛠️ CREADORES',
-                    highlight_label: "Información",
+                    title: 'ℹ️ INFO RPG',
+                    highlight_label: "Acerca del RPG",
                     rows: [
                       {
-                        title: "│👤│SoyMaycol",
-                        description: "Desarrollador principal",
-                        id: ``
-                      },
-                      {
-                        title: "│⚙️│Wirk versión beta",
-                        description: "Colaborador y pruebas beta",
-                        id: ``
+                        title: "Creadores",
+                        description: "Información sobre los desarrolladores",
+                        id: `rpg_creators_info`
                       }
                     ]
                   }
@@ -458,11 +452,18 @@ Selecciona la categoría de comandos que deseas explorar:
       return;
     } catch (error) {
       console.error('Error al generar menu RPG:', error);
+      if (m.text === 'rpg_creators_info') {
+        return conn.reply(m.chat, 'Creadores: Wirk y Maycol 👻 Versión: Beta', m);
+      }
       return conn.reply(m.chat, helpText, m); // Fallback al texto de ayuda normal
     }
   }
 
   let type = (args[0] || '').toLowerCase()
+
+  if (m.text === 'rpg_creators_info') {
+    return conn.reply(m.chat, 'Creadores: Wirk y Maycol 👻 Versión: Beta', m);
+  }
 
   //━━━━━━━━━[ IMPLEMENTACIÓN DE COMANDOS ]━━━━━━━━━//
 
@@ -1008,6 +1009,7 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
       }
       let quantityToBuy = parseInt(args[1])
       let itemToBuy = args[2].toLowerCase().replace(/ /g, ''); // Eliminar espacios del nombre del objeto
+      console.log(`Intentando comprar: ${itemToBuy}`); // <--------------------- AQUÍ ESTÁ EL LOG
       let cost = 0;
       switch (itemToBuy) {
         case 'pico': cost = 500; break;
