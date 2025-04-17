@@ -1,47 +1,40 @@
-import gtts from 'node-gtts';
-import {readFileSync, unlinkSync} from 'fs';
-import {join} from 'path';
+import axios from 'axios';
+import { unlinkSync, writeFileSync, readFileSync } from 'fs';
+import { join } from 'path';
+
 const defaultLang = 'es';
-const handler = async (m, {conn, args, usedPrefix, command}) => {
-  let lang = args[0];
-  let text = args.slice(1).join(' ');
-  if ((args[0] || '').length !== 2) {
-    lang = defaultLang;
-    text = args.join(' ');
-  }
+const handler = async (m, { conn, args }) => {
+  let text = args.join(' ');
   if (!text && m.quoted?.text) text = m.quoted.text;
-  let res;
+  if (!text) throw '🌸 Por favor, escribe el texto para convertir a voz.';
+
   try {
-    res = await tts(text, lang);
+    const audioBuffer = await zueiraJuanTTS(text);
+    const filePath = join(global.__dirname(import.meta.url), '../tmp', `tts-${Date.now()}.mp3`);
+    writeFileSync(filePath, audioBuffer);
+    await conn.sendFile(m.chat, filePath, 'tts.mp3', null, m, true);
+    unlinkSync(filePath);
   } catch (e) {
-    m.reply(e + '');
-    text = args.join(' ');
-    if (!text) throw `${emoji} Por favor, ingresé una frase.`;
-    res = await tts(text, defaultLang);
-  } finally {
-    if (res) conn.sendFile(m.chat, res, 'tts.opus', null, m, true);
+    console.error(e);
+    m.reply('❌ Ocurrió un error generando el TTS.');
   }
 };
-handler.help = ['tts <lang> <teks>'];
+
+handler.help = ['tts <texto>'];
 handler.tags = ['transformador'];
-handler.group = true;
-handler.register = true
 handler.command = ['tts'];
+handler.group = true;
+handler.register = true;
 
 export default handler;
 
-function tts(text, lang = 'es') {
-  console.log(lang, text);
-  return new Promise((resolve, reject) => {
-    try {
-      const tts = gtts(lang);
-      const filePath = join(global.__dirname(import.meta.url), '../tmp', (1 * new Date) + '.wav');
-      tts.save(filePath, text, () => {
-        resolve(readFileSync(filePath));
-        unlinkSync(filePath);
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
+async function zueiraJuanTTS(text) {
+  const url = 'https://api.streamelements.com/kappa/v2/speech';
+  const voice = 'es-MX-Standard-A'; // Esta imita muy bien la voz de Juan
+  const params = {
+    voice,
+    text,
+  };
+  const res = await axios.post(url, params, { responseType: 'arraybuffer' });
+  return res.data;
 }
