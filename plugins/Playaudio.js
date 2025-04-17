@@ -1,5 +1,12 @@
 import fetch from "node-fetch";
 import yts from "yt-search";
+import { exec } from "child_process";
+import fs from "fs";
+import path from "path";
+import { tmpdir } from "os";
+import { promisify } from "util";
+
+const execPromise = promisify(exec);
 
 // API 😎
 const encodedApi = "aHR0cHM6Ly9hcGkudnJlZGVuLndlYi5pZC9hcGkveXRtcDM=";
@@ -22,7 +29,6 @@ let handler = async (m, { conn, text }) => {
     const vid = search.videos[0];
     if (!vid) throw new Error("Sin resultados");
 
-    // Enviar mensaje decorado inmediato sin await
     conn.sendMessage(m.chat, {
       text: `
 「✦」Descargando *<${vid.title}>*
@@ -34,20 +40,29 @@ let handler = async (m, { conn, text }) => {
 > 🜸 Link » ${vid.url}`.trim()
     }, { quoted: m });
 
-    // Petición rápida a la API
     const api = `${getApiUrl()}?url=${encodeURIComponent(vid.url)}`;
     const result = await fetchAudio(api);
 
-    // Enviar audio como PTT
+    // Descargar audio
+    const inputPath = path.join(tmpdir(), `original_${Date.now()}.mp3`);
+    const outputPath = path.join(tmpdir(), `saturado_${Date.now()}.mp3`);
+    const resAudio = await fetch(result.download.url);
+    const buffer = await resAudio.buffer();
+    fs.writeFileSync(inputPath, buffer);
+
+    // Saturación con FFmpeg (leve boost + compresión suave)
+    await execPromise(`ffmpeg -i "${inputPath}" -af "acompressor=threshold=-20dB:ratio=2:attack=20:release=100,volume=3dB" -y "${outputPath}"`);
+
+    // Enviar audio procesado
     await conn.sendMessage(m.chat, {
-      audio: { url: result.download.url },
+      audio: { url: outputPath },
       mimetype: 'audio/mpeg',
       ptt: true,
       fileName: `${vid.title}.mp3`,
       contextInfo: {
         externalAdReply: {
           title: vid.title,
-          body: "✵𝙋𝙚𝙧𝙧𝙞𝙩𝙖 𝙉𝙤 𝙔𝙪𝙨𝙝𝙖✵",
+          body: "✵ Saturado ✵",
           thumbnailUrl: vid.thumbnail,
           mediaType: 2,
           mediaUrl: vid.url,
@@ -56,6 +71,9 @@ let handler = async (m, { conn, text }) => {
         }
       }
     }, { quoted: m });
+
+    fs.unlinkSync(inputPath);
+    fs.unlinkSync(outputPath);
 
     conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
