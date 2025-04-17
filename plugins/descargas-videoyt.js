@@ -31,7 +31,7 @@ let handler = async (m, { conn, text }) => {
   }
 
   await conn.sendMessage(m.chat, {
-    text: `╭━━〔 *Enviando video...* 〕━━╮\n┃ 🎬 *${title}*\n╰━━━━━━━━━━━━━━━━━━━━╯`,
+    text: `╭━━〔 *Enviando video...* 〕━━╮\n╰━━━━━━━━━━━━━━━━━━━━╯`,
     quoted: m
   });
 
