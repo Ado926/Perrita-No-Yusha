@@ -1,50 +1,52 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('❗ Ingresa un link de YouTube o Shorts');
+let handler = async (m, { conn, args, text }) => {
+  if (!text) return m.reply('Ingrese un link de YouTube.');
 
-  await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
+  m.react("⏱️");
 
-  const urls = [
-    `https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`,
-    `https://api.fgmods.xyz/api/downloader/ytmp4?url=${text}&quality=480p&apikey=be9NqGwC`,
-    `https://api.alyachan.dev/api/ytv?url=${text}&apikey=uXxd7d`,
-    `https://good-camel-seemingly.ngrok-free.app/download/mp4?url=${text}`
-  ];
-
-  let data = {};
-  for (let url of urls) {
+  let video, resolution = 'Desconocida';
+  try {
+    video = await (await fetch(`https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`)).json();
+    resolution = '480p';
+  } catch (error) {
     try {
-      const res = await fetch(url);
-      const json = await res.json();
-      data = json?.data || json?.result || json;
-      if (data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0]) break;
-    } catch {}
+      video = await (await fetch(`https://api.fgmods.xyz/api/downloader/ytmp4?url=${text}&quality=480p&apikey=be9NqGwC`)).json();
+      resolution = '480p';
+    } catch (error) {
+      try {
+        video = await (await fetch(`https://api.alyachan.dev/api/ytv?url=${text}&apikey=uXxd7d`)).json();
+        resolution = video?.result?.quality || 'Desconocida';
+      } catch (error) {
+        video = await (await fetch(`https://good-camel-seemingly.ngrok-free.app/download/mp4?url=${text}`)).json();
+        resolution = video?.resolution || 'Desconocida';
+      }
+    }
   }
 
-  let link = data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0];
-  let title = data?.title || data?.info_do_video?.title || "Video de YouTube";
+  let link = video?.data?.url || video?.download_url || video?.result?.dl_url || video?.downloads?.link?.[0];
+  if (!link) return m.reply('《✧》Hubo un error al intentar acceder al link.\n> Si el problema persiste, repórtalo en el grupo de soporte.');
 
-  if (!link) {
-    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    return m.reply('⚠️ No se pudo descargar el video.');
-  }
-
+  
   await conn.sendMessage(m.chat, {
-    text: `╭━━〔 *Enviando video...* 〕━━╮\n╰━━━━━━━━━━━━━━━━━━━━╯`,
-    quoted: m
-  });
+    text: `╭─── ⊷\n│ ✅ 𝙑𝙞𝙙𝙚𝙤 𝙙𝙚𝙨𝙘𝙖𝙧𝙜𝙖𝙙𝙤 𝙘𝙤𝙣 𝙚́𝙭𝙞𝙩𝙤\n│ 📤 𝙀𝙣𝙫𝙞𝙖𝙣𝙙𝙤...\n╰────────────⊷`,
+  }, { quoted: m });
 
+  
   await conn.sendMessage(m.chat, {
     video: { url: link },
     mimetype: "video/mp4",
-    caption: `🎬 *Aqui tienes ꉂ(ˊᗜˋ)♡*\n🌸 Procesado por *Perrita No Yusha* ✧(｡•̀ᴗ-)✧`
+    caption: `╭━━〔 🎥 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 - 𝙈𝙋4 〕━━⬣
+┃  📡 𝙏𝙪 𝙫𝙞𝙙𝙚𝙤 𝙚𝙨𝙩𝙖́ 𝙡𝙞𝙨𝙩𝙤.
+┃  🧩 𝙍𝙚𝙨𝙤𝙡𝙪𝙘𝙞𝙤́𝙣: ${resolution}
+┃  ✅ 𝘿𝙚𝙨𝙘𝙖𝙧𝙜𝙖 𝙘𝙤𝙣 𝙚𝙭𝙞𝙩𝙤.
+╰━━━━━━━━━━━━━━━━⬣`,
   }, { quoted: m });
 
-  await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+  m.react("🌹");
 };
 
-handler.command = ['yt', 'ytmp4', 'ytvx'];
+handler.command = ['ytv', 'ytmp4', 'yt'];
 handler.register = true;
 handler.estrellas = 0;
 
