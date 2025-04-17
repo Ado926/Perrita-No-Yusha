@@ -19,18 +19,18 @@ return conn.reply(m.chat, `${emoji3} Debes esperar ${msToTime(time - new Date())
 }
 
 let hasil = Math.floor(Math.random() * 1000);
-let info = `⛏️ *Te has adentrando en lo profundo de las cuevas*\n\n` +
-`> *🍬 Obtuviste estos recursos*\n\n` +
-`✨ *Exp*: ${hasil}\n` +
+let info = `⛏️ *_Te has adentrando en lo profundo de las cuevas_*\n\n` +
+`\`\`\`🌻 Obtuviste estos recursos\`\`\`\n\n` +
+`🌸 *Exp*: ${hasil}\n` +
 `💸 *${moneda}*: ${coin}\n` +
 `♦️ *Esmeralda*: ${emerald}\n` +
 `🔩 *Hierro*: ${iron}\n` +
-`🏅 *Oro*: ${gold}\n` +
-`🕋 *Carbón*: ${coal}\n` +
+`🪙 *Oro*: ${gold}\n` +
+`⚫ *Carbón*: ${coal}\n` +
 `🪨 *Piedra*: ${stone}`;
 
 await conn.sendFile(m.chat, img, 'yuki.jpg', info, fkontak);
-await m.react('⛏️');
+await m.react('☀️');
 
 user.health -= 50;
 user.pickaxedurability -= 30;
