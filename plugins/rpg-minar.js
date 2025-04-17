@@ -45,7 +45,7 @@ user.lastmiming = new Date() * 1;
 
 handler.help = ['minar'];
 handler.tags = ['economy'];
-handler.command = ['minar', 'miming', 'mine'];
+handler.command = ['minar', 'miming', 'miner'];
 handler.register = true;
 handler.group = true;
 
