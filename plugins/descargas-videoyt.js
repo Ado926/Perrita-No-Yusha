@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('❗ Ingresa un link de YouTube o Short');
+  if (!text) return m.reply('❗ Ingresa un link de YouTube o Shorts');
 
   await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
 
@@ -19,14 +19,11 @@ let handler = async (m, { conn, text }) => {
       const json = await res.json();
       data = json?.data || json?.result || json;
       if (data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0]) break;
-    } catch (e) {
-      console.log("[ERROR] API fallback:", e.message);
-    }
+    } catch {}
   }
 
   let link = data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0];
   let title = data?.title || data?.info_do_video?.title || "Video de YouTube";
-  let duration = data?.duration || data?.duration_in_seconds || data?.duracion; // En segundos
 
   if (!link) {
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
@@ -38,32 +35,13 @@ let handler = async (m, { conn, text }) => {
     quoted: m
   });
 
-  try {
-    // Si el video dura más de 3360 segundos (56 minutos), enviarlo como documento
-    if (duration && duration > 3360) {
-      await conn.sendMessage(m.chat, {
-        document: { url: link },
-        fileName: `${title}.mp4`,
-        mimetype: 'video/mp4',
-        caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)♡*\n🌸 Procesado por *Perrita No Yusha* ✧(｡•̀ᴗ-)✧\n\n⏱ Duración: ${Math.floor(duration / 60)} min`
-      }, { quoted: m });
-    } else {
-      await conn.sendMessage(m.chat, {
-        video: { url: link },
-        mimetype: 'video/mp4',
-        caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)♡*\n🌸 Procesado por *Perrita No Yusha* ✧(｡•̀ᴗ-)✧\n\n⏱ Duración: ${duration ? Math.floor(duration / 60) + ' min' : 'Desconocida'}`
-      }, { quoted: m });
-    }
+  await conn.sendMessage(m.chat, {
+    video: { url: link },
+    mimetype: "video/mp4",
+    caption: `🎬 *${title}*\n🌸 Procesado por *Perrita No Yusha* ✧(｡•̀ᴗ-)✧`
+  }, { quoted: m });
 
-    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
-  } catch (e) {
-    console.error("Error enviando el video:", e);
-    await conn.sendMessage(m.chat, {
-      text: `⚠️ Ocurrió un error enviando el video.\n🎬 *${title}*\n📎 Link directo: ${link}`,
-      quoted: m
-    });
-    await conn.sendMessage(m.chat, { react: { text: "📎", key: m.key } });
-  }
+  await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 };
 
 handler.command = ['yt', 'ytmp4', 'ytvx'];
