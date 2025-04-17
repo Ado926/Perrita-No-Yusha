@@ -36,7 +36,7 @@ let handler = async (m, { conn, text }) => {
 
   // Mostrar mensaje de descarga con el título del video
   await conn.sendMessage(m.chat, {
-    text: `╭━━〔 *Descargando video...* 〕━━╮\n┃ 🎬 *${title}*\n╰━━━━━━━━━━━━━━━━━━━━╯`,
+    text: `╭━━〔 *Descargando video...* 〕━━╮\n╰━━━━━━━━━━━━━━━━━━━━╯`,
     quoted: m
   });
 
@@ -44,7 +44,7 @@ let handler = async (m, { conn, text }) => {
   await conn.sendMessage(m.chat, {
     video: { url: link },
     mimetype: "video/mp4",
-    caption: `🎬 *${title}*` // Título en el caption del video
+    caption: `🎬 *Aqui Tienes ꉂ(ˊᗜˋ*)♡*` // Título en el caption del video
   }, { quoted: m });
 
   // Reacción de éxito
