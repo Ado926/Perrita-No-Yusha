@@ -12,7 +12,7 @@ let handler = async (m, { conn, args }) => {
 🌷 *¡Hola! Soy ${botname} ✨* 🌷
 Aquí tienes la lista de comandos:
 
-╭━━━━━━━━━━━━━━━━━━━━━━━━━╮
+╭━━━━━━━━━━━━━━━━━━━━╮
 │💖 *Cliente*: @${userId.split('@')[0]}
 │💚 *Modo*: Público
 │💜 *Bot*: ${(conn.user.jid == global.conn.user.jid ? '```Principal```🍀' : 'Sub-Bot 🤘')}
@@ -20,7 +20,7 @@ Aquí tienes la lista de comandos:
 │🌸 *Usuarios*: ${totalreg}
 │✨ *Comandos*: ${totalCommands}
 │🌼 *Baileys*: Multi Device
-╰━━━━━━━━━━━━━━━━━━━━━━━━━╯
+╰━━━━━━━━━━━━━━━━━━━━╯
 
 💖 *Crea un Sub-Bot con tu número utilizando #qr o #code*
 
