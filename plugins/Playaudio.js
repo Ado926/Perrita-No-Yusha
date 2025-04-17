@@ -5,80 +5,64 @@ import yts from "yt-search";
 const encodedApi = "aHR0cHM6Ly9hcGkudnJlZGVuLndlYi5pZC9hcGkveXRtcDM=";
 const getApiUrl = () => Buffer.from(encodedApi, "base64").toString("utf-8");
 
-const fetchWithRetries = async (url, maxRetries = 2) => {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data?.status === 200 && data.result?.download?.url) {
-        return data.result;
-      }
-    } catch (error) {
-      console.error(`Intento ${attempt + 1} fallido:`, error.message);
-    }
-  }
-  throw new Error("No se pudo obtener la música después de varios intentos.");
+const fetchAudio = async (url) => {
+  const res = await fetch(url);
+  const json = await res.json();
+  if (json?.status === 200 && json.result?.download?.url) return json.result;
+  throw new Error("No se pudo obtener el audio.");
 };
 
 let handler = async (m, { conn, text }) => {
-  if (!text || !text.trim()) {
-    await conn.sendMessage(m.chat, { react: { text: "❓", key: m.key } });
-    return conn.reply(
-      m.chat,
-      '*[ ℹ️ ] Ingresa el nombre de una rola.*\n\n*[ 💡 ] Ejemplo:* Tren al sur',
-      m
-    );
-  }
+  if (!text) return conn.reply(m.chat, '*[ ℹ️ ] Escribe el nombre de una canción.*', m);
+
+  conn.sendMessage(m.chat, { react: { text: "🔊", key: m.key } });
 
   try {
-    // Reacción inicial
-    await conn.sendMessage(m.chat, { react: { text: "🕒", key: m.key } });
+    const search = await yts(text);
+    const vid = search.videos[0];
+    if (!vid) throw new Error("Sin resultados");
 
-    const searchResults = await yts(text.trim());
-    const video = searchResults.videos[0];
-    if (!video) throw new Error("No se encontraron resultados.");
+    // Enviar mensaje decorado inmediato sin await
+    conn.sendMessage(m.chat, {
+      text: `
+「✦」Descargando *<${vid.title}>*
 
-    const apiUrl = `${getApiUrl()}?url=${encodeURIComponent(video.url)}`;
-    const apiData = await fetchWithRetries(apiUrl);
+> ✦ Canal » *${vid.author.name}*
+> ✰ Vistas » *${vid.views.toLocaleString()}*
+> ⴵ Duración » *${vid.timestamp}*
+> ✐ Publicación » *${vid.ago}*
+> 🜸 Link » ${vid.url}`.trim()
+    }, { quoted: m });
 
-    // Mensaje de espera decorado
-    const waitMessage = `
-「✦」Descargando *<${video.title}>*
+    // Petición rápida a la API
+    const api = `${getApiUrl()}?url=${encodeURIComponent(vid.url)}`;
+    const result = await fetchAudio(api);
 
-> ✦ Canal » *${video.author.name}*
-> ✰ Vistas » *${video.views.toLocaleString()}*
-> ⴵ Duración » *${video.timestamp}*
-> ✐ Publicación » *${video.ago}*
-> 🜸 Link » ${video.url}`.trim();
-
-    await conn.sendMessage(m.chat, { text: waitMessage }, { quoted: m });
-
-    // Enviar audio como PTT (nota de voz)
-    const audioMessage = {
-      audio: { url: apiData.download.url },
-      mimetype: "audio/mpeg",
+    // Enviar audio como PTT
+    await conn.sendMessage(m.chat, {
+      audio: { url: result.download.url },
+      mimetype: 'audio/mpeg',
       ptt: true,
-      fileName: `${video.title} - PerritaNoYusha.mp3`,
+      fileName: `${vid.title}.mp3`,
       contextInfo: {
         externalAdReply: {
-          title: video.title,
+          title: vid.title,
           body: "✵𝙋𝙚𝙧𝙧𝙞𝙩𝙖 𝙉𝙤 𝙔𝙪𝙨𝙝𝙖✵",
+          thumbnailUrl: vid.thumbnail,
           mediaType: 2,
-          thumbnailUrl: video.thumbnail,
-          mediaUrl: video.url,
-          sourceUrl: video.url,
+          mediaUrl: vid.url,
+          sourceUrl: vid.url,
           showAdAttribution: true
         }
       }
-    };
+    }, { quoted: m });
 
-    await conn.sendMessage(m.chat, audioMessage, { quoted: m });
+    conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
-    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
-  } catch (error) {
-    console.error("Error:", error);
-    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    conn.reply(m.chat, "*[ ❌ ] Error al procesar tu solicitud.*", m);
+  } catch (e) {
+    console.error(e);
+    conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+    conn.reply(m.chat, "*[ ❌ ] Hubo un problema al procesar tu solicitud.*", m);
   }
 };
 
