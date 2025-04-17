@@ -29,24 +29,24 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   global.db.data.users[m.sender].exp += 300
   global.db.data.users[m.sender].joincount += 20
   let sn = createHash('md5').update(m.sender).digest('hex').slice(0, 20)
-let regbot = `✦ 𝗥 𝗘 𝗚 𝗜 𝗦 𝗧 𝗥 𝗔 𝗗 𝗢 ✦\n`
-regbot += `•┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄•\n`
-regbot += `> ᰔᩚ Nombre » ${name}\n`
-regbot += `> ✎ Edad » ${age} años\n`
-regbot += `•┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄•\n`
-regbot += `❀ 𝗥𝗲𝗰𝗼𝗺𝗽𝗲𝗻𝘀𝗮𝘀:\n`
-regbot += `> • ⛁ *${moneda}* » 40\n`
-regbot += `> • ✰ *Experiencia* » 300\n`
-regbot += `> • ❖ *Tokens* » 20\n`
-regbot += `•┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄•\n`
-regbot += `> ${dev}`
-await m.react('📩')
+let regbot = `╭─〔 𝐑𝐄𝐆𝐈𝐒𝐓𝐑𝐀𝐃@ ⁂ 〕─╮\n`
+regbot += `│\n`
+regbot += `│ 𖦹 𝙉𝙤𝙢𝙗𝙧𝙚: ${name}\n`
+regbot += `│ 𖦹 𝙀𝙙𝙖𝙙: ${age} años\n`
+regbot += `│\n`
+regbot += `├─❁ 𝙍𝙚𝙘𝙤𝙢𝙥𝙚𝙣𝙨𝙖𝙨 ❁─┤\n`
+regbot += `│ • ⛁ ${moneda}: *40*\n`
+regbot += `│ • ✰ Experiencia: *300*\n`
+regbot += `│ • ❖ Tokens: *20*\n`
+regbot += `│\n`
+regbot += `╰─⌦ ${dev}`
+await m.react('✏️')
 
 await conn.sendMessage(m.chat, {
         text: regbot,
         contextInfo: {
             externalAdReply: {
-                title: '✧ Usuario Verificado ✧',
+                title: '💛 Usuario Registrado 👻',
                 body: textbot,
                 thumbnailUrl: pp,
                 sourceUrl: channel,
