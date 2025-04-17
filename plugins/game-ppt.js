@@ -1,67 +1,103 @@
 const handler = async (m, { conn, text, command, usedPrefix, args }) => {
   const pp = 'https://telegra.ph/file/c7924bf0e0d839290cc51.jpg';
-  const time = global.db.data.users[m.sender].wait + 10000;
 
-  if (new Date - global.db.data.users[m.sender].wait < 10000) {
-    throw `⏳ Espera ${Math.floor((time - new Date()) / 1000)} segundos para volver a jugar.`;
+  if (!m.isGroup) {
+    return conn.reply(m.chat, 'Este comando solo puede ser usado en grupos.', m);
   }
+
+  if (!args[0]) {
+    return conn.reply(m.chat, `Debes mencionar al usuario con el que quieres jugar.\n\nEjemplo: ${usedPrefix + command} @usuario`, m);
+  }
+
+  const opponent = m.mentionedJid[0];
+  if (!opponent) {
+    return conn.reply(m.chat, `Menciona a un usuario válido para jugar.`, m);
+  }
+
+  if (opponent === m.sender) {
+    return conn.reply(m.chat, `No puedes jugar contigo mismo.`, m);
+  }
+
+  // Initialize game state
+  const gameKey = `ppt_${m.chat}`;
+  global.pptGames = global.pptGames || {};
+
+  if (global.pptGames[gameKey]) {
+    return conn.reply(m.chat, `Ya hay un juego de Piedra, Papel o Tijera en curso en este grupo.`, m);
+  }
+
+  global.pptGames[gameKey] = {
+    player1: m.sender,
+    player2: opponent,
+    choice1: null,
+    choice2: null,
+    groupChat: m.chat,
+  };
 
   const choices = ['piedra', 'papel', 'tijera'];
-  const userChoice = text.toLowerCase();
 
-  if (!choices.includes(userChoice)) {
-    return conn.reply(m.chat, `*PIEDRA 🗿, PAPEL 📄 o TIJERA ✂️*\n\n*Usa uno de estos comandos:*\n${usedPrefix + command} piedra\n${usedPrefix + command} papel\n${usedPrefix + command} tijera\n\n*También puedes retar a alguien con:* ${usedPrefix + command} piedra @usuario`, m);
-  }
+  // Send private message to player 1
+  let msg1 = `¡Juego de Piedra, Papel o Tijera! 🗿📄✂️\n\nHas sido desafiado por @${m.sender.split('@')[0]} para jugar.\n\nElige tu opción respondiendo a este mensaje con:\n\n*${choices.map(c => `◉ ${usedPrefix + command} ${c}`).join('\n')}*`;
+  await conn.sendMessage(m.sender, { text: msg1, mentions: [m.sender] }, { quoted: m });
 
-  let opponent = m.mentionedJid?.[0];
-  let botChoice = choices[Math.floor(Math.random() * choices.length)];
-  let resultMsg = '';
-  let playerName = conn.getName(m.sender);
-  let opponentName = opponent ? conn.getName(opponent) : 'El Bot';
+  // Send private message to player 2
+  let msg2 = `¡Juego de Piedra, Papel o Tijera! 🗿📄✂️\n\nHas sido desafiado por @${opponent.split('@')[0]} para jugar.\n\nElige tu opción respondiendo a este mensaje con:\n\n*${choices.map(c => `◉ ${usedPrefix + command} ${c}`).join('\n')}*`;
+  await conn.sendMessage(opponent, { text: msg2, mentions: [opponent] }, { quoted: m });
 
-  const win = (a, b) =>
-    (a === 'piedra' && b === 'tijera') ||
-    (a === 'papel' && b === 'piedra') ||
-    (a === 'tijera' && b === 'papel');
-
-  if (opponent) {
-    if (opponent === m.sender) {
-      return m.reply('¿Jugar contigo mismo? ¡Eso está raro!');
-    }
-    botChoice = choices[Math.floor(Math.random() * choices.length)];
-    resultMsg = `*${playerName} vs ${opponentName}*\n\n👉 ${playerName}: ${userChoice}\n👉 ${opponentName}: ${botChoice}\n\n`;
-
-    if (userChoice === botChoice) {
-      resultMsg += '🤝 ¡Empate! Ambos son unos genios.';
-    } else if (win(userChoice, botChoice)) {
-      resultMsg += `🎉 ¡${playerName} gana! ¡Eres el campeón del patio!`;
-      global.db.data.users[m.sender].exp += 1000;
-    } else {
-      resultMsg += `💀 ¡${opponentName} gana! Qué triste, ${playerName}.`;
-      global.db.data.users[m.sender].exp -= 300;
-    }
-  } else {
-    resultMsg = `*${playerName} vs Bot*\n\n👉 Tú: ${userChoice}\n👉 Bot: ${botChoice}\n\n`;
-
-    if (userChoice === botChoice) {
-      resultMsg += '🤝 ¡Empate!';
-      global.db.data.users[m.sender].exp += 500;
-    } else if (win(userChoice, botChoice)) {
-      resultMsg += '🎉 ¡Tú ganas!';
-      global.db.data.users[m.sender].exp += 1000;
-    } else {
-      resultMsg += '💀 ¡Pierdes!';
-      global.db.data.users[m.sender].exp -= 300;
-    }
-  }
-
-  global.db.data.users[m.sender].wait = new Date * 1;
-  await conn.sendMessage(m.chat, { text: resultMsg, contextInfo: { externalAdReply: { title: '¡Piedra, Papel o Tijera!', mediaUrl: '', sourceUrl: '', thumbnailUrl: pp } } }, { quoted: m });
+  await conn.reply(m.chat, `@${m.sender.split('@')[0]} ha desafiado a @${opponent.split('@')[0]} a jugar Piedra, Papel o Tijera. ¡Ambos jugadores deben elegir en privado!`, m, { mentions: [m.sender, opponent] });
 };
 
-handler.help = ['ppt <piedra|papel|tijera> [@usuario]'];
+handler.before = async (m) => {
+  if (!m.text.toLowerCase().match(/^(piedra|papel|tijera)$/i)) return;
+  if (!m.isGroup && m.sender) {
+    const gameKey = Object.keys(global.pptGames || {}).find(key =>
+      global.pptGames[key] && (global.pptGames[key].player1 === m.sender || global.pptGames[key].player2 === m.sender)
+    );
+
+    if (gameKey) {
+      const game = global.pptGames[gameKey];
+      const playerChoice = m.text.toLowerCase();
+
+      if (game.player1 === m.sender && !game.choice1) {
+        game.choice1 = playerChoice;
+        await m.reply('Has elegido. Esperando la elección del otro jugador...');
+        await m.reply(game.groupChat, `@${m.sender.split('@')[0]} ya ha elegido.`, null, { mentions: [m.sender] });
+      } else if (game.player2 === m.sender && !game.choice2) {
+        game.choice2 = playerChoice;
+        await m.reply('Has elegido. Esperando la elección del otro jugador...');
+        await m.reply(game.groupChat, `@${m.sender.split('@')[0]} ya ha elegido.`, null, { mentions: [m.sender] });
+      }
+
+      if (game.choice1 && game.choice2) {
+        const choice1 = game.choice1;
+        const choice2 = game.choice2;
+        let result;
+
+        if (choice1 === choice2) {
+          result = '¡Empate! Ambos eligieron ' + choice1;
+        } else if (
+          (choice1 === 'piedra' && choice2 === 'tijera') ||
+          (choice1 === 'papel' && choice2 === 'piedra') ||
+          (choice1 === 'tijera' && choice2 === 'papel')
+        ) {
+          result = `@${game.player1.split('@')[0]} ha ganado! Eligió ${choice1} contra ${choice2} de @${game.player2.split('@')[0]}.`;
+        } else {
+          result = `@${game.player2.split('@')[0]} ha ganado! Eligió ${choice2} contra ${choice1} de @${game.player1.split('@')[0]}.`;
+        }
+
+        await conn.reply(game.groupChat, `\n*Resultados del juego de Piedra, Papel o Tijera:*\n\n@${game.player1.split('@')[0]} eligió: ${choice1}\n@${game.player2.split('@')[0]} eligió: ${choice2}\n\n${result}`, null, { mentions: [game.player1, game.player2] });
+        delete global.pptGames[gameKey]; // Clear game state
+        return true; // Consume the message
+      }
+      return true; // Consume the message
+    }
+  }
+  return true;
+};
+
+handler.help = ['ppt @usuario'];
 handler.tags = ['games'];
-handler.command = ['ppt'];
+handler.command = ['ppt', 'piedrapapeltijera'];
 handler.group = true;
 handler.register = true;
 
