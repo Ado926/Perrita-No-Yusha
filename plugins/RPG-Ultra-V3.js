@@ -142,7 +142,7 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
     try {
       // Creación de la lista interactiva de comandos RPG
       const interactiveMessage = {
-        header: { title: '🌟 𝐑𝐏𝐆-𝐔𝐥𝐭𝐫𝐚 𝐕𝟑 - 🩷 Lᥱ Pᥱrrιtᥲ ᥒ᥆ Yūshᥲ 🩷' },
+        header: { title: '🌟 𝐑𝐏𝐆-𝐔𝐥𝐭𝐫𝐚 𝐕𝟑 By 🩷 Lᥱ Pᥱrrιtᥲ ᥒ᥆ Yūshᥲ 🩷' },
         hasMediaAttachment: false,
         body: { text: `꧁♡༺˖°୨ Bienvenid@ al Sistema RPG Rosadito ୧°˖༻♡꧂
 
@@ -162,7 +162,7 @@ Selecciona la categoría de comandos que deseas explorar:
                 sections: [
                   {
                     title: '⚔️ COMANDOS DE ACCIÓN', 
-                    highlight_label: "Popular",
+                    highlight_label: "Lo Más Popular",
                     rows: [
                       {
                         title: "│📊│PERFIL RPG", 
