@@ -142,14 +142,21 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
     try {
       // Creación de la lista interactiva de comandos RPG
       const interactiveMessage = {
-        header: { title: '🌟 𝐑𝐏𝐆-𝐔𝐥𝐭𝐫𝐚 𝐕𝟑 - 𝐒𝐢𝐬𝐭𝐞𝐦𝐚 𝐝𝐞 𝐉𝐮𝐞𝐠𝐨 🌟' },
+        header: { title: '🌟 𝐑𝐏𝐆-𝐔𝐥𝐭𝐫𝐚 𝐕𝟑 - 🩷 Lᥱ Pᥱrrιtᥲ ᥒ᥆ Yūshᥲ 🩷' },
         hasMediaAttachment: false,
-        body: { text: `¡Bienvenido al sistema RPG avanzado! Selecciona la categoría de comandos que deseas explorar.
+        body: { text: `˗ˏˋ ୨୧ ʚ♡ɞ ｡ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ  
+　　　　　˗ˏˋ * ¡Bienvenid@ al Sistema RPG Rosadito de Perrita! * ˎˊ˗  
+　　　　　　　　(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ ʕ•ﻌ•ʔฅ♡ わんわん！  
+˗ˏˋ ୨୧ ʚ♡ɞ ｡ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ
 
-• Para usar un comando simplemente escribe: .rpg [comando]
-• Ejemplo: .rpg adventure, .rpg mine, .rpg profile
+୨୧ ✦ Selecciona una categoría de comandos para empezar tu aventura kawaii.
 
-💪 ¡Adelante aventurero, grandes desafíos te esperan!` },
+୨୧ ✦ Para usar un comando, solo escribe: `.rpg [comando]`  
+        Ejemplitos super cute: `.rpg adventure`, `.rpg mine`, `.rpg profile`
+
+୨୧ ✦ ¡Ponte tu moñito y prepárate, valiente perrita! Grandes desafíos y premios adorables te esperan~
+
+｡ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ` },
         nativeFlowMessage: {
           buttons: [
             {
