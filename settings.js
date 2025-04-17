@@ -40,7 +40,7 @@ global.yukiJadibts = true
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
 global.packname = '✿❀✧ 𖧷 𝐏𝐞𝐫𝐫𝐢𝐭𝐚 𝐧𝐨 𝐘ū𝐬𝐡𝐚 𖧷 ✧❀✿'
-global.botname = '⟦🩷 ᥣᥱ Pᥱrrιtᥲ ᥒ᥆ Yū᥂hᥲ 🩷⟧'
+global.botname = '⟦🩷 Lᥱ Pᥱrrιtᥲ ᥒ᥆ Yūshᥲ 🩷⟧'
 global.wm = '𖦹꙰ꦿᰔᩚ 𝐏𝐞𝐫𝐫𝐢𝐭𝐚_𝐧𝐨_𝐘ū𝐬𝐡𝐚 - 𝐁𝐨𝐭︎︎︎︎ ✿ 𓆩⟡𓆪'
 
 global.author = '🌳🌿 𝘔𝘢𝘥𝘦 𝘉𝘺 𝓜ᥲᥡᥴ᥆ᥣ & ᭙i𝗋𝗄 🌿🌳'
