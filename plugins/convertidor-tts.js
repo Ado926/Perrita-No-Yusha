@@ -1,41 +1,47 @@
-import { spawn } from 'child_process';
-import { join } from 'path';
-import fs from 'fs';
-
-const handler = async (m, { conn, args }) => {
-  let text = args.join(' ');
+import gtts from 'node-gtts';
+import {readFileSync, unlinkSync} from 'fs';
+import {join} from 'path';
+const defaultLang = 'es';
+const handler = async (m, {conn, args, usedPrefix, command}) => {
+  let lang = args[0];
+  let text = args.slice(1).join(' ');
+  if ((args[0] || '').length !== 2) {
+    lang = defaultLang;
+    text = args.join(' ');
+  }
   if (!text && m.quoted?.text) text = m.quoted.text;
-  if (!text) throw '⚠️ Escribe el texto que quieres convertir a voz.';
-
-  const filePath = join(global.__dirname(import.meta.url), '../tmp', 'tts_output.mp3');
-
+  let res;
   try {
-    await new Promise((resolve, reject) => {
-      const py = spawn('python', ['tts_edge.py', text]);
-
-      py.stderr.on('data', data => {
-        console.error(`stderr: ${data}`);
-      });
-
-      py.on('close', code => {
-        if (code === 0) resolve();
-        else reject('❌ Error ejecutando edge-tts.');
-      });
-    });
-
-    const audio = fs.readFileSync(filePath);
-    await conn.sendFile(m.chat, filePath, 'voz.mp3', null, m, true);
-    fs.unlinkSync(filePath);
+    res = await tts(text, lang);
   } catch (e) {
-    console.error(e);
-    m.reply('❌ Ocurrió un error generando el TTS con voz natural.');
+    m.reply(e + '');
+    text = args.join(' ');
+    if (!text) throw `${emoji} Por favor, ingresé una frase.`;
+    res = await tts(text, defaultLang);
+  } finally {
+    if (res) conn.sendFile(m.chat, res, 'tts.opus', null, m, true);
   }
 };
-
-handler.help = ['tts <texto>'];
+handler.help = ['tts <lang> <teks>'];
 handler.tags = ['transformador'];
-handler.command = ['tts'];
 handler.group = true;
-handler.register = true;
+handler.register = true
+handler.command = ['tts'];
 
 export default handler;
+
+function tts(text, lang = 'es') {
+  console.log(lang, text);
+  return new Promise((resolve, reject) => {
+    try {
+      const tts = gtts(lang);
+      const filePath = join(global.__dirname(import.meta.url), '../tmp', (1 * new Date) + '.wav');
+      tts.save(filePath, text, () => {
+        resolve(readFileSync(filePath));
+        unlinkSync(filePath);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
