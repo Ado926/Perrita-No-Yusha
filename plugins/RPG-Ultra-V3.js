@@ -6,6 +6,8 @@ import pkg from '@whiskeysockets/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
 
 let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
+  // Verificar si el comando principal es 'rpg'
+  if (command !== 'rpg') return;
 
   // RPG-Ultra V3 - Sistema de Juego de Rol Avanzado
 
@@ -18,10 +20,10 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
   const COOLDOWN_DUEL = 30 * 60 * 1000 // 30 minutos
   const COOLDOWN_ROBBERY = 60 * 60 * 1000 // 1 hora
   const COOLDOWN_MARRIAGE = 24 * 60 * 60 * 1000 // 24 horas
+  const COOLDOWN_RECOVER = 60 * 60 * 1000 // 1 hora para recuperar energía
 
   //━━━━━━━━━[ VERIFICACIÓN DE BASES DE DATOS ]━━━━━━━━━//
 
-  // Asegúrese de que la base de datos de usuario exista
   if (!global.db.data.users[m.sender]) {
     global.db.data.users[m.sender] = {
       // Datos básicos
@@ -42,22 +44,36 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
       house: 0, farm: 0, barn: 0, workshop: 0, shop: 0,
       // RPG - Temporizado
       lastadventure: 0, lastmining: 0, lastfarming: 0, lasthunting: 0, lastduel: 0, lastrobbery: 0, lastmarriage: 0,
+      lastrecover: 0,
       // RPG - Mascotas
       pet: 0, petExp: 0, petLevel: 0, petName: '',
+
+      // Asegurándonos de que todos los campos del perfil estén inicializados
+      ruby: 0,
+      wood: 0,
+      string: 0,
+      herb: 0,
+      potion: 0,
+      seeds: 0,
+      crops: 0,
+      leather: 0,
+      strength: 5,
+      agility: 5,
+      intelligence: 5,
+      charisma: 5,
+      vitality: 5,
+      house: 0,
+      farm: 0,
+      pet: 0,
+      petExp: 0,
+      petLevel: 0,
+      petName: '',
     }
   }
 
-  // Asegúrese de que la base de datos de grupos exista
   if (m.isGroup) {
-    if (!global.db.data.groups) {
-      global.db.data.groups = {}
-    }
-    if (!global.db.data.groups[m.chat]) {
-      global.db.data.groups[m.chat] = {
-        // Datos de grupo para RPG
-        guild: '', territory: '', resources: {}, wars: 0, alliances: []
-      }
-    }
+    if (!global.db.data.groups) global.db.data.groups = {}
+    if (!global.db.data.groups[m.chat]) global.db.data.groups[m.chat] = { guild: '', territory: '', resources: {}, wars: 0, alliances: [] }
   }
 
   //━━━━━━━━━[ MENSAJES DE AYUDA ]━━━━━━━━━//
@@ -68,64 +84,65 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
 ╠══════════════════════
 ║ ⚔️ *COMANDOS DE ACCIÓN* ⚔️
 ║
-║ ➤ ${usedPrefix}rpgprofile
-║ ➤ ${usedPrefix}adventure
-║ ➤ ${usedPrefix}mine
-║ ➤ ${usedPrefix}hunt
-║ ➤ ${usedPrefix}farm
-║ ➤ ${usedPrefix}fish
-║ ➤ ${usedPrefix}craft
-║ ➤ ${usedPrefix}sell
-║ ➤ ${usedPrefix}buy
-║ ➤ ${usedPrefix}shop
+║ ➤ ${usedPrefix}rpg profile
+║ ➤ ${usedPrefix}rpg adventure
+║ ➤ ${usedPrefix}rpg mine
+║ ➤ ${usedPrefix}rpg hunt
+║ ➤ ${usedPrefix}rpg farm
+║ ➤ ${usedPrefix}rpg fish
+║ ➤ ${usedPrefix}rpg craft
+║ ➤ ${usedPrefix}rpg sell
+║ ➤ ${usedPrefix}rpg buy
+║ ➤ ${usedPrefix}rpg shop
+║ ➤ ${usedPrefix}rpg recover
 ║
 ╠══════════════════════
 ║ 🏆 *SISTEMA SOCIAL* 🏆
 ║
-║ ➤ ${usedPrefix}duel @usuario
-║ ➤ ${usedPrefix}rob @usuario
-║ ➤ ${usedPrefix}marry @usuario
-║ ➤ ${usedPrefix}divorce
-║ ➤ ${usedPrefix}family
-║ ➤ ${usedPrefix}adopt @usuario
-║ ➤ ${usedPrefix}guild
-║ ➤ ${usedPrefix}clan
+║ ➤ ${usedPrefix}rpg duel @usuario
+║ ➤ ${usedPrefix}rpg rob @usuario
+║ ➤ ${usedPrefix}rpg marry @usuario
+║ ➤ ${usedPrefix}rpg divorce
+║ ➤ ${usedPrefix}rpg family
+║ ➤ ${usedPrefix}rpg adopt @usuario
+║ ➤ ${usedPrefix}rpg guild
+║ ➤ ${usedPrefix}rpg clan
 ║
 ╠══════════════════════
 ║ 🏠 *PROPIEDADES* 🏠
 ║
-║ ➤ ${usedPrefix}buyhouse
-║ ➤ ${usedPrefix}buyfarm
-║ ➤ ${usedPrefix}workshop
-║ ➤ ${usedPrefix}buildshop
+║ ➤ ${usedPrefix}rpg buyhouse
+║ ➤ ${usedPrefix}rpg buyfarm
+║ ➤ ${usedPrefix}rpg workshop
+║ ➤ ${usedPrefix}rpg buildshop
 ║
 ╠══════════════════════
 ║ 🐶 *MASCOTAS* 🐱
 ║
-║ ➤ ${usedPrefix}pet
-║ ➤ ${usedPrefix}petadopt
-║ ➤ ${usedPrefix}petfeed
-║ ➤ ${usedPrefix}petstats
-║ ➤ ${usedPrefix}petadventure
+║ ➤ ${usedPrefix}rpg pet
+║ ➤ ${usedPrefix}rpg petadopt
+║ ➤ ${usedPrefix}rpg petfeed
+║ ➤ ${usedPrefix}rpg petstats
+║ ➤ ${usedPrefix}rpg petadventure
 ║
 ╠══════════════════════
 ║ 🌐 *MULTIJUGADOR* 🌐
 ║
-║ ➤ ${usedPrefix}createclan
-║ ➤ ${usedPrefix}joinclan
-║ ➤ ${usedPrefix}leaveclan
-║ ➤ ${usedPrefix}clanwar
-║ ➤ ${usedPrefix}territory
-║ ➤ ${usedPrefix}alliance
+║ ➤ ${usedPrefix}rpg createclan
+║ ➤ ${usedPrefix}rpg joinclan
+║ ➤ ${usedPrefix}rpg leaveclan
+║ ➤ ${usedPrefix}rpg clanwar
+║ ➤ ${usedPrefix}rpg territory
+║ ➤ ${usedPrefix}rpg alliance
 ║
 ╠══════════════════════
 ║ 📜 *HISTORIA Y MISIONES* 📜
 ║
-║ ➤ ${usedPrefix}quest
-║ ➤ ${usedPrefix}daily
-║ ➤ ${usedPrefix}weekly
-║ ➤ ${usedPrefix}story
-║ ➤ ${usedPrefix}dungeon
+║ ➤ ${usedPrefix}rpg quest
+║ ➤ ${usedPrefix}rpg daily
+║ ➤ ${usedPrefix}rpg weekly
+║ ➤ ${usedPrefix}rpg story
+║ ➤ ${usedPrefix}rpg dungeon
 ║
 ║ Hecho Por SoyMaycol
 ║ +51 921 826 291
@@ -140,7 +157,6 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
   // Comando principal y su procesamiento
   if (!args[0]) {
     try {
-      // Creación de la lista interactiva de comandos RPG
       const interactiveMessage = {
         header: { title: '🌟 𝐑𝐏𝐆-𝐔𝐥𝐭𝐫𝐚 𝐕𝟑 By 🩷 Lᥱ Pᥱrrιtᥲ ᥒ᥆ Yūshᥲ 🩷' },
         hasMediaAttachment: false,
@@ -198,6 +214,11 @@ Selecciona la categoría de comandos que deseas explorar:
                         title: "│⚒️│FABRICAR",
                         description: "Convierte recursos básicos en objetos valiosos",
                         id: `${usedPrefix}rpg craft`
+                      },
+                      {
+                        title: "│⚡│RECUPERAR ENERGÍA",
+                        description: "Recupera tu energía para seguir aventurándote",
+                        id: `${usedPrefix}rpg recover`
                       }
                     ]
                   },
@@ -410,7 +431,6 @@ Selecciona la categoría de comandos que deseas explorar:
   //━━━━━━━━━[ IMPLEMENTACIÓN DE COMANDOS ]━━━━━━━━━//
 
   switch(type) {
-    // Perfil RPG del jugador
     case 'profile':
     case 'rpgprofile':
       let pp = await conn.profilePictureUrl(m.sender, 'image').catch(_ => './src/avatar_contact.png')
@@ -418,33 +438,33 @@ Selecciona la categoría de comandos que deseas explorar:
 ╔═══════════════════
 ║ 📊 𝐏𝐄𝐑𝐅𝐈𝐋 𝐃𝐄 𝐉𝐔𝐆𝐀𝐃𝐎𝐑 📊
 ╠═══════════════════
-║ 👤 *Nombre:* ${user.name}
-║ 🏅 *Nivel:* ${user.level}
-║ ✨ *Experiencia:* ${user.exp}
-║ ❤️ *Salud:* ${user.health}/100
-║ ⚡ *Energía:* ${user.stamina}/100
-║ 🔮 *Maná:* ${user.mana}/20
+║ 👤 *Nombre:* ${user.name || 'Indefinido'}
+║ 🏅 *Nivel:* ${user.level || 0}
+║ ✨ *Experiencia:* ${user.exp || 0}
+║ ❤️ *Salud:* ${user.health || 100}/100
+║ ⚡ *Energía:* ${user.stamina || 100}/100
+║ 🔮 *Maná:* ${user.mana || 20}/20
 ╠═══════════════════
-║ 💰 *Oro:* ${user.gold}
-║ 💎 *Diamantes:* ${user.diamond}
-║ 🟢 *Esmeraldas:* ${user.emerald}
-║ ❤️ *Rubíes:* ${user.ruby}
-║ ⚙️ *Hierro:* ${user.iron}
-║ 🧱 *Piedra:* ${user.stone}
-║ 🪵 *Madera:* ${user.wood}
-║ 🧶 *Cuerda:* ${user.string}
-║ 🌿 *Hierba:* ${user.herb}
-║ 🍎 *Comida:* ${user.food}
-║ 🧪 *Poción:* ${user.potion}
-║ 🌱 *Semillas:* ${user.seeds}
-║ 🌾 *Cultivos:* ${user.crops}
-║ 🧥 *Cuero:* ${user.leather}
+║ 💰 *Oro:* ${user.gold || 0}
+║ 💎 *Diamantes:* ${user.diamond || 0}
+║ 🟢 *Esmeraldas:* ${user.emerald || 0}
+║ ❤️ *Rubíes:* ${user.ruby || 0}
+║ ⚙️ *Hierro:* ${user.iron || 0}
+║ 🧱 *Piedra:* ${user.stone || 0}
+║ 🪵 *Madera:* ${user.wood || 0}
+║ 🧶 *Cuerda:* ${user.string || 0}
+║ 🌿 *Hierba:* ${user.herb || 0}
+║ 🍎 *Comida:* ${user.food || 0}
+║ 🧪 *Poción:* ${user.potion || 0}
+║ 🌱 *Semillas:* ${user.seeds || 0}
+║ 🌾 *Cultivos:* ${user.crops || 0}
+║ 🧥 *Cuero:* ${user.leather || 0}
 ╠═══════════════════
-║ ⚔️ *Fuerza:* ${user.strength}
-║ 🏃 *Agilidad:* ${user.agility}
-║ 🧠 *Inteligencia:* ${user.intelligence}
-║ 🗣️ *Carisma:* ${user.charisma}
-║ 💪 *Vitalidad:* ${user.vitality}
+║ ⚔️ *Fuerza:* ${user.strength || 5}
+║ 🏃 *Agilidad:* ${user.agility || 5}
+║ 🧠 *Inteligencia:* ${user.intelligence || 5}
+║ 🗣️ *Carisma:* ${user.charisma || 5}
+║ 💪 *Vitalidad:* ${user.vitality || 5}
 ╠═══════════════════
 ║ 🏘️ *Casa:* ${user.house ? 'Nivel ' + user.house : 'No tiene'}
 ║ 🚜 *Granja:* ${user.farm ? 'Nivel ' + user.farm : 'No tiene'}
@@ -457,12 +477,15 @@ Selecciona la categoría de comandos que deseas explorar:
       conn.sendFile(m.chat, pp, 'profile.jpg', expText, m)
       break
 
-    // Sistema de aventuras
     case 'adventure':
     case 'aventura':
       if (new Date - user.lastadventure < COOLDOWN_ADVENTURE) {
         let timeLeft = COOLDOWN_ADVENTURE - (new Date - user.lastadventure)
         return conn.reply(m.chat, `⏱️ Debes esperar ${Math.ceil(timeLeft / 60000)} minutos antes de otra aventura.`, m)
+      }
+
+      if (user.stamina < 20) {
+        return conn.reply(m.chat, `😫 Estás demasiado cansado para ir de aventura. Necesitas recuperar energía. Recupérate con ${usedPrefix}rpg recover`, m)
       }
 
       let rewards = {
@@ -546,7 +569,6 @@ ${rewards.items.map(item => `• ${item}`).join('\n')}
       conn.reply(m.chat, rewardText, m)
       break
 
-    // Sistema de minería
     case 'mine':
     case 'minar':
       if (new Date - user.lastmining < COOLDOWN_MINING) {
@@ -555,11 +577,11 @@ ${rewards.items.map(item => `• ${item}`).join('\n')}
       }
 
       if (user.pickaxe < 1) {
-        return conn.reply(m.chat, `🛠️ Necesitas un pico para minar. Compra uno en la tienda con ${usedPrefix}shop`, m)
+        return conn.reply(m.chat, `🛠️ Necesitas un pico para minar. Compra uno en la tienda con ${usedPrefix}rpg shop`, m)
       }
 
       if (user.stamina < 20) {
-        return conn.reply(m.chat, `😫 Estás demasiado cansado para minar. Necesitas recuperar energía.`, m)
+        return conn.reply(m.chat, `😫 Estás demasiado cansado para minar. Necesitas recuperar energía. Recupérate con ${usedPrefix}rpg recover`, m)
       }
 
       let miningSuccess = Math.random()
@@ -637,7 +659,6 @@ ${miningRewards.map(item => `• ${item}`).join('\n')}
       conn.reply(m.chat, finalMiningText, m)
       break
 
-    // Sistema de caza
     case 'hunt':
     case 'cazar':
       if (new Date - user.lasthunting < COOLDOWN_HUNTING) {
@@ -646,11 +667,11 @@ ${miningRewards.map(item => `• ${item}`).join('\n')}
       }
 
       if (user.weapon < 1) {
-        return conn.reply(m.chat, `🔪 Necesitas un arma para cazar. Compra una en la tienda con ${usedPrefix}shop`, m)
+        return conn.reply(m.chat, `🔪 Necesitas un arma para cazar. Compra una en la tienda con ${usedPrefix}rpg shop`, m)
       }
 
       if (user.stamina < 15) {
-        return conn.reply(m.chat, `😫 Estás demasiado cansado para cazar. Necesitas recuperar energía.`, m)
+        return conn.reply(m.chat, `😫 Estás demasiado cansado para cazar. Necesitas recuperar energía. Recupérate con ${usedPrefix}rpg recover`, m)
       }
 
       let huntSuccess = Math.random()
@@ -719,7 +740,6 @@ ${huntRewards.map(item => `• ${item}`).join('\n')}
       conn.reply(m.chat, finalHuntText, m)
       break
 
-    // Sistema de agricultura
     case 'farm':
     case 'cultivar':
       if (new Date - user.lastfarming < COOLDOWN_FARMING) {
@@ -728,15 +748,15 @@ ${huntRewards.map(item => `• ${item}`).join('\n')}
       }
 
       if (user.axe < 1) {
-        return conn.reply(m.chat, `🪓 Necesitas un hacha para preparar la tierra. Compra una en la tienda con ${usedPrefix}shop`, m)
+        return conn.reply(m.chat, `🪓 Necesitas un hacha para preparar la tierra. Compra una en la tienda con ${usedPrefix}rpg shop`, m)
       }
 
       if (user.seeds < 1) {
-        return conn.reply(m.chat, `🌱 No tienes semillas para plantar. Compra algunas en la tienda con ${usedPrefix}shop`, m)
+        return conn.reply(m.chat, `🌱 No tienes semillas para plantar. Compra algunas en la tienda con ${usedPrefix}rpg shop`, m)
       }
 
       if (user.stamina < 10) {
-        return conn.reply(m.chat, `😫 Estás demasiado cansado para cultivar. Necesitas recuperar energía.`, m)
+        return conn.reply(m.chat, `😫 Estás demasiado cansado para cultivar. Necesitas recuperar energía. Recupérate con ${usedPrefix}rpg recover`, m)
       }
 
       let farmingSuccess = Math.random()
@@ -777,7 +797,6 @@ ${farmingRewards.map(item => `• ${item}`).join('\n')}
       conn.reply(m.chat, finalFarmingText, m)
       break
 
-    // Sistema de pesca
     case 'fish':
     case 'pescar':
       if (new Date - user.lastfishingrod < COOLDOWN_FARMING) { // Reutilizando cooldown temporalmente
@@ -786,11 +805,11 @@ ${farmingRewards.map(item => `• ${item}`).join('\n')}
       }
 
       if (user.fishingrod < 1) {
-        return conn.reply(m.chat, `🎣 Necesitas una caña de pescar. Compra una en la tienda con ${usedPrefix}shop`, m)
+        return conn.reply(m.chat, `🎣 Necesitas una caña de pescar. Compra una en la tienda con ${usedPrefix}rpg shop`, m)
       }
 
       if (user.stamina < 10) {
-        return conn.reply(m.chat, `😫 Estás demasiado cansado para pescar. Necesitas recuperar energía.`, m)
+        return conn.reply(m.chat, `😫 Estás demasiado cansado para pescar. Necesitas recuperar energía. Recupérate con ${usedPrefix}rpg recover`, m)
       }
 
       let fishingSuccess = Math.random()
@@ -825,7 +844,6 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
       conn.reply(m.chat, finalFishingText, m)
       break
 
-    // Sistema de crafteo (ejemplo básico)
     case 'craft':
     case 'fabricar':
       if (!args[1]) {
@@ -854,13 +872,11 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
             conn.reply(m.chat, `⚠️ Necesitas 20 de hierro y 5 de madera para fabricar un arma.`, m)
           }
           break;
-        // Añadir más recetas de crafteo aquí
         default:
           conn.reply(m.chat, `❓ No conozco ese objeto para fabricar.`, m)
       }
       break;
 
-    // Sistema de venta
     case 'sell':
     case 'vender':
       if (!args[1] || isNaN(args[1]) || parseInt(args[1]) <= 0) {
@@ -898,24 +914,25 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
       }
       break;
 
-    // Sistema de compra
     case 'buy':
     case 'comprar':
       if (!args[1] || isNaN(args[1]) || parseInt(args[1]) <= 0) {
         return conn.reply(m.chat, `🛒 ¿Cuánto quieres comprar? Usa: ${usedPrefix}rpg buy [cantidad] [item]`, m)
       }
       if (!args[2]) {
-        return conn.reply(m.chat, `🛒 ¿Qué quieres comprar? Las opciones son: pico, arma, pocion, semillas.`, m)
+        return conn.reply(m.chat, `🛒 ¿Qué quieres comprar? Las opciones son: pico, arma, pocion, semillas, hacha, cañadepescar.`, m)
       }
       let quantityToBuy = parseInt(args[1])
-      let itemToBuy = args[2].toLowerCase()
+      let itemToBuy = args[2].toLowerCase().replace(/ /g, ''); // Eliminar espacios del nombre del objeto
       let cost = 0;
       switch (itemToBuy) {
         case 'pico': cost = 500; break;
         case 'arma': cost = 800; break;
         case 'pocion': cost = 150; break;
         case 'semillas': cost = 20; break;
-        default: return conn.reply(m.chat, `❓ No puedes comprar ese objeto. Las opciones son: pico, arma, pocion, semillas.`, m)
+        case 'hacha': cost = 400; break;
+        case 'cañadepescar': cost = 600; break;
+        default: return conn.reply(m.chat, `❓ No puedes comprar ese objeto. Las opciones son: pico, arma, pocion, semillas, hacha, cañadepescar.`, m)
       }
       let totalCost = quantityToBuy * cost
       if (user.gold >= totalCost) {
@@ -927,7 +944,6 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
       }
       break;
 
-    // Tienda (muestra los objetos disponibles para comprar)
     case 'shop':
     case 'tienda':
       const shopText = `
@@ -944,6 +960,17 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
 ║ Usa *${usedPrefix}rpg buy [cantidad] [item]* para comprar.
 ╚═══════════════════`
       conn.reply(m.chat, shopText, m)
+      break;
+
+    case 'recover':
+    case 'recuperar':
+      if (new Date - user.lastrecover < COOLDOWN_RECOVER) {
+        let timeLeft = COOLDOWN_RECOVER - (new Date - user.lastrecover)
+        return conn.reply(m.chat, `⏳ Debes esperar ${Math.ceil(timeLeft / 3600000)} horas antes de poder recuperar energía de nuevo.`, m)
+      }
+      user.stamina = 100
+      user.lastrecover = new Date
+      conn.reply(m.chat, `⚡ ¡Tu energía ha sido completamente restaurada!`, m)
       break;
 
     // Aquí irán los demás comandos como duel, rob, marry, etc.
@@ -980,13 +1007,13 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
 
     default:
       if (args[0]) {
-        conn.reply(m.chat, `❓ Comando "${type}" no reconocido. Usa ${usedPrefix}rpg para ver la lista de comandos.`, m)
+        conn.reply(m.chat, `❓ Acción "${type}" no reconocida. Usa ${usedPrefix}rpg para ver la lista de comandos.`, m)
       }
   }
 }
 
-handler.help = ['rpg']
+handler.help = ['rpg <acción>']
 handler.tags = ['fun']
 handler.command = ['rpg']
 
-export default handler;
+export default handler
