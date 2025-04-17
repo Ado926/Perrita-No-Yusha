@@ -1,24 +1,27 @@
-import textToSpeech from '@google-cloud/text-to-speech';
-import fs from 'fs';
-import util from 'util';
+import axios from 'axios';
+import { writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
-
-const client = new textToSpeech.TextToSpeechClient();
 
 const handler = async (m, { conn, args }) => {
   let text = args.join(' ');
   if (!text && m.quoted?.text) text = m.quoted.text;
-  if (!text) throw '❗ Por favor, escribe algo para convertir a voz.';
+  if (!text) throw '⚠️ Escribe el texto que quieres convertir a voz.';
 
   try {
-    const audioBuffer = await synthesizeSpeech(text);
+    const url = `https://api.tts.quest/v3/google?text=${encodeURIComponent(text)}&lang=es-mx&voice=es-MX-Standard-A`;
+    const { data } = await axios.get(url);
+
+    if (!data || !data.mp3Url) throw '❌ Error al generar el audio.';
+    
+    const audio = await axios.get(data.mp3Url, { responseType: 'arraybuffer' });
     const filePath = join(global.__dirname(import.meta.url), '../tmp', `tts-${Date.now()}.mp3`);
-    fs.writeFileSync(filePath, audioBuffer, 'binary');
+    writeFileSync(filePath, audio.data);
+    
     await conn.sendFile(m.chat, filePath, 'voz.mp3', null, m, true);
-    fs.unlinkSync(filePath);
-  } catch (e) {
-    console.error(e);
-    m.reply('❌ Ocurrió un error generando el TTS.');
+    unlinkSync(filePath);
+  } catch (err) {
+    console.error(err);
+    m.reply('❌ Hubo un problema generando el TTS. Intenta de nuevo.');
   }
 };
 
@@ -29,13 +32,3 @@ handler.group = true;
 handler.register = true;
 
 export default handler;
-
-async function synthesizeSpeech(text) {
-  const request = {
-    input: { text },
-    voice: { languageCode: 'es-MX', name: 'es-MX-Standard-A' },
-    audioConfig: { audioEncoding: 'MP3' },
-  };
-  const [response] = await client.synthesizeSpeech(request);
-  return response.audioContent;
-}
