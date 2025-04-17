@@ -154,7 +154,7 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
 ║
 ╠══════════════════════
 ║ ℹ️ *INFO RPG* ℹ️
-║
+║ Version: 1.1.0 [BETA]
 ║ ➤ INFORMACIÓN
 ╚══════════════════════`
 
@@ -175,14 +175,14 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
 
 ¡Guau guau! Soy tu perrita guía y estoy lista para acompañarte en esta aventura rosada.
 
-Creadores: Wirk 👻 y SoyMaycol 🐻‍❄️ Versión: Beta (Prueba)
+*Creadores:* Wirk 👻 y SoyMaycol 🐻‍❄️ _Versión:_ Beta (Prueba)
 
 Selecciona la categoría de comandos que deseas explorar:
 
 ✿ Usa los comandos así: ${usedPrefix}rpg [comando]
 ✿ Ejemplos: ${usedPrefix}rpg adventure | ${usedPrefix}rpg mine | ${usedPrefix}rpg profile
 
-૮₍｡• – •｡₎ა  ¡A mover la colita, aventurer@! Grandes desafíos (y premios kawaii) te esperan.` },
+૮₍｡• – •｡₎ა  ¡A mover la colita, aventurer@! Grandes desafíos (y premios kawaii) te esperan :D` },
         nativeFlowMessage: {
           buttons: [
             {
@@ -1166,6 +1166,6 @@ ${dungeonRewards.items.length > 0 ? dungeonRewards.items.map(item => `• ${item
 
 handler.help = ['rpg <acción>']
 handler.tags = ['fun']
-handler.command = ['rpg', 'menurpg']
+handler.command = ['rpg']
 
 export default handler
