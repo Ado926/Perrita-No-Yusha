@@ -30,6 +30,11 @@ let handler = async (m, { conn, args, text }) => {
     return m.reply('⚠️ No se pudo descargar el video.');
   }
 
+  // Asegurarse de que el título se esté mostrando correctamente
+  if (!title) {
+    title = "Video de YouTube";
+  }
+
   await conn.sendMessage(m.chat, {
     text: `╭━━〔 *Descargando video...* 〕━━╮\n┃ 🎬 *${title}*\n╰━━━━━━━━━━━━━━━━━━━━╯`,
     quoted: m
