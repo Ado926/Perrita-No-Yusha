@@ -144,19 +144,15 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
       const interactiveMessage = {
         header: { title: '🌟 𝐑𝐏𝐆-𝐔𝐥𝐭𝐫𝐚 𝐕𝟑 - 🩷 Lᥱ Pᥱrrιtᥲ ᥒ᥆ Yūshᥲ 🩷' },
         hasMediaAttachment: false,
-        body: { text: `˗ˏˋ ୨୧ ʚ♡ɞ ｡ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ  
-　　　　　˗ˏˋ * ¡Bienvenid@ al Sistema RPG Rosadito de Perrita! * ˎˊ˗  
-　　　　　　　　(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ ʕ•ﻌ•ʔฅ♡ わんわん！  
-˗ˏˋ ୨୧ ʚ♡ɞ ｡ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ
+        body: { text: `꧁♡༺˖°୨ Bienvenid@ al Sistema RPG Rosadito ୧°˖༻♡꧂
 
-୨୧ ✦ Selecciona una categoría de comandos para empezar tu aventura kawaii.
+¡Guau guau! Soy tu perrita guía y estoy lista para acompañarte en esta aventura rosada.  
+Selecciona la categoría de comandos que deseas explorar:
 
-୨୧ ✦ Para usar un comando, solo escribe: `.rpg [comando]`  
-        Ejemplitos super cute: `.rpg adventure`, `.rpg mine`, `.rpg profile`
+✿ Usa los comandos así: .rpg [comando]
+✿ Ejemplos: .rpg adventure | .rpg mine | .rpg profile
 
-୨୧ ✦ ¡Ponte tu moñito y prepárate, valiente perrita! Grandes desafíos y premios adorables te esperan~
-
-｡ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ･｡･ﾟ` },
+૮₍｡• – •｡₎ა  ¡A mover la colita, aventurer@! Grandes desafíos (y premios kawaii) te esperan.` },
         nativeFlowMessage: {
           buttons: [
             {
