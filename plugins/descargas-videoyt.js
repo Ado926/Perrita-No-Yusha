@@ -5,7 +5,6 @@ let handler = async (m, { conn, text }) => {
 
   await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
 
-  // URLs de las APIs para obtener el video
   const urls = [
     `https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`,
     `https://api.fgmods.xyz/api/downloader/ytmp4?url=${text}&quality=480p&apikey=be9NqGwC`,
@@ -16,39 +15,55 @@ let handler = async (m, { conn, text }) => {
   let data = {};
   for (let url of urls) {
     try {
-      let res = await fetch(url);
-      let json = await res.json();
+      const res = await fetch(url);
+      const json = await res.json();
       data = json?.data || json?.result || json;
       if (data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0]) break;
-    } catch (error) {
-      console.error(error); // Para ver si ocurre algún error en la llamada API
+    } catch (e) {
+      console.log("[ERROR] API fallback:", e.message);
     }
   }
 
-  // Verificar que el link del video esté presente
   let link = data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0];
-  let title = data?.title || data?.info_do_video?.title || "Video de YouTube"; // Título del video
+  let title = data?.title || data?.info_do_video?.title || "Video de YouTube";
+  let duration = data?.duration || data?.duration_in_seconds || data?.duracion; // En segundos
 
   if (!link) {
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
     return m.reply('⚠️ No se pudo descargar el video.');
   }
 
-  // Mostrar mensaje de descarga con el título del video
   await conn.sendMessage(m.chat, {
-    text: `╭━━〔 *Enviando video...* 〕━━╮\n╰━━━━━━━━━━━━━━━━━━━━╯`,
+    text: `╭━━〔 *Enviando video...* 〕━━╮\n┃ 🎬 *${title}*\n╰━━━━━━━━━━━━━━━━━━━━╯`,
     quoted: m
   });
 
-  // Enviar el video con el título en el caption
-  await conn.sendMessage(m.chat, {
-    video: { url: link },
-    mimetype: "video/mp4",
-    caption: `🎬 *Aqui Tienes ꉂ(ˊᗜˋ÷)♡*\n🌸 𝘗𝘳𝘰𝘤𝘦𝘴𝘴𝘦𝘥 𝘉𝘺 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢 ✧(｡•̀ᴗ-)✧` // Título en el caption del video
-  }, { quoted: m });
+  try {
+    // Si el video dura más de 3360 segundos (56 minutos), enviarlo como documento
+    if (duration && duration > 3360) {
+      await conn.sendMessage(m.chat, {
+        document: { url: link },
+        fileName: `${title}.mp4`,
+        mimetype: 'video/mp4',
+        caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)♡*\n🌸 Procesado por *Perrita No Yusha* ✧(｡•̀ᴗ-)✧\n\n⏱ Duración: ${Math.floor(duration / 60)} min`
+      }, { quoted: m });
+    } else {
+      await conn.sendMessage(m.chat, {
+        video: { url: link },
+        mimetype: 'video/mp4',
+        caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)♡*\n🌸 Procesado por *Perrita No Yusha* ✧(｡•̀ᴗ-)✧\n\n⏱ Duración: ${duration ? Math.floor(duration / 60) + ' min' : 'Desconocida'}`
+      }, { quoted: m });
+    }
 
-  // Reacción de éxito
-  await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+  } catch (e) {
+    console.error("Error enviando el video:", e);
+    await conn.sendMessage(m.chat, {
+      text: `⚠️ Ocurrió un error enviando el video.\n🎬 *${title}*\n📎 Link directo: ${link}`,
+      quoted: m
+    });
+    await conn.sendMessage(m.chat, { react: { text: "📎", key: m.key } });
+  }
 };
 
 handler.command = ['yt', 'ytmp4', 'ytvx'];
