@@ -986,7 +986,7 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
 }
 
 handler.help = ['rpg']
-handler.tags = ['rpg']
-handler.command = ['rpg', 'rpgultra']
+handler.tags = ['fun']
+handler.command = ['rpg']
 
 export default handler;
