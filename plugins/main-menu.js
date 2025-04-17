@@ -24,7 +24,7 @@ Aquí tienes la lista de comandos:
 
 💖 *Crea un Sub-Bot con tu número utilizando #qr o #code*
 
-・ ✨ *『 Información del Bot 』* ✨ ・
+・ ✨ *『 Info de la Bot 』* ✨ ・
 
 ❀ Comandos para ver el estado e información del Bot.
 🌷 #help • #menu → *Ver lista de comandos de la Bot.*
