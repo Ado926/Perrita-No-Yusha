@@ -11,7 +11,7 @@ let gold = pickRandom([20, 5, 7, 8, 88, 40, 50]);
 let coal = pickRandom([20, 5, 7, 8, 88, 40, 50, 80, 70, 60, 100, 120, 600, 700, 64]);
 let stone = pickRandom([200, 500, 700, 800, 900, 4000, 300]);
 
-let img = 'https://files.catbox.moe/op9uhx.jpg';
+let img = 'https://i.postimg.cc/GtBWv17L/file-000000008a9c6230b04b7e1b1327afcb-conversation-id-680121d7-6730-800d-a9f8-4ecc9f1d91de-message-i.png';
 let time = user.lastmiming + 600000;
 
 if (new Date() - user.lastmiming < 600000) {
