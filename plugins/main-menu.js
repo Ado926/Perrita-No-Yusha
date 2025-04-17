@@ -23,7 +23,7 @@ let handler = async (m, { conn, args }) => {
 │ 📱 *Baileys*: Multi Device
 ╰─────────╯
 
-💖 *Crea tu propio Sub-Bot con #qr o #code*
+💖 *Crea tu propio Sub-Bot con #serbot o #code*
 
 ✨ *『 Información de la Bot 』* ✨
 ❀ Comandos para conocer el estado e información del Bot.
