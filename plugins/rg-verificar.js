@@ -39,7 +39,7 @@ regbot += `│ • ⛁ ${moneda}: *40*\n`
 regbot += `│ • ✰ Experiencia: *300*\n`
 regbot += `│ • ❖ Tokens: *20*\n`
 regbot += `│\n`
-regbot += `╰─⌦ ${dev}`
+regbot += `╰─⌦ > ${dev}`
 await m.react('✏️')
 
 await conn.sendMessage(m.chat, {
