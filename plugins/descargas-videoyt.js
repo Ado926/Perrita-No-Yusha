@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, args, text }) => {
+let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('❗ Ingresa un link de YouTube o Shorts');
 
   await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
