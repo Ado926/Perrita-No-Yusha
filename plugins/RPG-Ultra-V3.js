@@ -174,6 +174,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
         body: { text: `꧁♡༺˖°୨ Bienvenid@ al Sistema RPG Rosadito ୧°˖༻♡꧂
 
 ¡Guau guau! Soy tu perrita guía y estoy lista para acompañarte en esta aventura rosada.
+
+Creadores: Wirk 👻 y SoyMaycol 🐻‍❄️ Versión: Beta (Prueba)
+
 Selecciona la categoría de comandos que deseas explorar:
 
 ✿ Usa los comandos así: ${usedPrefix}rpg [comando]
@@ -416,18 +419,8 @@ Selecciona la categoría de comandos que deseas explorar:
                         id: `${usedPrefix}rpg buy`
                       }
                     ]
-                  },
-                  {
-                    title: 'ℹ️ INFO RPG',
-                    highlight_label: "Acerca del RPG",
-                    rows: [
-                      {
-                        title: "INFORMACIÓN",
-                        description: "Información sobre los desarrolladores",
-                        id: `rpg_info` // Cambiando el ID temporalmente
-                      }
-                    ]
                   }
+                  // Eliminando la sección de "INFORMACIÓN"
                 ]
               })
             }
@@ -454,19 +447,11 @@ Selecciona la categoría de comandos que deseas explorar:
       return;
     } catch (error) {
       console.error('Error al generar menu RPG:', error, m); // Log error and m object
-      if (m.text === 'rpg_info') { // Cambiando también aquí el ID para la prueba
-        console.log('Sending creators info to:', m.sender); // Log before sending creators info
-        return conn.reply(m.chat, 'Creadores: Wirk y Maycol 👻 Versión: Beta', m);
-      }
       return conn.reply(m.chat, helpText, m); // Fallback al texto de ayuda normal
     }
   }
 
   let type = (args[0] || '').toLowerCase()
-
-  if (m.text === 'rpg_info') { // Cambiando también aquí el ID para la prueba
-    return conn.reply(m.chat, 'Creadores: Wirk y Maycol 👻 Versión: Beta', m);
-  }
 
   //━━━━━━━━━[ IMPLEMENTACIÓN DE COMANDOS ]━━━━━━━━━//
 
@@ -529,6 +514,6 @@ Selecciona la categoría de comandos que deseas explorar:
 
 handler.help = ['rpg <acción>']
 handler.tags = ['fun']
-handler.command = ['rpg']
+handler.command = ['rpg', 'menurpg']
 
 export default handler
