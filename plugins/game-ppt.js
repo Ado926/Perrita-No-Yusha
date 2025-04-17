@@ -1,57 +1,65 @@
 const handler = async (m, { conn, text, command, usedPrefix, args }) => {
   const pp = 'https://telegra.ph/file/c7924bf0e0d839290cc51.jpg';
+  const time = global.db.data.users[m.sender].wait + 10000;
 
-  const emoji = '🎮';
-  const emoji2 = '🤝';
-
-  const now = Date.now();
-  const waitTime = 10000; // 10 segundos
-  const user = global.db.data.users[m.sender];
-
-  const time = user.wait + waitTime;
-  if (now - user.wait < waitTime) {
-    const seconds = Math.floor((time - now) / 1000);
-    throw `${emoji} Tendrás que esperar ${seconds} segundos antes de poder volver a jugar.`;
+  if (new Date - global.db.data.users[m.sender].wait < 10000) {
+    throw `⏳ Espera ${Math.floor((time - new Date()) / 1000)} segundos para volver a jugar.`;
   }
 
-  if (!args[0]) {
-    return conn.reply(m.chat, `*PIEDRA 🗿, PAPEL 📄 o TIJERA ✂️*\n\n*—◉ Usa uno de estos comandos:*\n*◉ ${usedPrefix + command} piedra*\n*◉ ${usedPrefix + command} papel*\n*◉ ${usedPrefix + command} tijera*`, m);
+  const choices = ['piedra', 'papel', 'tijera'];
+  const userChoice = text.toLowerCase();
+
+  if (!choices.includes(userChoice)) {
+    return conn.reply(m.chat, `*PIEDRA 🗿, PAPEL 📄 o TIJERA ✂️*\n\n*Usa uno de estos comandos:*\n${usedPrefix + command} piedra\n${usedPrefix + command} papel\n${usedPrefix + command} tijera\n\n*También puedes retar a alguien con:* ${usedPrefix + command} piedra @usuario`, m);
   }
 
-  let astro = Math.random();
-  if (astro < 0.34) {
-    astro = 'piedra';
-  } else if (astro < 0.67) {
-    astro = 'tijera';
+  let opponent = m.mentionedJid?.[0];
+  let botChoice = choices[Math.floor(Math.random() * choices.length)];
+  let resultMsg = '';
+  let playerName = conn.getName(m.sender);
+  let opponentName = opponent ? conn.getName(opponent) : 'El Bot';
+
+  const win = (a, b) =>
+    (a === 'piedra' && b === 'tijera') ||
+    (a === 'papel' && b === 'piedra') ||
+    (a === 'tijera' && b === 'papel');
+
+  if (opponent) {
+    if (opponent === m.sender) {
+      return m.reply('¿Jugar contigo mismo? ¡Eso está raro!');
+    }
+    botChoice = choices[Math.floor(Math.random() * choices.length)];
+    resultMsg = `*${playerName} vs ${opponentName}*\n\n👉 ${playerName}: ${userChoice}\n👉 ${opponentName}: ${botChoice}\n\n`;
+
+    if (userChoice === botChoice) {
+      resultMsg += '🤝 ¡Empate! Ambos son unos genios.';
+    } else if (win(userChoice, botChoice)) {
+      resultMsg += `🎉 ¡${playerName} gana! ¡Eres el campeón del patio!`;
+      global.db.data.users[m.sender].exp += 1000;
+    } else {
+      resultMsg += `💀 ¡${opponentName} gana! Qué triste, ${playerName}.`;
+      global.db.data.users[m.sender].exp -= 300;
+    }
   } else {
-    astro = 'papel';
+    resultMsg = `*${playerName} vs Bot*\n\n👉 Tú: ${userChoice}\n👉 Bot: ${botChoice}\n\n`;
+
+    if (userChoice === botChoice) {
+      resultMsg += '🤝 ¡Empate!';
+      global.db.data.users[m.sender].exp += 500;
+    } else if (win(userChoice, botChoice)) {
+      resultMsg += '🎉 ¡Tú ganas!';
+      global.db.data.users[m.sender].exp += 1000;
+    } else {
+      resultMsg += '💀 ¡Pierdes!';
+      global.db.data.users[m.sender].exp -= 300;
+    }
   }
 
-  const textm = text.toLowerCase();
-  let resultado = '';
-
-  if (textm === astro) {
-    user.exp += 500;
-    resultado = `*${emoji2} ¡Empate!*\n\n*👉🏻 Tú: ${textm}*\n*👉🏻 Bot: ${astro}*\n*🎁 Premio +500 XP*`;
-  } else if (
-    (textm === 'papel' && astro === 'piedra') ||
-    (textm === 'tijera' && astro === 'papel') ||
-    (textm === 'piedra' && astro === 'tijera')
-  ) {
-    user.exp += 1000;
-    resultado = `*${emoji} ¡Tú ganas! 🎉*\n\n*👉🏻 Tú: ${textm}*\n*👉🏻 Bot: ${astro}*\n*🎁 Premio +1000 XP*`;
-  } else if (['piedra', 'papel', 'tijera'].includes(textm)) {
-    user.exp -= 300;
-    resultado = `*☠️ ¡Tú pierdes! ❌*\n\n*👉🏻 Tú: ${textm}*\n*👉🏻 Bot: ${astro}*\n*❌ Premio -300 XP*`;
-  } else {
-    return conn.reply(m.chat, `❗ Opción inválida. Usa: piedra, papel o tijera`, m);
-  }
-
-  user.wait = Date.now();
-  return m.reply(resultado);
+  global.db.data.users[m.sender].wait = new Date * 1;
+  await conn.sendMessage(m.chat, { text: resultMsg, contextInfo: { externalAdReply: { title: '¡Piedra, Papel o Tijera!', mediaUrl: '', sourceUrl: '', thumbnailUrl: pp } } }, { quoted: m });
 };
 
-handler.help = ['ppt'];
+handler.help = ['ppt <piedra|papel|tijera> [@usuario]'];
 handler.tags = ['games'];
 handler.command = ['ppt'];
 handler.group = true;
