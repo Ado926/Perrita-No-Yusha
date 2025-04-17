@@ -127,6 +127,8 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
 ║ ➤ ${usedPrefix}story
 ║ ➤ ${usedPrefix}dungeon
 ║
+║ Hecho Por SoyMaycol
+║ +51 921 826 291
 ╚══════════════════════`
   
   //━━━━━━━━━[ PROCESAMIENTO DE COMANDOS ]━━━━━━━━━//
