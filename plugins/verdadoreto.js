@@ -1,4 +1,5 @@
-import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
+import pkg from '@whiskeysockets/baileys';
+const { generateWAMessageFromContent, proto } = pkg;
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
   
@@ -73,7 +74,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 }
 
 handler.help = ['verdadoreto'];
-handler.tags = ['fun'];
+handler.tags = ['juegos'];
 handler.command = ['verdadoreto', 'vd'];
 
 export default handler;
