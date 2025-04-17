@@ -299,10 +299,10 @@ let handler = async (m, { conn, args }) => {
   🧠 #ahorcado → Jugar ahorcado.
   🧞‍♂️ #genio → Preguntar al genio.
   📐 #mates / #matematicas → Resolver problemas.
-  ✋ #ppt → Jugar piedra, papel o tijeras.
+  🍀 #rpg → Muchos juegos roleplay.\n\`Juego Beta\`
   🔤 #sopa / #buscarpalabra → Jugar sopa de letras.
-  ⚔️ #pvp / #suit + <mencion> → Jugar PVP.
-  🎮 #ttt → Crear sala de juego.
+  ⚔️ #pvp / #suit + <mencion> → Jugar Piedra papel o tijera.
+  🎮 #ttt → Crear sala de juego.\n 𝗣𝗼𝗱𝗲𝗿𝗲𝘀 𝗕𝘆 𝗪𝗶𝗿𝗸 𝘆 𝗠𝗮𝘆𝗰𝗼𝗹 ⏤͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟͟
   `.trim()
 
   await conn.sendMessage(m.chat, {
