@@ -73,7 +73,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 }
 
 handler.help = ['verdadoreto'];
-handler.tags = ['juegos'];
+handler.tags = ['fun'];
 handler.command = ['verdadoreto', 'vd'];
 
 export default handler;
