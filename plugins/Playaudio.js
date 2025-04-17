@@ -62,7 +62,7 @@ let handler = async (m, { conn, text }) => {
       contextInfo: {
         externalAdReply: {
           title: video.title,
-          body: "Shadow Ultra 💚",
+          body: "Descargas PlayAudio By Perrita 🌸",
           thumbnailUrl: video.thumbnail,
           mediaType: 2,
           mediaUrl: video.url,
