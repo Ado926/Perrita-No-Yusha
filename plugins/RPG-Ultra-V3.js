@@ -21,6 +21,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
   const COOLDOWN_ROBBERY = 60 * 60 * 1000 // 1 hora
   const COOLDOWN_MARRIAGE = 24 * 60 * 60 * 1000 // 24 horas
   const COOLDOWN_RECOVER = 60 * 60 * 1000 // 1 hora para recuperar energía
+  const COOLDOWN_DUNGEON = 15 * 60 * 1000 // 15 minutos para entrar a la mazmorra
+  const STAMINA_DUNGEON_COST = 30; // Costo de energía para entrar a la mazmorra
+  const HUNGER_THRESHOLD = 20; // Umbral de hambre para empezar a perder energía
 
   //━━━━━━━━━[ VERIFICACIÓN DE BASES DE DATOS ]━━━━━━━━━//
 
@@ -44,9 +47,11 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
       house: 0, farm: 0, barn: 0, workshop: 0, shop: 0,
       // RPG - Temporizado
       lastadventure: 0, lastmining: 0, lastfarming: 0, lasthunting: 0, lastduel: 0, lastrobbery: 0, lastmarriage: 0,
-      lastrecover: 0,
+      lastrecover: 0, lastdungeon: 0,
       // RPG - Mascotas
       pet: 0, petExp: 0, petLevel: 0, petName: '',
+      // RPG - Hambre
+      hunger: 100,
 
       // Asegurándonos de que todos los campos del perfil estén inicializados
       ruby: 0,
@@ -95,6 +100,8 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
 ║ ➤ ${usedPrefix}rpg buy
 ║ ➤ ${usedPrefix}rpg shop
 ║ ➤ ${usedPrefix}rpg recover
+║ ➤ ${usedPrefix}rpg eat
+║ ➤ ${usedPrefix}rpg dungeon
 ║
 ╠══════════════════════
 ║ 🏆 *SISTEMA SOCIAL* 🏆
@@ -144,8 +151,11 @@ let handler = async (m, { conn, args, usedPrefix, command, isPrems }) => {
 ║ ➤ ${usedPrefix}rpg story
 ║ ➤ ${usedPrefix}rpg dungeon
 ║
-║ Hecho Por SoyMaycol
-║ +51 921 826 291
+╠══════════════════════
+║ 🛠️ *CREADORES* 🛠️
+║
+║ ➤ SoyMaycol
+║ ➤ Wirk versión beta
 ╚══════════════════════`
 
   //━━━━━━━━━[ PROCESAMIENTO DE COMANDOS ]━━━━━━━━━//
@@ -219,6 +229,16 @@ Selecciona la categoría de comandos que deseas explorar:
                         title: "│⚡│RECUPERAR ENERGÍA",
                         description: "Recupera tu energía para seguir aventurándote",
                         id: `${usedPrefix}rpg recover`
+                      },
+                      {
+                        title: "│🍎│COMER",
+                        description: "Consume comida para reducir el hambre",
+                        id: `${usedPrefix}rpg eat`
+                      },
+                      {
+                        title: "│ dungeon │MAZMORRA",
+                        description: "Explora peligrosas mazmorras en busca de tesoros",
+                        id: `${usedPrefix}rpg dungeon`
                       }
                     ]
                   },
@@ -395,6 +415,22 @@ Selecciona la categoría de comandos que deseas explorar:
                         id: `${usedPrefix}rpg buy`
                       }
                     ]
+                  },
+                  {
+                    title: '🛠️ CREADORES',
+                    highlight_label: "Información",
+                    rows: [
+                      {
+                        title: "│👤│SoyMaycol",
+                        description: "Desarrollador principal",
+                        id: ``
+                      },
+                      {
+                        title: "│⚙️│Wirk versión beta",
+                        description: "Colaborador y pruebas beta",
+                        id: ``
+                      }
+                    ]
                   }
                 ]
               })
@@ -473,6 +509,7 @@ Selecciona la categoría de comandos que deseas explorar:
 ║ 💍 *Matrimonio:* ${user.marriage || 'Soltero/a'}
 ╠═══════════════════
 ║ 🐾 *Mascota:* ${user.pet ? user.petName + ' (Nivel ' + user.petLevel + ')' : 'No tiene'}
+║ 😋 *Hambre:* ${user.hunger || 100}/100
 ╚═══════════════════`
       conn.sendFile(m.chat, pp, 'profile.jpg', expText, m)
       break
@@ -488,85 +525,94 @@ Selecciona la categoría de comandos que deseas explorar:
         return conn.reply(m.chat, `😫 Estás demasiado cansado para ir de aventura. Necesitas recuperar energía. Recupérate con ${usedPrefix}rpg recover`, m)
       }
 
-      let rewards = {
+      let rewardsAdventure = {
         exp: Math.floor(Math.random() * 500) + 100,
         gold: Math.floor(Math.random() * 200) + 50,
         items: []
       }
 
       // Calcular probabilidades de encuentros
-      let encounter = Math.random()
-      let encounterText = ''
+      let encounterAdventure = Math.random()
+      let encounterTextAdventure = ''
 
-      if (encounter < 0.1) {
+      if (encounterAdventure < 0.1) {
         // Encuentro peligroso - Dragon
-        encounterText = `🐉 *¡Te has encontrado con un Dragón Ancestral!*\n\n`
+        encounterTextAdventure = `🐉 *¡Te has encontrado con un Dragón Ancestral!*\n\n`
         let success = (user.strength + user.agility + user.intelligence) > 30 || Math.random() < 0.3
 
         if (success) {
-          encounterText += `Con gran valentía y estrategia, has logrado derrotar al Dragón. Entre sus tesoros encuentras:`
-          rewards.exp += 1000
-          rewards.gold += 800
-          rewards.items.push('💎 5 Diamantes')
-          rewards.items.push('❤️ 3 Rubíes')
+          encounterTextAdventure += `Con gran valentía y estrategia, has logrado derrotar al Dragón. Entre sus tesoros encuentras:`
+          rewardsAdventure.exp += 1000
+          rewardsAdventure.gold += 800
+          rewardsAdventure.items.push('💎 5 Diamantes')
+          rewardsAdventure.items.push('❤️ 3 Rubíes')
           user.diamond += 5
           user.ruby += 3
         } else {
-          encounterText += `El Dragón era demasiado fuerte. Has logrado escapar, pero con graves heridas.`
+          encounterTextAdventure += `El Dragón era demasiado fuerte. Has logrado escapar, pero con graves heridas.`
           user.health -= 50
           if (user.health < 0) user.health = 1
-          rewards.exp = Math.floor(rewards.exp / 3)
-          rewards.gold = Math.floor(rewards.gold / 4)
+          rewardsAdventure.exp = Math.floor(rewardsAdventure.exp / 3)
+          rewardsAdventure.gold = Math.floor(rewardsAdventure.gold / 4)
         }
-      } else if (encounter < 0.3) {
+      } else if (encounterAdventure < 0.3) {
         // Encuentro neutral - Mercader
-        encounterText = `🧙‍♂️ *Te encuentras con un mercader místico*\n\n`
-        encounterText += `Te ofrece un intercambio justo por tus habilidades. A cambio de ayudarlo a cruzar el bosque peligroso, te recompensa con:`
-        rewards.exp += 200
-        rewards.items.push('🧪 2 Pociones')
+        encounterTextAdventure = `🧙‍♂️ *Te encuentras con un mercader místico*\n\n`
+        encounterTextAdventure += `Te ofrece un intercambio justo por tus habilidades. A cambio de ayudarlo a cruzar el bosque peligroso, te recompensa con:`
+        rewardsAdventure.exp += 200
+        rewardsAdventure.items.push('🧪 2 Pociones')
         user.potion += 2
-      } else if (encounter < 0.6) {
+      } else if (encounterAdventure < 0.6) {
         // Encuentro beneficioso - Cofre del tesoro
-        encounterText = `🏆 *¡Has encontrado un antiguo cofre del tesoro!*\n\n`
-        encounterText += `Al abrirlo descubres un botín espléndido:`
-        rewards.gold += 300
-        rewards.items.push('🟢 2 Esmeraldas')
-        rewards.items.push('🧩 Fragmento de mapa') // Ejemplo de un objeto único
+        encounterTextAdventure = `🏆 *¡Has encontrado un antiguo cofre del tesoro!*\n\n`
+        encounterTextAdventure += `Al abrirlo descubres un botín espléndido:`
+        rewardsAdventure.gold += 300
+        rewardsAdventure.items.push('🟢 2 Esmeraldas')
+        rewardsAdventure.items.push('🧩 Fragmento de mapa') // Ejemplo de un objeto único
         user.emerald += 2
         // Aquí podrías añadir lógica para un objeto único o una misión relacionada
       } else {
         // Encuentro común - Monstruos
-        encounterText = `👾 *Te has adentrado en un nido de monstruos*\n\n`
-        encounterText += `Después de una ardua batalla, logras salir victorioso. Recolectas:`
-        rewards.items.push('🧶 5 Cuerdas')
-        rewards.items.push('🧱 3 Piedras')
-        rewards.items.push('🥩 2 Comidas')
+        encounterTextAdventure = `👾 *Te has adentrado en un nido de monstruos*\n\n`
+        encounterTextAdventure += `Después de una ardua batalla, logras salir victorioso. Recolectas:`
+        rewardsAdventure.items.push('🧶 5 Cuerdas')
+        rewardsAdventure.items.push('🧱 3 Piedras')
+        rewardsAdventure.items.push('🥩 2 Comidas')
         user.string += 5
         user.stone += 3
         user.food += 2
       }
 
       // Actualizar datos de usuario
-      user.exp += rewards.exp
-      user.gold += rewards.gold
+      user.exp += rewardsAdventure.exp
+      user.gold += rewardsAdventure.gold
       user.lastadventure = new Date
 
       // Construir mensaje de recompensa
-      let rewardText = `
-${encounterText}
+      let rewardTextAdventure = `
+${encounterTextAdventure}
 
 *🎁 Recompensas obtenidas:*
-✨ ${rewards.exp} EXP
-💰 ${rewards.gold} Oro
-${rewards.items.map(item => `• ${item}`).join('\n')}
+✨ ${rewardsAdventure.exp} EXP
+💰 ${rewardsAdventure.gold} Oro
+${rewardsAdventure.items.map(item => `• ${item}`).join('\n')}
 
 ❤️ Salud actual: ${user.health}/100
 🔋 Energía: ${user.stamina - 20}/100`
 
       user.stamina -= 20
       if (user.stamina < 0) user.stamina = 0
+      user.hunger -= 15 // La aventura consume hambre
+      if (user.hunger < HUNGER_THRESHOLD) {
+        rewardTextAdventure += `\n\n😋 Tienes hambre. Usa ${usedPrefix}rpg eat para comer.`
+        user.stamina -= 5 // Perder energía por hambre
+        if (user.stamina < 0) user.stamina = 0
+      }
+      if (user.stamina < 20) {
+        rewardTextAdventure += `\n⚡ Estás cansado. Usa ${usedPrefix}rpg recover para recuperar energía.`
+      }
 
-      conn.reply(m.chat, rewardText, m)
+      conn.reply(m.chat, rewardTextAdventure, m)
       break
 
     case 'mine':
@@ -645,6 +691,15 @@ ${rewards.items.map(item => `• ${item}`).join('\n')}
       // Consumir energía
       user.stamina -= 20
       if (user.stamina < 0) user.stamina = 0
+      user.hunger -= 10 // Minar consume hambre
+      if (user.hunger < HUNGER_THRESHOLD) {
+        miningText += `\n\n😋 Tienes hambre. Usa ${usedPrefix}rpg eat para comer.`
+        user.stamina -= 3 // Perder energía por hambre
+        if (user.stamina < 0) user.stamina = 0
+      }
+      if (user.stamina < 20) {
+        miningText += `\n⚡ Estás cansado. Usa ${usedPrefix}rpg recover para recuperar energía.`
+      }
 
       user.lastmining = new Date
 
@@ -725,6 +780,15 @@ ${miningRewards.map(item => `• ${item}`).join('\n')}
       // Consumir energía
       user.stamina -= 15
       if (user.stamina < 0) user.stamina = 0
+      user.hunger -= 12 // Cazar consume hambre
+      if (user.hunger < HUNGER_THRESHOLD) {
+        huntText += `\n\n😋 Tienes hambre. Usa ${usedPrefix}rpg eat para comer.`
+        user.stamina -= 3 // Perder energía por hambre
+        if (user.stamina < 0) user.stamina = 0
+      }
+      if (user.stamina < 15) {
+        huntText += `\n⚡ Estás cansado. Usa ${usedPrefix}rpg recover para recuperar energía.`
+      }
 
       user.lasthunting = new Date
 
@@ -783,6 +847,16 @@ ${huntRewards.map(item => `• ${item}`).join('\n')}
 
       user.stamina -= 10
       if (user.stamina < 0) user.stamina = 0
+      user.hunger -= 8 // Cultivar consume hambre
+      if (user.hunger < HUNGER_THRESHOLD) {
+        farmingText += `\n\n😋 Tienes hambre. Usa ${usedPrefix}rpg eat para comer.`
+        user.stamina -= 2 // Perder energía por hambre
+        if (user.stamina < 0) user.stamina = 0
+      }
+      if (user.stamina < 10) {
+        farmingText += `\n⚡ Estás cansado. Usa ${usedPrefix}rpg recover para recuperar energía.`
+      }
+
       user.lastfarming = new Date
 
       let finalFarmingText = `
@@ -831,6 +905,16 @@ ${farmingRewards.map(item => `• ${item}`).join('\n')}
 
       user.stamina -= 10
       if (user.stamina < 0) user.stamina = 0
+      user.hunger -= 6 // Pescar consume hambre
+      if (user.hunger < HUNGER_THRESHOLD) {
+        fishingText += `\n\n😋 Tienes hambre. Usa ${usedPrefix}rpg eat para comer.`
+        user.stamina -= 2 // Perder energía por hambre
+        if (user.stamina < 0) user.stamina = 0
+      }
+      if (user.stamina < 10) {
+        fishingText += `\n⚡ Estás cansado. Usa ${usedPrefix}rpg recover para recuperar energía.`
+      }
+
       user.lastfishingrod = new Date // Actualizar el tiempo de pesca
 
       let finalFishingText = `
@@ -920,7 +1004,7 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
         return conn.reply(m.chat, `🛒 ¿Cuánto quieres comprar? Usa: ${usedPrefix}rpg buy [cantidad] [item]`, m)
       }
       if (!args[2]) {
-        return conn.reply(m.chat, `🛒 ¿Qué quieres comprar? Las opciones son: pico, arma, pocion, semillas, hacha, cañadepescar.`, m)
+        return conn.reply(m.chat, `🛒 ¿Qué quieres comprar? Las opciones son: pico, arma, pocion, semillas, hacha, cañadepescar, comida.`, m)
       }
       let quantityToBuy = parseInt(args[1])
       let itemToBuy = args[2].toLowerCase().replace(/ /g, ''); // Eliminar espacios del nombre del objeto
@@ -932,7 +1016,8 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
         case 'semillas': cost = 20; break;
         case 'hacha': cost = 400; break;
         case 'cañadepescar': cost = 600; break;
-        default: return conn.reply(m.chat, `❓ No puedes comprar ese objeto. Las opciones son: pico, arma, pocion, semillas, hacha, cañadepescar.`, m)
+        case 'comida': cost = 50; break;
+        default: return conn.reply(m.chat, `❓ No puedes comprar ese objeto. Las opciones son: pico, arma, pocion, semillas, hacha, cañadepescar, comida.`, m)
       }
       let totalCost = quantityToBuy * cost
       if (user.gold >= totalCost) {
@@ -956,6 +1041,7 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
 ║ 🌱 *Semillas:* 20 Oro
 ║ 🪓 *Hacha:* 400 Oro
 ║ 🎣 *Caña de Pescar:* 600 Oro
+║ 🍎 *Comida:* 50 Oro
 ╠═══════════════════
 ║ Usa *${usedPrefix}rpg buy [cantidad] [item]* para comprar.
 ╚═══════════════════`
@@ -973,36 +1059,109 @@ ${fishingRewards.map(item => `• ${item}`).join('\n')}
       conn.reply(m.chat, `⚡ ¡Tu energía ha sido completamente restaurada!`, m)
       break;
 
-    // Aquí irán los demás comandos como duel, rob, marry, etc.
-    case 'duel':
-    case 'rob':
-    case 'marry':
-    case 'divorce':
-    case 'family':
-    case 'adopt':
-    case 'guild':
-    case 'clan':
-    case 'buyhouse':
-    case 'buyfarm':
-    case 'workshop':
-    case 'buildshop':
-    case 'pet':
-    case 'petadopt':
-    case 'petfeed':
-    case 'petstats':
-    case 'petadventure':
-    case 'createclan':
-    case 'joinclan':
-    case 'leaveclan':
-    case 'clanwar':
-    case 'territory':
-    case 'alliance':
-    case 'quest':
-    case 'daily':
-    case 'weekly':
-    case 'story':
+    case 'eat':
+    case 'comer':
+      if (user.food > 0) {
+        user.food -= 1
+        user.hunger = Math.min(100, user.hunger + 50) // Aumentar el hambre, máximo 100
+        conn.reply(m.chat, `😋 ¡Has comido y te sientes mejor! Hambre: ${user.hunger}/100`, m)
+      } else {
+        conn.reply(m.chat, `🍎 No tienes comida para comer. Puedes cazar o comprar en la tienda con ${usedPrefix}rpg shop`, m)
+      }
+      break;
+
     case 'dungeon':
-      conn.reply(m.chat, `🚧 Este comando aún no ha sido implementado. ¡Paciencia! 🚧`, m)
+    case 'mazmorra':
+      if (new Date - user.lastdungeon < COOLDOWN_DUNGEON) {
+        let timeLeft = COOLDOWN_DUNGEON - (new Date - user.lastdungeon)
+        return conn.reply(m.chat, `⏱️ Debes esperar ${Math.ceil(timeLeft / 60000)} minutos antes de entrar a otra mazmorra.`, m)
+      }
+
+      if (user.stamina < STAMINA_DUNGEON_COST) {
+        return conn.reply(m.chat, `😫 No tienes suficiente energía para entrar a la mazmorra. Necesitas ${STAMINA_DUNGEON_COST} de energía. Recupérate con ${usedPrefix}rpg recover`, m)
+      }
+
+      user.stamina -= STAMINA_DUNGEON_COST
+      user.lastdungeon = new Date
+      user.hunger -= 20 // Entrar a la mazmorra consume hambre
+
+      let dungeonLevel = 1; // Por ahora, solo hay un nivel de mazmorra
+      let dungeonText = `\n\n🏰 *Te adentras en la oscura mazmorra... Nivel ${dungeonLevel}*\n\n`
+      let dungeonRewards = { exp: 0, gold: 0, items: [] };
+      let survived = true;
+
+      // Simulación de encuentros (simplificado)
+      for (let i = 0; i < 3; i++) {
+        let encounterType = Math.random();
+        if (encounterType < 0.6) {
+          // Encuentro con un monstruo
+          dungeonText += `👹 *¡Encuentras un monstruo salvaje!*`
+          let monsterPower = 10 + (dungeonLevel * 5); // Poder del monstruo basado en el nivel
+          let userPower = user.strength + user.agility + user.vitality;
+          if (userPower > monsterPower + Math.random() * 15) {
+            dungeonText += `\n\n⚔️ ¡Lo derrotas con valentía!`
+            let expGain = 50 * dungeonLevel;
+            let goldGain = Math.floor(Math.random() * 30) + 10;
+            dungeonRewards.exp += expGain;
+            dungeonRewards.gold += goldGain;
+            if (Math.random() < 0.1) {
+              let itemRarity = Math.random();
+              if (itemRarity < 0.3) {
+                dungeonRewards.items.push("Hierro");
+                user.iron += 1;
+                dungeonText += `\n\n🎁 Obtienes: ⚙️ Hierro`;
+              } else if (itemRarity < 0.1) {
+                dungeonRewards.items.push("Poción");
+                user.potion += 1;
+                dungeonText += `\n\n🎁 Obtienes: 🧪 Poción`;
+              }
+            }
+            dungeonText += `\n✨ +${expGain} EXP, 💰 +${goldGain} Oro`;
+          } else {
+            dungeonText += `\n\n💀 ¡El monstruo te derrota! Logras escapar con heridas.`
+            user.health -= 20;
+            if (user.health < 0) user.health = 1;
+            survived = false;
+            break;
+          }
+        } else {
+          // Encuentro con un tesoro
+          dungeonText += `\n\n💎 *¡Encuentras un cofre brillante!*`
+          let goldGain = Math.floor(Math.random() * 50) + 20;
+          dungeonRewards.gold += goldGain;
+          dungeonText += `\n💰 +${goldGain} Oro`;
+          if (Math.random() < 0.05) {
+            dungeonRewards.items.push("Diamante");
+            user.diamond += 1;
+            dungeonText += `\n\n🎁 Obtienes: 💎 Diamante`;
+          }
+        }
+        dungeonText += `\n\n---`;
+      }
+
+      let finalDungeonText = `
+${dungeonText}
+
+${survived ? `🎉 ¡Has completado la mazmorra Nivel ${dungeonLevel}!` : `😫 No lograste completar la mazmorra Nivel ${dungeonLevel}.`}
+
+*🎁 Recompensas obtenidas:*
+✨ ${dungeonRewards.exp} EXP
+💰 ${dungeonRewards.gold} Oro
+${dungeonRewards.items.length > 0 ? dungeonRewards.items.map(item => `• ${item}`).join('\n') : '• Nada especial'}
+
+❤️ Salud restante: ${user.health}/100
+🔋 Energía restante: ${user.stamina}/100`;
+
+      if (user.hunger < HUNGER_THRESHOLD) {
+        finalDungeonText += `\n\n😋 Tienes hambre. Usa ${usedPrefix}rpg eat para comer.`
+        user.stamina -= 5 // Perder energía por hambre
+        if (user.stamina < 0) user.stamina = 0
+      }
+      if (user.stamina < 10) {
+        finalDungeonText += `\n⚡ Estás cansado. Usa ${usedPrefix}rpg recover para recuperar energía.`
+      }
+
+      conn.reply(m.chat, finalDungeonText, m)
       break;
 
     default:
