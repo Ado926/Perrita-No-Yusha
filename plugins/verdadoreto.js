@@ -25,22 +25,23 @@ const handler = async (m, { conn, usedPrefix, args }) => {
     'Te reto a enviar un mensaje de voz cantando algo.'
   ];
 
-  let text, buttons;
+  let text;
+  let buttons = [];
 
-  if (args[0]?.toLowerCase() === 'verdad') {
+  if (/^(verdad)$/i.test(args[0])) {
     text = `🟣 *Verdad:*\n${pickRandom(verdadList)}`;
     buttons = [
       { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Otra Verdad' }, type: 1 },
       { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Ir a Reto' }, type: 1 }
     ];
-  } else if (args[0]?.toLowerCase() === 'reto') {
+  } else if (/^(reto)$/i.test(args[0])) {
     text = `🔴 *Reto:*\n${pickRandom(retoList)}`;
     buttons = [
       { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Otro Reto' }, type: 1 },
       { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Ir a Verdad' }, type: 1 }
     ];
   } else {
-    text = `🎮 *Verdad o Reto*\n\nElige una opción para comenzar a jugar.`;
+    text = `🎮 *Verdad o Reto*\n\nElige una opción para comenzar.`;
     buttons = [
       { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Verdad' }, type: 1 },
       { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Reto' }, type: 1 }
@@ -52,11 +53,7 @@ const handler = async (m, { conn, usedPrefix, args }) => {
     footer: 'Perrita No Yusha • Juegos',
     buttons,
     headerType: 1,
-    contextInfo: {
-      mentionedJid: [m.sender],
-      forwardingScore: 200,
-      isForwarded: true
-    }
+    mentions: [m.sender]
   }, { quoted: m });
 };
 
