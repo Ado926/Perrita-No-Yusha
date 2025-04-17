@@ -44,7 +44,7 @@ let handler = async (m, { conn, text }) => {
   await conn.sendMessage(m.chat, {
     video: { url: link },
     mimetype: "video/mp4",
-    caption: `🎬 *Aqui Tienes ꉂ(ˊᗜˋ÷)♡*` // Título en el caption del video
+    caption: `🎬 *Aqui Tienes ꉂ(ˊᗜˋ÷)♡*\n🌸 𝘗𝘳𝘰𝘤𝘦𝘴𝘴𝘦𝘥 𝘉𝘺 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢 ✧(｡•̀ᴗ-)✧` // Título en el caption del video
   }, { quoted: m });
 
   // Reacción de éxito
