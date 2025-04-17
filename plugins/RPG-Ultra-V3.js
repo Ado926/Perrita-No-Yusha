@@ -1648,7 +1648,7 @@ ${user.questProgress >= user.activeQuest.target ? '║ ✅ *¡COMPLETADA! Reclam
 }
 
 handler.help = ['rpg']
-handler.tags = ['rpg']
+handler.tags = ['fun']
 handler.command = /^(rpg|rpgultra|ultra)$/i
 
 export default handler
