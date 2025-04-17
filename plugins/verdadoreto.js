@@ -2,7 +2,7 @@ import pkg from '@whiskeysockets/baileys';
 const { generateWAMessageFromContent, proto } = pkg;
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  
+
   // Listas de preguntas de "Verdad" y "Reto"
   const verdades = [
     '¿Es verdad que alguna vez mentiste para salir de un problema grave?',
