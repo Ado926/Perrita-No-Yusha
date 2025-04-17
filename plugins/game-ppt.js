@@ -1,3 +1,4 @@
+// Handler for .ppt command (challenge)
 const handler = async (m, { conn, text, command, usedPrefix, args }) => {
   const pp = 'https://telegra.ph/file/c7924bf0e0d839290cc51.jpg';
 
@@ -45,9 +46,9 @@ handler.tags = ['games'];
 handler.command = ['ppt'];
 handler.group = true;
 handler.register = true;
-export default handler;
 
-handler.goppt = async (m, { conn, usedPrefix, command }) => {
+// Handler for .goppt command (accept challenge)
+const goppt = async (m, { conn, usedPrefix, command }) => {
   if (!m.isGroup) {
     return conn.reply(m.chat, 'Este comando solo puede ser usado en grupos.', m);
   }
@@ -91,11 +92,11 @@ handler.goppt = async (m, { conn, usedPrefix, command }) => {
   await conn.reply(groupChat, `@${m.sender.split('@')[0]} ha aceptado el desafío. ¡Ambos jugadores deben elegir en privado!`, m, { mentions: [m.sender] });
 };
 
-handler.help = ['goppt'];
-handler.tags = ['games'];
-handler.command = ['goppt'];
-handler.group = true;
-handler.register = true;
+goppt.help = ['goppt'];
+goppt.tags = ['games'];
+goppt.command = ['goppt'];
+goppt.group = true;
+goppt.register = true;
 
-export default handler;
-                   
+export { goppt }; // Export the goppt function
+export default handler; // Export the main handler
