@@ -1166,6 +1166,6 @@ ${dungeonRewards.items.length > 0 ? dungeonRewards.items.map(item => `• ${item
 
 handler.help = ['rpg <acción>']
 handler.tags = ['fun']
-handler.command = ['rpg']
+handler.command = ['rpg', 'menurpg']
 
 export default handler
