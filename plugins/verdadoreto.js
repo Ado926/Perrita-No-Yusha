@@ -1,4 +1,4 @@
-const handler = async (m, { conn, usedPrefix, text }) => {
+const handler = async (m, { conn, usedPrefix, args }) => {
   const verdadList = [
     'Es verdad que alguna vez mentiste para salir de un problema grave.',
     'Es verdad que te has enamorado de alguien por internet.',
@@ -25,40 +25,48 @@ const handler = async (m, { conn, usedPrefix, text }) => {
     'Te reto a enviar un mensaje de voz cantando algo.'
   ];
 
-  if (text.toLowerCase() === 'verdad') {
-    const verdad = verdadList[Math.floor(Math.random() * verdadList.length)];
-    return conn.sendMessage(m.chat, { text: `🟣 *Verdad:*\n${verdad}` }, { quoted: m });
+  let text, buttons;
+
+  if (args[0]?.toLowerCase() === 'verdad') {
+    text = `🟣 *Verdad:*\n${pickRandom(verdadList)}`;
+    buttons = [
+      { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Otra Verdad' }, type: 1 },
+      { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Ir a Reto' }, type: 1 }
+    ];
+  } else if (args[0]?.toLowerCase() === 'reto') {
+    text = `🔴 *Reto:*\n${pickRandom(retoList)}`;
+    buttons = [
+      { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Otro Reto' }, type: 1 },
+      { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Ir a Verdad' }, type: 1 }
+    ];
+  } else {
+    text = `🎮 *Verdad o Reto*\n\nElige una opción para comenzar a jugar.`;
+    buttons = [
+      { buttonId: `${usedPrefix}vd verdad`, buttonText: { displayText: '🟣 Verdad' }, type: 1 },
+      { buttonId: `${usedPrefix}vd reto`, buttonText: { displayText: '🔴 Reto' }, type: 1 }
+    ];
   }
 
-  if (text.toLowerCase() === 'reto') {
-    const reto = retoList[Math.floor(Math.random() * retoList.length)];
-    return conn.sendMessage(m.chat, { text: `🔴 *Reto:*\n${reto}` }, { quoted: m });
-  }
-
-  const sections = [
-    {
-      title: "Opciones disponibles",
-      rows: [
-        { title: "🟣 Verdad", rowId: `${usedPrefix}vd verdad` },
-        { title: "🔴 Reto", rowId: `${usedPrefix}vd reto` }
-      ]
-    }
-  ];
-
-  const listMessage = {
-    text: '*🎮 Verdad o Reto*\n\nElige una opción:',
+  await conn.sendMessage(m.chat, {
+    text,
     footer: 'Perrita No Yusha • Juegos',
-    title: '¿Qué eliges?',
-    buttonText: 'Toca aquí para elegir',
-    sections
-  };
-
-  await conn.sendMessage(m.chat, listMessage, { quoted: m });
+    buttons,
+    headerType: 1,
+    contextInfo: {
+      mentionedJid: [m.sender],
+      forwardingScore: 200,
+      isForwarded: true
+    }
+  }, { quoted: m });
 };
 
-handler.command = /^vd$/i;
-handler.tags = ['juegos'];
 handler.help = ['vd'];
+handler.tags = ['juegos'];
+handler.command = ['vd'];
 handler.register = true;
 
 export default handler;
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
