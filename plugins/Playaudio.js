@@ -58,11 +58,11 @@ let handler = async (m, { conn, text }) => {
       audio: { url: apiData.download.url },
       mimetype: "audio/mpeg",
       ptt: true,
-      fileName: `${video.title} - Shadow Ultra Edited.mp3`,
+      fileName: `${video.title} - PerritaNoYusha.mp3`,
       contextInfo: {
         externalAdReply: {
           title: video.title,
-          body: "Shadow Ultra Edited",
+          body: "✵𝙋𝙚𝙧𝙧𝙞𝙩𝙖 𝙉𝙤 𝙔𝙪𝙨𝙝𝙖✵",
           mediaType: 2,
           thumbnailUrl: video.thumbnail,
           mediaUrl: video.url,
