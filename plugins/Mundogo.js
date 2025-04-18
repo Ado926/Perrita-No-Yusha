@@ -1,48 +1,15 @@
-import fs from 'fs';
-import path from 'path';
+// En memoria, no hay base de datos
+let usersData = {};
 
-// Definir la ruta al archivo de la base de datos
-const DB_PATH = path.join(process.cwd(), 'src', 'database', 'database.json');
-
-// Función para cargar datos desde el archivo JSON
-const loadData = () => {
-    try {
-        const dbDir = path.dirname(DB_PATH);
-        if (!fs.existsSync(dbDir)) {
-            fs.mkdirSync(dbDir, { recursive: true });
-        }
-
-        if (!fs.existsSync(DB_PATH)) {
-            return {}; // Si el archivo no existe, devolver un objeto vacío
-        }
-
-        const data = fs.readFileSync(DB_PATH, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error("Error cargando la base de datos:", error);
-        return {};
-    }
-};
-
-// Función para guardar los datos en el archivo JSON
-const saveData = (data) => {
-    try {
-        fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf8');
-    } catch (error) {
-        console.error("Error guardando la base de datos:", error);
-    }
-};
-
-// Función principal que maneja los comandos
+// Comando principal
 let handler = async (m, { conn, text, command, usedPrefix }) => {
-    const usersData = loadData(); // Cargar los datos de usuarios
     const userId = m.sender; // Identificador único del usuario
     const username = m.pushName || userId.split('@')[0]; // Nombre del usuario
 
     const args = text.split(' ');
     const action = args[0]?.toLowerCase(); // Acción a ejecutar
 
-    // Comando para mostrar el menú
+    // Función para mostrar el menú
     const showMenu = () => {
         const menuMessage = `
 *[ 🎮 Comandos del Mundo GO ]*
@@ -50,8 +17,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 Usa \`${usedPrefix}${command} [comando]\`
 
 📜 \`${usedPrefix}${command} menu\` - Muestra este menú.
-✨ \`${usedPrefix}${command} registro\` - Crea tu personaje.
-👤 \`${usedPrefix}${command} perfil\` - Ve tus estadísticas.
+✨ \`${usedPrefix}${command} perfil\` - Ve tus estadísticas.
 🗺️ \`${usedPrefix}${command} explorar\` - Busca recursos o enemigos.
 ⚔️ \`${usedPrefix}${command} batalla\` - Lucha contra enemigos.
 🎒 \`${usedPrefix}${command} inventario\` - Revisa tus objetos.
@@ -69,35 +35,11 @@ _¡Prepárate para la aventura!_`;
             showMenu();
             break;
 
-        case 'registro':
-        case 'register':
-            if (usersData[userId]) {
-                return conn.reply(m.chat, `*[ ℹ️ ] ${username}, ya estás registrado en el mundo GO.*`, m);
-            }
-
-            // Registro nuevo jugador
-            usersData[userId] = {
-                name: username,
-                level: 1,
-                exp: 0,
-                health: 100,
-                attack: 10,
-                defense: 5,
-                gold: 0,
-                inventory: [],
-                pets: [], // Mascotas del usuario
-            };
-
-            saveData(usersData); // Guardar los datos
-
-            conn.reply(m.chat, `*[ 🎉 ] ¡Bienvenido al mundo GO, ${username}! Has sido registrado. Usa \`${usedPrefix}${command} perfil\` para ver tus estadísticas.`, m);
-            break;
-
         case 'perfil':
         case 'profile':
             const userData = usersData[userId];
             if (!userData) {
-                return conn.reply(m.chat, `*[ ❌ ] ${username}, no estás registrado. Usa \`${usedPrefix}${command} registro\` para empezar.`, m);
+                return conn.reply(m.chat, `*[ ❌ ] No tienes un perfil activo. Usa \`${usedPrefix}${command} registro\` para empezar.`, m);
             }
 
             const profileMessage = `
@@ -117,18 +59,29 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             break;
 
         case 'explorar':
-            const userExplore = usersData[userId];
-            if (!userExplore) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
+            if (!usersData[userId]) {
+                usersData[userId] = {
+                    name: username,
+                    level: 1,
+                    exp: 0,
+                    health: 100,
+                    attack: 10,
+                    defense: 5,
+                    gold: 0,
+                    inventory: [],
+                    pets: [],
+                };
+            }
 
             const findGold = Math.random() > 0.5; // 50% chance
             const findEnemy = Math.random() > 0.7; // 30% chance
             let changesMade = false; // Flag to track changes
 
-            let exploreResult = `*[ 🗺️ ] ${userExplore.name} exploró el área...*\n\n`;
+            let exploreResult = `*[ 🗺️ ] ${username} exploró el área...*\n\n`;
 
             if (findGold) {
                 const goldFound = Math.floor(Math.random() * 20) + 5;
-                userExplore.gold += goldFound;
+                usersData[userId].gold += goldFound;
                 exploreResult += `💰 ¡Encontraste ${goldFound} monedas de oro!\n`;
                 changesMade = true;
             }
@@ -142,70 +95,107 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             }
 
             if (changesMade) {
-                saveData(usersData); // Guardar los cambios
+                // No es necesario guardar datos, ya están en memoria
             }
 
             conn.reply(m.chat, exploreResult.trim(), m);
             break;
 
         case 'minar':
-            const userMining = usersData[userId];
-            if (!userMining) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
+            if (!usersData[userId]) {
+                usersData[userId] = {
+                    name: username,
+                    level: 1,
+                    exp: 0,
+                    health: 100,
+                    attack: 10,
+                    defense: 5,
+                    gold: 0,
+                    inventory: [],
+                    pets: [],
+                };
+            }
 
             const oreFound = Math.floor(Math.random() * 10) + 1; // Minar entre 1 y 10 recursos
-            userMining.gold += oreFound;
+            usersData[userId].gold += oreFound;
 
-            saveData(usersData); // Guardar el oro extra
-
-            conn.reply(m.chat, `*[ ⛏️ ] ${userMining.name} ha minado ${oreFound} recursos de oro. Ahora tienes ${userMining.gold} de oro.`, m);
+            conn.reply(m.chat, `*[ ⛏️ ] ${username} ha minado ${oreFound} recursos de oro. Ahora tienes ${usersData[userId].gold} de oro.`, m);
             break;
 
         case 'comprar_mascota':
-            const userBuyPet = usersData[userId];
-            if (!userBuyPet) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
+            if (!usersData[userId]) {
+                usersData[userId] = {
+                    name: username,
+                    level: 1,
+                    exp: 0,
+                    health: 100,
+                    attack: 10,
+                    defense: 5,
+                    gold: 0,
+                    inventory: [],
+                    pets: [],
+                };
+            }
 
             const petCost = 50; // Costo de una mascota
-            if (userBuyPet.gold < petCost) {
+            if (usersData[userId].gold < petCost) {
                 return conn.reply(m.chat, `*[ ❌ ] No tienes suficiente oro para comprar una mascota. Necesitas ${petCost} de oro.`, m);
             }
 
-            userBuyPet.gold -= petCost;
+            usersData[userId].gold -= petCost;
             const petName = ['Perro', 'Gato', 'Loro'][Math.floor(Math.random() * 3)]; // Elegir aleatoriamente una mascota
-            userBuyPet.pets.push(petName);
-
-            saveData(usersData); // Guardar los datos después de comprar la mascota
+            usersData[userId].pets.push(petName);
 
             conn.reply(m.chat, `*[ 🐾 ] ¡Has comprado un(a) ${petName}! Usa \`${usedPrefix}${command} alimentar_mascota\` para darle de comer.`, m);
             break;
 
         case 'alimentar_mascota':
-            const userFeedPet = usersData[userId];
-            if (!userFeedPet || userFeedPet.pets.length === 0) {
+            if (!usersData[userId] || usersData[userId].pets.length === 0) {
                 return conn.reply(m.chat, `*[ ❌ ] No tienes mascotas para alimentar. Usa \`${usedPrefix}${command} comprar_mascota\` para comprar una.`, m);
             }
 
-            const petToFeed = userFeedPet.pets[0]; // Alimentar a la primera mascota por simplicidad
-            userFeedPet.health += 10; // Aumentar la salud del jugador al alimentar
+            const petToFeed = usersData[userId].pets[0]; // Alimentar a la primera mascota por simplicidad
+            usersData[userId].health += 10; // Aumentar la salud del jugador al alimentar
 
-            saveData(usersData); // Guardar el aumento de salud
-
-            conn.reply(m.chat, `*[ 🍖 ] Has alimentado a tu ${petToFeed}, y te sientes con más energía. Tu salud ahora es ${userFeedPet.health}.`, m);
+            conn.reply(m.chat, `*[ 🍖 ] Has alimentado a tu ${petToFeed}, y te sientes con más energía. Tu salud ahora es ${usersData[userId].health}.`, m);
             break;
 
         case 'inventario':
-            const userInventory = usersData[userId];
-            if (!userInventory) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
+            if (!usersData[userId]) {
+                usersData[userId] = {
+                    name: username,
+                    level: 1,
+                    exp: 0,
+                    health: 100,
+                    attack: 10,
+                    defense: 5,
+                    gold: 0,
+                    inventory: [],
+                    pets: [],
+                };
+            }
 
-            const inventoryItems = userInventory.inventory.length > 0
-                ? userInventory.inventory.join(', ')
+            const inventoryItems = usersData[userId].inventory.length > 0
+                ? usersData[userId].inventory.join(', ')
                 : 'No tienes objetos en tu inventario aún.';
 
-            conn.reply(m.chat, `*[ 🎒 Inventario de ${userInventory.name} ]*\n\n${inventoryItems}`, m);
+            conn.reply(m.chat, `*[ 🎒 Inventario de ${username} ]*\n\n${inventoryItems}`, m);
             break;
 
         case 'batalla':
-            const userBattle = usersData[userId];
-            if (!userBattle) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
+            if (!usersData[userId]) {
+                usersData[userId] = {
+                    name: username,
+                    level: 1,
+                    exp: 0,
+                    health: 100,
+                    attack: 10,
+                    defense: 5,
+                    gold: 0,
+                    inventory: [],
+                    pets: [],
+                };
+            }
 
             const enemyHealth = Math.floor(Math.random() * 50) + 30; // Salud del enemigo entre 30 y 80
             const enemyAttack = Math.floor(Math.random() * 10) + 5; // Ataque enemigo entre 5 y 15
@@ -213,18 +203,16 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             let battleResult = `*[ ⚔️ Batalla contra enemigo ]*\n`;
             battleResult += `Enemigo tiene ${enemyHealth} de salud y ${enemyAttack} de ataque.\n`;
 
-            const userAttack = userBattle.attack; // Ataque del jugador
+            const userAttack = usersData[userId].attack; // Ataque del jugador
 
             if (userAttack >= enemyHealth) {
                 battleResult += `¡Has derrotado al enemigo!`;
-                userBattle.gold += 20; // Recompensa por derrotar al enemigo
-                userBattle.exp += 50; // Experiencia ganada
+                usersData[userId].gold += 20; // Recompensa por derrotar al enemigo
+                usersData[userId].exp += 50; // Experiencia ganada
             } else {
                 battleResult += `El enemigo te derrotó. ¡Intenta otra vez más tarde!`;
-                userBattle.health -= enemyAttack; // Reducir salud del jugador
+                usersData[userId].health -= enemyAttack; // Reducir salud del jugador
             }
-
-            saveData(usersData); // Guardar los cambios después de la batalla
 
             conn.reply(m.chat, battleResult.trim(), m);
             break;
