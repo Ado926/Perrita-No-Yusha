@@ -1,127 +1,148 @@
 import fs from 'fs';
+const path = './src/database/database.json';
 
-const dbPath = './src/database/database.json';
-let db = {};
-
-// Cargar base de datos
-if (fs.existsSync(dbPath)) {
-  db = JSON.parse(fs.readFileSync(dbPath));
-} else {
-  fs.writeFileSync(dbPath, JSON.stringify({}));
+function loadDB() {
+  if (!fs.existsSync(path)) return {};
+  return JSON.parse(fs.readFileSync(path));
 }
 
-function saveDB() {
-  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+function saveDB(db) {
+  fs.writeFileSync(path, JSON.stringify(db, null, 2));
 }
 
 export const handler = async (m, { command, args, usedPrefix }) => {
-  const user = m.sender;
-  const action = args[0]?.toLowerCase();
+  const db = loadDB();
+  const userId = m.sender;
 
-  if (!db[user]) {
-    db[user] = {
-      coins: 100,
-      exp: 0,
-      character: null,
-      pet: null,
+  // Registrar usuario si no existe
+  if (!db[userId]) {
+    db[userId] = {
+      nombre: m.name || 'Aventurero',
+      nivel: 1,
+      experiencia: 0,
+      monedas: 100,
+      personaje: null,
+      mascota: null
     };
-    saveDB();
+    saveDB(db);
+    m.reply(`🌟 Bienvenido a *Mundo GO*, ${m.name}!\nUsa *.go menu* para comenzar tu aventura.`);
+    return;
   }
 
-  const menu = `
-🌍 *Mundo GO - Menú RPG* 🌍
+  const usuario = db[userId];
+  const accion = args[0]?.toLowerCase();
 
-👤 *Perfil:* \`${usedPrefix}go perfil\`
-🎮 *Jugar:* \`${usedPrefix}go jugar\`
-🛍️ *Tienda:* \`${usedPrefix}go tienda\`
-🎁 *Comprar:* \`${usedPrefix}go comprar <personaje/mascota>\`
-✨ *Mascota:* \`${usedPrefix}go mascota\`
+  switch (accion) {
+    case 'menu':
+      m.reply(
+`🌍 *MUNDO GO - MENÚ PRINCIPAL* 🌍
+👤 Nombre: ${usuario.nombre}
+🎮 Nivel: ${usuario.nivel}
+✨ Experiencia: ${usuario.experiencia}
+💰 Monedas: ${usuario.monedas}
+🧙‍♂️ Personaje: ${usuario.personaje || 'Ninguno'}
+🐾 Mascota: ${usuario.mascota || 'Ninguna'}
 
-💾 Datos guardados automáticamente.
-`;
-
-  function send(text) {
-    m.reply(text);
-  }
-
-  // Mostrar menú con `.go` o `.go menu`
-  if (!action || action === 'menu') return send(menu);
-
-  // Comandos
-  switch (action) {
-    case 'perfil':
-      const { coins, exp, character, pet } = db[user];
-      send(`
-👤 *Tu Perfil en Mundo GO*
-
-🎖️ Personaje: ${character || 'Ninguno'}
-🐾 Mascota: ${pet || 'Ninguna'}
-💰 Coins: ${coins}
-⭐ Exp: ${exp}
-`);
+📜 Comandos disponibles:
+${usedPrefix}go registrar - Comenzar
+${usedPrefix}go aventura - Ir a una misión
+${usedPrefix}go tienda - Ver personajes y mascotas
+${usedPrefix}go comprar [nombre] - Comprar personaje o mascota
+${usedPrefix}go estado - Ver tus datos`
+      );
       break;
 
-    case 'jugar':
+    case 'aventura':
       const ganado = Math.floor(Math.random() * 50) + 10;
-      db[user].coins += ganado;
-      db[user].exp += 5;
-      saveDB();
-      send(`🎮 Jugaste una partida y ganaste ${ganado} coins y 5 EXP.`);
+      const exp = Math.floor(Math.random() * 15) + 5;
+      usuario.monedas += ganado;
+      usuario.experiencia += exp;
+      saveDB(db);
+      m.reply(
+`⚔️ Te aventuraste en una peligrosa misión...
+🏆 Ganaste ${ganado} monedas y ${exp} de experiencia.
+🎉 ¡Sigue jugando para subir de nivel!`
+      );
+      break;
+
+    case 'estado':
+      m.reply(
+`📊 *TU ESTADO EN MUNDO GO* 📊
+👤 Nombre: ${usuario.nombre}
+🎮 Nivel: ${usuario.nivel}
+✨ Experiencia: ${usuario.experiencia}
+💰 Monedas: ${usuario.monedas}
+🧙‍♂️ Personaje: ${usuario.personaje || 'Ninguno'}
+🐾 Mascota: ${usuario.mascota || 'Ninguna'}`
+      );
       break;
 
     case 'tienda':
-      send(`
-🛍️ *Tienda de Mundo GO*
+      m.reply(
+`🛒 *TIENDA DE MUNDO GO* 🛒
+*Personajes:*
+- Mago (300 monedas)
+- Guerrero (350 monedas)
+- Arquera (320 monedas)
 
-🎖️ Personajes:
-- Guerrero (100 coins)
-- Hechicero (120 coins)
+*Mascotas:*
+- Dragón (500 monedas)
+- Gato Ninja (400 monedas)
 
-🐾 Mascotas:
-- Lobo (80 coins)
-- Gato (70 coins)
-
-Compra con: \`${usedPrefix}go comprar <nombre>\`
-`);
+Usa: ${usedPrefix}go comprar [nombre]`
+      );
       break;
 
     case 'comprar':
-      const item = args[1]?.toLowerCase();
-      if (!item) return send('❌ Especifica qué quieres comprar.');
-      const precios = {
-        guerrero: 100,
-        hechicero: 120,
-        lobo: 80,
-        gato: 70
+      const item = args.slice(1).join(' ');
+      if (!item) return m.reply('❗ Especifica qué quieres comprar');
+
+      const personajes = {
+        'mago': 300,
+        'guerrero': 350,
+        'arquera': 320
       };
 
-      if (!precios[item]) return send('❌ Ese personaje o mascota no existe.');
+      const mascotas = {
+        'dragón': 500,
+        'gato ninja': 400
+      };
 
-      const precio = precios[item];
-      if (db[user].coins < precio) return send('💸 No tienes suficientes coins.');
+      const lower = item.toLowerCase();
 
-      db[user].coins -= precio;
-      if (['guerrero', 'hechicero'].includes(item)) {
-        db[user].character = item;
+      if (personajes[lower]) {
+        if (usuario.monedas >= personajes[lower]) {
+          usuario.monedas -= personajes[lower];
+          usuario.personaje = item;
+          saveDB(db);
+          m.reply(`✅ Compraste al personaje: *${item}*`);
+        } else {
+          m.reply('❌ No tienes suficientes monedas.');
+        }
+      } else if (mascotas[lower]) {
+        if (usuario.monedas >= mascotas[lower]) {
+          usuario.monedas -= mascotas[lower];
+          usuario.mascota = item;
+          saveDB(db);
+          m.reply(`✅ Compraste la mascota: *${item}*`);
+        } else {
+          m.reply('❌ No tienes suficientes monedas.');
+        }
       } else {
-        db[user].pet = item;
+        m.reply('❓ Ese personaje o mascota no existe.');
       }
-
-      saveDB();
-      send(`✅ Compraste *${item}* por ${precio} coins.`);
       break;
 
-    case 'mascota':
-      const mascota = db[user].pet;
-      if (!mascota) return send('❌ No tienes ninguna mascota.');
-      send(`🐾 Tu mascota actual es: *${mascota}*`);
+    case 'registrar':
+      m.reply('✅ Ya estás registrado en Mundo GO.');
       break;
 
     default:
-      send('❌ Comando no reconocido. Usa `.go menu` para ver las opciones.');
+      m.reply(`⚠️ Comando no válido. Usa *.go menu* para ver opciones.`);
+      break;
   }
 };
 
 handler.command = ['go'];
 handler.help = ['go'];
-handler.tags = ['rpg'];
+handler.tags = ['fun'];
