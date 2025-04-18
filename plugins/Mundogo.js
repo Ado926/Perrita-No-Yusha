@@ -1,182 +1,127 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'fs';
 
-const DB_PATH = path.join(process.cwd(), 'src', 'database', 'database.json')
+const dbPath = './src/database/database.json';
+let db = {};
 
-const loadData = () => {
-  try {
-    const dbDir = path.dirname(DB_PATH)
-    if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true })
-    if (!fs.existsSync(DB_PATH)) return {}
-    const data = fs.readFileSync(DB_PATH, 'utf8')
-    return JSON.parse(data)
-  } catch (e) {
-    console.error('Error loading DB:', e)
-    return {}
-  }
+// Cargar base de datos
+if (fs.existsSync(dbPath)) {
+  db = JSON.parse(fs.readFileSync(dbPath));
+} else {
+  fs.writeFileSync(dbPath, JSON.stringify({}));
 }
 
-const saveData = (data) => {
-  try {
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf8')
-  } catch (e) {
-    console.error('Error saving DB:', e)
-  }
+function saveDB() {
+  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
 }
 
-let handler = async (m, { conn, text, command, usedPrefix }) => {
-  const users = loadData()
-  const id = m.sender
-  const name = m.pushName || id.split('@')[0]
-  const args = text.split(' ')
-  const action = args[0]?.toLowerCase()
+export const handler = async (m, { command, args, usedPrefix }) => {
+  const user = m.sender;
+  const action = args[0]?.toLowerCase();
 
-  const send = (msg) => conn.reply(m.chat, msg.trim(), m)
+  if (!db[user]) {
+    db[user] = {
+      coins: 100,
+      exp: 0,
+      character: null,
+      pet: null,
+    };
+    saveDB();
+  }
 
   const menu = `
-┏━━━━━━━🌍 *Mundo GO* 🌍━━━━━━━┓
-┃ Usa: ${usedPrefix}${command} [comando]
-┃
-┃ ⚔️ registro - Crear personaje
-┃ 👤 perfil - Ver estadísticas
-┃ 🛒 tienda - Comprar objetos
-┃ 🧭 explorar - Buscar recursos
-┃ 🎒 inventario - Ver mochila
-┃ ⚔️ batalla - Pelear enemigo
-┃ ⬆️ subirnivel - Mejorar nivel
-┃ 🐾 mascota - Adopta mascota
-┃ 🎯 misión - Hacer misiones
-┗━━━━━━━━━━━━━━━━━━━━━━┛
-  `.trim()
+🌍 *Mundo GO - Menú RPG* 🌍
 
-  if (!action) return send(menu)
+👤 *Perfil:* \`${usedPrefix}go perfil\`
+🎮 *Jugar:* \`${usedPrefix}go jugar\`
+🛍️ *Tienda:* \`${usedPrefix}go tienda\`
+🎁 *Comprar:* \`${usedPrefix}go comprar <personaje/mascota>\`
+✨ *Mascota:* \`${usedPrefix}go mascota\`
 
+💾 Datos guardados automáticamente.
+`;
+
+  function send(text) {
+    m.reply(text);
+  }
+
+  // Mostrar menú con `.go` o `.go menu`
+  if (!action || action === 'menu') return send(menu);
+
+  // Comandos
   switch (action) {
-    case 'registro':
-      if (users[id]) return send(`Ya estás registrado, ${name}. Usa *${usedPrefix}${command} perfil*`)
-      users[id] = {
-        name, level: 1, exp: 0, health: 100, attack: 10, defense: 5,
-        gold: 50, inventory: [], pet: null, mission: null
-      }
-      saveData(users)
-      return send(`¡Bienvenido, ${name}! Te has unido al Mundo GO.`)
-
     case 'perfil':
-      if (!users[id]) return send(`Regístrate con *${usedPrefix}${command} registro*`)
-      const u = users[id]
-      return send(`
-🌟 *Perfil de ${u.name}*
-✨ Nivel: ${u.level}
-🧪 EXP: ${u.exp}/${u.level * 100}
-❤️ Salud: ${u.health}
-⚔️ Ataque: ${u.attack}
-🛡️ Defensa: ${u.defense}
-💰 Oro: ${u.gold}
-🐾 Mascota: ${u.pet ? u.pet : 'Ninguna'}
-🎒 Inventario: ${u.inventory.length} objetos
-`)
+      const { coins, exp, character, pet } = db[user];
+      send(`
+👤 *Tu Perfil en Mundo GO*
 
-    case 'explorar':
-      if (!users[id]) return send(`Primero regístrate.`)
-      let oro = Math.floor(Math.random() * 20)
-      users[id].gold += oro
-      users[id].exp += 10
-      saveData(users)
-      return send(`Exploraste una cueva y ganaste 💰 ${oro} de oro y +10 EXP.`)
+🎖️ Personaje: ${character || 'Ninguno'}
+🐾 Mascota: ${pet || 'Ninguna'}
+💰 Coins: ${coins}
+⭐ Exp: ${exp}
+`);
+      break;
 
-    case 'batalla':
-      if (!users[id]) return send(`Primero regístrate.`)
-      let enemigoHP = Math.floor(Math.random() * 30 + 20)
-      let daño = users[id].attack
-      let result = ''
-      if (daño >= enemigoHP) {
-        let exp = 20, gold = 15
-        users[id].exp += exp
-        users[id].gold += gold
-        result = `¡Derrotaste al enemigo!\nGanaste +${exp} EXP y ${gold} oro.`
-      } else {
-        let dmg = Math.floor(enemigoHP / 10)
-        users[id].health -= dmg
-        result = `¡El enemigo te atacó!\nPerdiste ${dmg} de salud.`
-      }
-      saveData(users)
-      return send(result)
-
-    case 'subirnivel':
-      if (!users[id]) return send(`Primero regístrate.`)
-      const user = users[id]
-      const reqExp = user.level * 100
-      if (user.exp >= reqExp) {
-        user.level++
-        user.exp -= reqExp
-        user.attack += 5
-        user.defense += 3
-        user.health = 100
-        saveData(users)
-        return send(`¡Subiste a nivel ${user.level}! Tus estadísticas mejoraron.`)
-      } else {
-        return send(`Te faltan ${reqExp - user.exp} EXP para subir de nivel.`)
-      }
-
-    case 'inventario':
-      if (!users[id]) return send(`Primero regístrate.`)
-      let inv = users[id].inventory
-      if (inv.length === 0) return send(`Tu inventario está vacío.`)
-      return send(`🎒 Inventario:\n${inv.map(i => `- ${i}`).join('\n')}`)
+    case 'jugar':
+      const ganado = Math.floor(Math.random() * 50) + 10;
+      db[user].coins += ganado;
+      db[user].exp += 5;
+      saveDB();
+      send(`🎮 Jugaste una partida y ganaste ${ganado} coins y 5 EXP.`);
+      break;
 
     case 'tienda':
-      return send(`
-🛒 *Tienda del Mundo GO*
+      send(`
+🛍️ *Tienda de Mundo GO*
 
-1. Espada de Madera - 20 oro
-2. Poción de Vida - 15 oro
-3. Escudo - 25 oro
+🎖️ Personajes:
+- Guerrero (100 coins)
+- Hechicero (120 coins)
 
-Usa: *${usedPrefix}${command} comprar [objeto]*
-`)
+🐾 Mascotas:
+- Lobo (80 coins)
+- Gato (70 coins)
+
+Compra con: \`${usedPrefix}go comprar <nombre>\`
+`);
+      break;
 
     case 'comprar':
-      if (!users[id]) return send(`Primero regístrate.`)
-      const item = args[1]?.toLowerCase()
-      if (!item) return send(`Ej: *${usedPrefix}${command} comprar espada*`)
-      let costo = 0
-      switch (item) {
-        case 'espada': costo = 20; break
-        case 'pocion': costo = 15; break
-        case 'escudo': costo = 25; break
-        default: return send(`Objeto no válido.`)
+      const item = args[1]?.toLowerCase();
+      if (!item) return send('❌ Especifica qué quieres comprar.');
+      const precios = {
+        guerrero: 100,
+        hechicero: 120,
+        lobo: 80,
+        gato: 70
+      };
+
+      if (!precios[item]) return send('❌ Ese personaje o mascota no existe.');
+
+      const precio = precios[item];
+      if (db[user].coins < precio) return send('💸 No tienes suficientes coins.');
+
+      db[user].coins -= precio;
+      if (['guerrero', 'hechicero'].includes(item)) {
+        db[user].character = item;
+      } else {
+        db[user].pet = item;
       }
-      if (users[id].gold < costo) return send(`No tienes suficiente oro.`)
-      users[id].gold -= costo
-      users[id].inventory.push(item)
-      saveData(users)
-      return send(`Compraste *${item}* por ${costo} oro.`)
+
+      saveDB();
+      send(`✅ Compraste *${item}* por ${precio} coins.`);
+      break;
 
     case 'mascota':
-      if (!users[id]) return send(`Primero regístrate.`)
-      const pet = args[1]?.toLowerCase()
-      if (!pet) return send(`Ej: *${usedPrefix}${command} mascota gato*`)
-      if (users[id].pet) return send(`Ya tienes una mascota.`)
-      users[id].pet = pet
-      saveData(users)
-      return send(`Adoptaste una mascota: ${pet}`)
-
-    case 'misión':
-      if (!users[id]) return send(`Primero regístrate.`)
-      const recompensa = Math.floor(Math.random() * 30) + 10
-      users[id].gold += recompensa
-      users[id].exp += 15
-      saveData(users)
-      return send(`Completaste una misión y ganaste +15 EXP y ${recompensa} oro.`)
+      const mascota = db[user].pet;
+      if (!mascota) return send('❌ No tienes ninguna mascota.');
+      send(`🐾 Tu mascota actual es: *${mascota}*`);
+      break;
 
     default:
-      return send(`Comando inválido. Usa *${usedPrefix}${command}* para ver el menú.`)
+      send('❌ Comando no reconocido. Usa `.go menu` para ver las opciones.');
   }
-}
+};
 
-handler.command = ['go']
-handler.tags = ['rpg']
-handler.help = ['go']
-handler.register = true
-
-export default handler
+handler.command = ['go'];
+handler.help = ['go'];
+handler.tags = ['rpg'];
