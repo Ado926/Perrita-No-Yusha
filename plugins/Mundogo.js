@@ -13,7 +13,7 @@ const loadData = () => {
         }
 
         if (!fs.existsSync(DB_PATH)) {
-            return {};
+            return {}; // Si el archivo no existe, devolver un objeto vacío
         }
 
         const data = fs.readFileSync(DB_PATH, 'utf8');
@@ -88,7 +88,7 @@ _¡Prepárate para la aventura!_`;
                 pets: [], // Mascotas del usuario
             };
 
-            saveData(usersData);
+            saveData(usersData); // Guardar los datos
 
             conn.reply(m.chat, `*[ 🎉 ] ¡Bienvenido al mundo GO, ${username}! Has sido registrado. Usa \`${usedPrefix}${command} perfil\` para ver tus estadísticas.`, m);
             break;
@@ -142,7 +142,7 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             }
 
             if (changesMade) {
-                saveData(usersData);
+                saveData(usersData); // Guardar los cambios
             }
 
             conn.reply(m.chat, exploreResult.trim(), m);
@@ -155,7 +155,7 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             const oreFound = Math.floor(Math.random() * 10) + 1; // Minar entre 1 y 10 recursos
             userMining.gold += oreFound;
 
-            saveData(usersData);
+            saveData(usersData); // Guardar el oro extra
 
             conn.reply(m.chat, `*[ ⛏️ ] ${userMining.name} ha minado ${oreFound} recursos de oro. Ahora tienes ${userMining.gold} de oro.`, m);
             break;
@@ -173,7 +173,7 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             const petName = ['Perro', 'Gato', 'Loro'][Math.floor(Math.random() * 3)]; // Elegir aleatoriamente una mascota
             userBuyPet.pets.push(petName);
 
-            saveData(usersData);
+            saveData(usersData); // Guardar los datos después de comprar la mascota
 
             conn.reply(m.chat, `*[ 🐾 ] ¡Has comprado un(a) ${petName}! Usa \`${usedPrefix}${command} alimentar_mascota\` para darle de comer.`, m);
             break;
@@ -187,9 +187,35 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             const petToFeed = userFeedPet.pets[0]; // Alimentar a la primera mascota por simplicidad
             userFeedPet.health += 10; // Aumentar la salud del jugador al alimentar
 
-            saveData(usersData);
+            saveData(usersData); // Guardar el aumento de salud
 
             conn.reply(m.chat, `*[ 🍖 ] Has alimentado a tu ${petToFeed}, y te sientes con más energía. Tu salud ahora es ${userFeedPet.health}.`, m);
+            break;
+
+        case 'batalla':
+            const userBattle = usersData[userId];
+            if (!userBattle) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
+
+            const enemyHealth = Math.floor(Math.random() * 50) + 30; // Salud del enemigo entre 30 y 80
+            const enemyAttack = Math.floor(Math.random() * 10) + 5; // Ataque enemigo entre 5 y 15
+
+            let battleResult = `*[ ⚔️ Batalla contra enemigo ]*\n`;
+            battleResult += `Enemigo tiene ${enemyHealth} de salud y ${enemyAttack} de ataque.\n`;
+
+            const userAttack = userBattle.attack; // Ataque del jugador
+
+            if (userAttack >= enemyHealth) {
+                battleResult += `¡Has derrotado al enemigo!`;
+                userBattle.gold += 20; // Recompensa por derrotar al enemigo
+                userBattle.exp += 50; // Experiencia ganada
+            } else {
+                battleResult += `El enemigo te derrotó. ¡Intenta otra vez más tarde!`;
+                userBattle.health -= enemyAttack; // Reducir salud del jugador
+            }
+
+            saveData(usersData); // Guardar los cambios después de la batalla
+
+            conn.reply(m.chat, battleResult.trim(), m);
             break;
 
         default:
