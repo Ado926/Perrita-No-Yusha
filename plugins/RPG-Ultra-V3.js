@@ -294,7 +294,7 @@ Selecciona una categoría de comandos para comenzar tu aventura:
                         id: `${usedPrefix}rpg shop`
                       },
                       {
-                        title: "Contacto", 
+                        title: "│☎️│CONTACTO", 
                         description: "Algun error? Algun Bug? Habla a Soporte para Tu Ayuda!!!",
                         id: `${usedPrefix}rpg soporte`
                       },
@@ -912,8 +912,8 @@ case 'contacto':
 ┃ 
 ╰━━━━━━━━━━━━━━━━━━━━⬣
 
-📌 *RPG-Ultra V4 - Editado por:* _TuNombre_
-📌 *NombreDelBot Hecho Por:* TuNombre`, m)
+📌 *RPG-Ultra V4 - Editado por:* _Wirk_
+📌 *Perrita no Yūsha Hecho Por:* Wirk`, m)
   break
       
     // Sistema de compra de casa  
