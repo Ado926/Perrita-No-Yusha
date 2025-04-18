@@ -1,30 +1,118 @@
-import { search, download } from 'aptoide-scraper'
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+import fs from 'fs';
+import fetch from 'node-fetch';
 
-var handler = async (m, {conn, usedPrefix, command, text}) => {
-if (!text) return conn.reply(m.chat, `${emoji} Por favor, ingrese el nombre de la apk para descargarlo.`, m)
-try {
-await m.react(rwait)
-conn.reply(m.chat, `${emoji} Descargando su aplicación, espere un momento...`, m)
-let searchA = await search(text)
-let data5 = await download(searchA[0].id)
-let txt = `*乂  APTOIDE - DESCARGAS* 乂\n\n`
-txt += `☁️ *Nombre* : ${data5.name}\n`
-txt += `🔖 *Package* : ${data5.package}\n`
-txt += `🚩 *Update* : ${data5.lastup}\n`
-txt += `⚖ *Peso* :  ${data5.size}`
-await conn.sendFile(m.chat, data5.icon, 'thumbnail.jpg', txt, m) 
-await m.react(done)  
-if (data5.size.includes('GB') || data5.size.replace(' MB', '') > 999) {
-return await conn.reply(m.chat, `${emoji2} El archivo es demaciado pesado.`, m)}
-await conn.sendMessage(m.chat, {document: {url: data5.dllink}, mimetype: 'application/vnd.android.package-archive', fileName: data5.name + '.apk', caption: null}, {quoted: fkontak})
-} catch {
-return conn.reply(m.chat, `${msm} Ocurrió un fallo...`, m)}}
+// Mapa para almacenar la sesión de búsqueda de APK
+let apkSession = new Map();
 
-handler.tags = ['descargas']
-handler.help = ['apkmod']
-handler.command = ['apk', 'modapk', 'aptoide']
-handler.group = true;
-handler.register = true;
-handler.coin = 5;
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+  // Rama: Comando inicial .apk con término de búsqueda
+  if (command === 'apk' && text) {
+await m.react('📭');
+    /*const reactionMessage = await conn.sendMessage(
+      m.chat,
+      { text: `🔍 Buscando la aplicación...` },
+      { quoted: m }
+    );
+    await conn.sendMessage(
+      m.chat,
+      { react: { text: '📱', key: reactionMessage.key } },
+      { quoted: m }
+    );*/
+    try {
+      // Llamada a la API con el término de búsqueda
+      const response = await fetch(`https://delirius-apiofc.vercel.app/download/apk?query=${encodeURIComponent(text)}`);
+      const data = await response.json();
+      if (!data.status || !data.data)
+        throw new Error("No se encontró la aplicación.");
 
-export default handler
+      const app = data.data;
+      // Guardamos la sesión con la info de la app
+      apkSession.set(m.chat, { app });
+
+      // Descripción de la aplicación
+      let description = `\`\`\`◜Apk - Download◞\`\`\`\n\n`;
+      description += `° 🌴 *\`Name:\`* ${app.name}\n`;
+      description += `° 🌵 *\`Dev:\`* ${app.developer}\n`;
+      description += `° ⚖️ *\`Tamaño:\`* ${app.size}\n\n`;
+      description += `> ${dev}`;
+
+      // Botón para descarga
+      const buttons = [
+        {
+          buttonId: `${usedPrefix}apk_download`,
+          buttonText: { displayText: "☀️ Descargar 🌻" },
+          type: 1
+        }
+      ];
+
+      // Enviar mensaje con la imagen (icono de la app) y descripción
+      await conn.sendMessage(
+        m.chat,
+        {
+          image: { url: app.image },
+          caption: description,
+          buttons: buttons,
+          viewOnce: true
+        },
+        { quoted: m }
+      );
+    } catch (error) {
+      console.error("*❌ Error:*", error);
+      await conn.sendMessage(
+        m.chat,
+        { react: { text: '❌', key: reactionMessage.key } },
+        { quoted: m }
+      );
+      await conn.sendMessage(
+        m.chat,
+        { text: `*❌ Ocurrió un error:*\n${error.message || "Error desconocido"}` },
+        { quoted: m }
+      );
+    }
+    return;
+  }
+
+  // Rama: Al pulsar el botón de descarga (.apk_download)
+  if (command === 'apk_download') {
+    let session = apkSession.get(m.chat);
+    if (!session) {
+      return conn.sendMessage(
+        m.chat,
+        { text: `*⚠️ No hay sesión activa. Realiza una búsqueda usando ${usedPrefix}apk <nombre de la aplicación>*.` },
+        { quoted: m }
+      );
+    }
+    let { app } = session;
+    const downloadUrl = app.download;
+
+    await m.react('⏳');
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        document: { url: downloadUrl },
+        mimetype: "application/vnd.android.package-archive",
+        fileName: `${app.name}.apk`,
+        caption: `> Le Perrita No Yusha 🌸`
+      },
+      { quoted: m }
+    );
+
+    await m.react('✅');
+    return;
+  }
+
+  // Caso: .apk sin término de búsqueda
+  if (command === 'apk' && !text) {
+    let example = `${usedPrefix}apk WhatsApp`;
+    return conn.sendMessage(
+      m.chat,
+      { text: `*📪 Ingresa el nombre de una Apk que deseas descargar.*\n> *\`Ejemplo:\`* ${example}` },
+      { quoted: m }
+    );
+  }
+}
+
+handler.command = ['apk', 'apk_download'];
+export default handler;
