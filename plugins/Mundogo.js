@@ -192,6 +192,17 @@ _¡Usa \`${usedPrefix}${command} menu\` para ver todas las acciones!_`;
             conn.reply(m.chat, `*[ 🍖 ] Has alimentado a tu ${petToFeed}, y te sientes con más energía. Tu salud ahora es ${userFeedPet.health}.`, m);
             break;
 
+        case 'inventario':
+            const userInventory = usersData[userId];
+            if (!userInventory) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
+
+            const inventoryItems = userInventory.inventory.length > 0
+                ? userInventory.inventory.join(', ')
+                : 'No tienes objetos en tu inventario aún.';
+
+            conn.reply(m.chat, `*[ 🎒 Inventario de ${userInventory.name} ]*\n\n${inventoryItems}`, m);
+            break;
+
         case 'batalla':
             const userBattle = usersData[userId];
             if (!userBattle) return conn.reply(m.chat, `*[ ❌ ] Regístrate primero con \`${usedPrefix}${command} registro\`.*`, m);
