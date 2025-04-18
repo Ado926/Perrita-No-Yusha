@@ -15,7 +15,7 @@ const j = Math.floor(Math.random() * (i + 1));
 }
 try {
 await message.react(rwait)
-conn.reply(message.chat, `${emoji2} Descargando Su Video, espere un momento...`, message)
+conn.reply(message.chat, `🌹 Buscando en tiktok, por favor espere un momento.. 🌸`, message)
 let results = []
 let { data: response } = await axios.get('https://apis-starlights-team.koyeb.app/starlight/tiktoksearch?text=' + text)
 let searchResults = response.data
