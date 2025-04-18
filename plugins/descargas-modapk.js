@@ -1,4 +1,3 @@
-let handler = async (m, { conn, text, usedPrefix, command }) => {
 import fs from 'fs';
 import fetch from 'node-fetch';
 
@@ -112,7 +111,7 @@ await m.react('📭');
       { quoted: m }
     );
   }
-}
+};
 
 handler.command = ['apk', 'apk_download'];
 export default handler;
