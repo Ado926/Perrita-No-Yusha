@@ -146,3 +146,5 @@ Usa: ${usedPrefix}go comprar [nombre]`
 handler.command = ['go'];
 handler.help = ['go'];
 handler.tags = ['fun'];
+
+export default handler;
