@@ -73,17 +73,25 @@ let handler = async (m, { conn, text }) => {
     return m.reply('⚠️ No se pudo descargar el video. Intenta con otro enlace o espera unos minutos.');
   }
 
-  // Envío rápido del video
-  await conn.sendMessage(m.chat, {
-    text: `✅ *Video listo!*\n📤 *Enviando...*`,
-    quoted: m
-  });
+  // Verificar el tamaño del archivo (aproximadamente)
+  const res = await fetch(link);
+  const size = parseInt(res.headers.get('content-length'), 10);
 
-  await conn.sendMessage(m.chat, {
-    video: { url: link },
-    mimetype: "video/mp4",
-    caption: `🎬 *${title || 'Video de YouTube'}*\n⚡ Enviado por Perrita No Yusha`
-  }, { quoted: m });
+  // Si el archivo pesa más de 64 MB, lo enviamos como documento
+  if (size > 64 * 1024 * 1024) {
+    await conn.sendMessage(m.chat, {
+      document: { url: link },
+      mimetype: "video/mp4",
+      fileName: `${title || 'video'}.mp4`
+    }, { quoted: m });
+  } else {
+    // Si es menor o igual a 64 MB, lo enviamos como video
+    await conn.sendMessage(m.chat, {
+      video: { url: link },
+      mimetype: "video/mp4",
+      caption: `🎬 *${title || 'Video de YouTube'}*\n⚡ Enviado por Perrita No Yusha`
+    }, { quoted: m });
+  }
 
   await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 };
