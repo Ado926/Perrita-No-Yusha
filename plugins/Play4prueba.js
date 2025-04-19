@@ -1,8 +1,7 @@
 import fetch from 'node-fetch'
 import yts from 'yt-search'
-import { youtubedl, youtubedlv2 } from '@bochilteam/scraper'
 
-let limit = 100 // límite en MB
+let limit = 100 // MB
 
 let handler = async (m, { conn: star, args, usedPrefix, command }) => {
   if (!args[0]) {
@@ -18,10 +17,15 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
   try {
     let query = args.join(' ')
     let isUrl = query.includes('youtu')
+    let video
 
-    let video = isUrl
-      ? (await yts({ videoId: query.split('v=')[1] })).videos[0]
-      : (await yts(query)).videos[0]
+    if (isUrl) {
+      let ytres = await yts({ videoId: query.split('v=')[1] })
+      video = ytres.videos[0]
+    } else {
+      let ytres = await yts(query)
+      video = ytres.videos[0]
+    }
 
     if (!video) {
       await m.react('✖️')
@@ -29,30 +33,6 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
     }
 
     let { title, thumbnail, timestamp, views, ago, url } = video
-    let yt = await youtubedl(url).catch(async () => await youtubedlv2(url))
-    let videoInfo = yt.video['360p']
-
-    if (!videoInfo) {
-      await m.react('✖️')
-      return star.reply(m.chat, '✦ *No se encontró una calidad compatible para el video.*', m)
-    }
-
-    let { fileSizeH, fileSize } = videoInfo
-    let sizeMB = fileSize / (1024 * 1024)
-    let durationInMinutes = timestamp.split(':').reduce((a, b) => a * 60 + +b)
-
-    if (sizeMB >= 700) {
-      await m.react('✖️')
-      return star.reply(m.chat, '✦ *El archivo es demasiado pesado (más de 700 MB).*', m)
-    }
-
-    let caption = `✦ *Título:* » ${title}
-✦ *Duración:* » ${timestamp}
-✦ *Visitas:* » ${views}
-✦ *Subido:* » ${ago}
-✦ *Tamaño:* » ${fileSizeH}`
-
-    await star.sendFile(m.chat, thumbnail, 'thumb.jpg', caption, m)
 
     let api = await fetch(`https://api.siputzx.my.id/api/d/ytmp4?url=${url}`)
     let json = await api.json()
@@ -62,12 +42,32 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
       return star.reply(m.chat, '✦ *Error al obtener el enlace de descarga desde la API.*', m)
     }
 
-    let downloadUrl = json.data.dl
+    let { dl: downloadUrl, size, size_mb } = json.data
 
-    if (sizeMB > limit || durationInMinutes > 30) {
+    if (parseFloat(size_mb) > 700) {
+      await m.react('✖️')
+      return star.reply(m.chat, '✦ *El archivo es demasiado pesado (más de 700 MB).*', m)
+    }
+
+    let durationParts = timestamp.split(':').map(Number)
+    let durationInMinutes = durationParts.reduce((acc, val) => acc * 60 + val)
+
+    let caption = `✦ *Título:* » ${title}
+✦ *Duración:* » ${timestamp}
+✦ *Visitas:* » ${views}
+✦ *Subido:* » ${ago}
+✦ *Tamaño:* » ${size}`
+
+    await star.sendFile(m.chat, thumbnail, 'thumb.jpg', caption, m)
+
+    if (parseFloat(size_mb) > limit || durationInMinutes > 30) {
       await star.sendMessage(
         m.chat,
-        { document: { url: downloadUrl }, mimetype: 'video/mp4', fileName: `${title}.mp4` },
+        {
+          document: { url: downloadUrl },
+          mimetype: 'video/mp4',
+          fileName: `${title}.mp4`
+        },
         { quoted: m }
       )
       await m.react('📄')
@@ -84,8 +84,8 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
       )
       await m.react('✅')
     }
-  } catch (err) {
-    console.error(err)
+  } catch (e) {
+    console.error(e)
     await m.react('✖️')
     star.reply(m.chat, '✦ *Ocurrió un error al procesar tu solicitud.*', m)
   }
