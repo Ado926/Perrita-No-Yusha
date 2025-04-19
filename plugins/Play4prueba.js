@@ -1,7 +1,9 @@
-import fetch from 'node-fetch'
+import { exec } from 'child_process'
 import yts from 'yt-search'
 
 let limit = 100 // MB
+let maxDuration = 60 // minutos (1 hora)
+let maxSizeAllowed = 700 // MB
 
 let handler = async (m, { conn: star, args, usedPrefix, command }) => {
   if (!args[0]) {
@@ -34,56 +36,65 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
 
     let { title, thumbnail, timestamp, views, ago, url } = video
 
-    let api = await fetch(`https://api.siputzx.my.id/api/d/ytmp4?url=${url}`)
-    let json = await api.json()
+    // Usamos yt-dlp para obtener la información del video
+    exec(`yt-dlp -F ${url}`, (err, stdout, stderr) => {
+      if (err || stderr) {
+        console.error(stderr)
+        return star.reply(m.chat, '✦ *Error al obtener detalles del video con yt-dlp.*', m)
+      }
 
-    if (!json.data || !json.data.dl) {
-      await m.react('✖️')
-      return star.reply(m.chat, '✦ *Error al obtener el enlace de descarga desde la API.*', m)
-    }
+      // Filtrar las calidades de video disponibles (mp4)
+      let info = stdout.split('\n').filter(line => line.includes('mp4'))
 
-    let { dl: downloadUrl, size, size_mb } = json.data
+      if (!info.length) {
+        return star.reply(m.chat, '✦ *No se encontraron calidades disponibles para este video.*', m)
+      }
 
-    if (parseFloat(size_mb) > 700) {
-      await m.react('✖️')
-      return star.reply(m.chat, '✦ *El archivo es demasiado pesado (más de 700 MB).*', m)
-    }
+      // Elegir la mejor calidad disponible
+      let bestQuality = info[info.length - 1].split(' ')[0]
 
-    let durationParts = timestamp.split(':').map(Number)
-    let durationInMinutes = durationParts.reduce((acc, val) => acc * 60 + val)
+      // Obtener el enlace de descarga directo del video
+      exec(`yt-dlp -f ${bestQuality} -g ${url}`, (err, downloadUrl, stderr) => {
+        if (err || stderr) {
+          console.error(stderr)
+          return star.reply(m.chat, '✦ *Error al obtener el enlace de descarga con yt-dlp.*', m)
+        }
 
-    let caption = `✦ *Título:* » ${title}
+        // Obtener el tamaño del archivo en MB
+        exec(`yt-dlp -f ${bestQuality} --get-filesize ${url}`, (err, sizeOutput, stderr) => {
+          if (err || stderr) {
+            console.error(stderr)
+            return star.reply(m.chat, '✦ *Error al obtener el tamaño del archivo.*', m)
+          }
+
+          let size_mb = parseFloat(sizeOutput) / (1024 * 1024) // Convertir a MB
+          if (size_mb > maxSizeAllowed) {
+            return star.reply(m.chat, `✦ *El archivo es demasiado pesado.*\n\n» Tamaño: ${sizeOutput}\n» Máximo permitido: ${maxSizeAllowed} MB`, m)
+          }
+
+          // Verificar la duración del video
+          let durationParts = timestamp.split(':').map(Number)
+          let durationInMinutes = durationParts.reduce((acc, val) => acc * 60 + val)
+
+          if (durationInMinutes > maxDuration) {
+            return star.reply(m.chat, `✦ *El video es demasiado largo.*\n\n» Duración: ${timestamp}\n» Máximo permitido: ${maxDuration} minutos.`, m)
+          }
+
+          // Preparar el mensaje
+          let caption = `✦ *Título:* » ${title}
 ✦ *Duración:* » ${timestamp}
 ✦ *Visitas:* » ${views}
 ✦ *Subido:* » ${ago}
-✦ *Tamaño:* » ${size}`
+✦ *Tamaño:* » ${sizeOutput}`
 
-    await star.sendFile(m.chat, thumbnail, 'thumb.jpg', caption, m)
+          // Enviar el thumbnail y el enlace de descarga
+          await star.sendFile(m.chat, thumbnail, 'thumb.jpg', caption, m)
 
-    if (parseFloat(size_mb) > limit || durationInMinutes > 30) {
-      await star.sendMessage(
-        m.chat,
-        {
-          document: { url: downloadUrl },
-          mimetype: 'video/mp4',
-          fileName: `${title}.mp4`
-        },
-        { quoted: m }
-      )
-      await m.react('📄')
-    } else {
-      await star.sendMessage(
-        m.chat,
-        {
-          video: { url: downloadUrl },
-          caption: title,
-          mimetype: 'video/mp4',
-          fileName: `${title}.mp4`
-        },
-        { quoted: m }
-      )
-      await m.react('✅')
-    }
+          // Enviar el video como enlace de descarga
+          return star.reply(m.chat, `✦ *Descarga el video desde este enlace:*\n${downloadUrl.trim()}`, m)
+        })
+      })
+    })
   } catch (e) {
     console.error(e)
     await m.react('✖️')
@@ -91,5 +102,5 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
   }
 }
 
-handler.command = ['play4', 'playvidoc']
+handler.command = ['ytmovie', 'playmovie', 'play4']
 export default handler
