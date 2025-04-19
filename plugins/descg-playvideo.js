@@ -97,8 +97,9 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
               thumbnail: await (await conn.getFile(thumbnail))?.data,
               caption: `╭━━━〔 *🎬 VIDEO DESCARGADO* 〕━━━⬣
 ┃ 𖥨  *Título:* ${title}
-┃ 𖥨  *Formato:* MP4
+┃ 𖥨  *Formato:* Video
 ┃ 𖥨  *Duración:* ${timestamp || 'Desconocida'}
+┃ > Nota: Si quieres el video en documento, pon .play2 y el name del video.
 ╰━━━━━━━━━━━━━━━━━⬣`
             }, { quoted: m });
 
