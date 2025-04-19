@@ -51,7 +51,7 @@ let handler = async (m, { conn, text }) => {
 > ⴵ *Duración:* ${video.timestamp}
 > ✐ *Publicado:* ${video.ago}
 > 🜸 *Link:* ${video.url}
-> Nota: Si quieres el audio en documento, pon .play y el name.
+> ${dev}
 `.trim();
 
     // Enviar mensaje de espera
@@ -89,7 +89,7 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.command = ['playaudio']; // Aquí se cambió a 'play'
+handler.command = ['play']; // Aquí se cambió a 'play'
 handler.help = ['play']; // Aquí también se cambió
 handler.tags = ['play'];
 
