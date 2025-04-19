@@ -3,27 +3,36 @@ import axios from 'axios';
 
 let handler = async (m, { conn, text, usedPrefix, command, args }) => {
   try {
-    if (!text) {
-      return conn.reply(m.chat, `*🧇 Ingresa la URL del vídeo de YouTube.*`, m);
-    }
+    if (!text) return conn.reply(m.chat, `*🧇 Ingresa la URL del vídeo de YouTube.*`, m);
 
     if (!/^(?:https?:\/\/)?(?:www\.|m\.|music\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/.test(args[0])) {
-      return m.reply(`*⚠️ Enlace inválido, por favor coloque un enlace válido de YouTube.*`);
+      return m.reply(`*⚠️ Enlace inválido, por favor coloca un enlace válido de YouTube.*`);
     }
 
     m.react('🕒');
+
     let json = await ytdl(args[0]);
     let size = await getSize(json.url);
     let sizeStr = size ? await formatSize(size) : 'Desconocido';
 
     const cap = `\`\`\`◜YouTube - MP4◞\`\`\`\n\n*${json.title}*\n≡ *🌴 \`URL:\`* ${args[0]}\n≡ *⚖️ \`Peso:\`* ${sizeStr}`;
 
-    // Envío rápido sin buffer
-    await conn.sendMessage(m.chat, {
-      video: { url: json.url },
-      caption: cap,
-      mimetype: 'video/mp4'
-    }, { quoted: m });
+    // Intenta enviar como video directo desde URL
+    try {
+      await conn.sendMessage(m.chat, {
+        video: { url: json.url },
+        caption: cap,
+        mimetype: 'video/mp4',
+        fileName: `${json.title}.mp4`
+      }, { quoted: m });
+    } catch (e) {
+      // Si falla, usa buffer como respaldo
+      const buffer = await (await fetch(json.url)).buffer();
+      await conn.sendFile(m.chat, buffer, `${json.title}.mp4`, cap, m, null, {
+        asDocument: true,
+        mimetype: 'video/mp4'
+      });
+    }
 
     m.react('✅');
   } catch (e) {
@@ -52,6 +61,7 @@ async function ytdl(url) {
     "Referer": "https://id.ytmp3.mobi/",
     "Referrer-Policy": "strict-origin-when-cross-origin"
   };
+
   const initial = await fetch(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers });
   const init = await initial.json();
   const id = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
@@ -76,7 +86,6 @@ async function ytdl(url) {
 async function formatSize(bytes) {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let i = 0;
-
   if (!bytes || isNaN(bytes)) return 'Desconocido';
 
   while (bytes >= 1024 && i < units.length - 1) {
@@ -97,4 +106,4 @@ async function getSize(url) {
     console.error("Error al obtener el tamaño:", error.message);
     return null;
   }
-       }
+}
