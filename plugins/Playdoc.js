@@ -50,7 +50,7 @@ let handler = async (m, { conn, text }) => {
 > ✰ Vistas: ${video.views.toLocaleString()}
 > ⴵ Duración: ${video.timestamp}
 > 🜸 Link: ${video.url}
-> ${dev}
+\`\`\`${dev}\`\`\`
 `.trim();
 
     // Enviar mensaje de espera
