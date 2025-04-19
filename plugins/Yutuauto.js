@@ -1,35 +1,38 @@
 import axios from 'axios';
 
 const handler = async (m, { conn, usedPrefix, isCommand }) => {
-    if (isCommand) return; // No responde si es comando
+    // No responde si es un comando
+    if (isCommand) return;
 
-    // Expresión regular para detectar enlaces de YouTube sin texto adicional
-    const ytRegex = /^https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/i;
-    
-    // Verifica si el mensaje es solo un enlace de YouTube
-    const isOnlyYouTubeLink = ytRegex.test(m.text.trim());
-    if (!isOnlyYouTubeLink) return; // Solo responde si el mensaje es SOLO un enlace
+    // Extraer el enlace (sin texto adicional) del mensaje
+    const link = m.text.trim();
 
-    const url = m.text.trim();
-    await m.react('🎶');
+    // Comprobar que el mensaje sea solo un enlace de YouTube (sin texto adicional)
+    const ytRegex = /^(https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11})$/;
+    if (!ytRegex.test(link)) return;  // Si no es un enlace válido de YouTube, no responde.
+
+    await m.react('🎶'); // Reaccionar al mensaje
 
     try {
-        const info = await axios.get(`https://noembed.com/embed?url=${url}`);
+        // Obtener información del video de YouTube
+        const info = await axios.get(`https://noembed.com/embed?url=${link}`);
         const title = info.data.title;
 
+        // Crear botones para descargar como MP3 o MP4
         const buttons = [
             {
-                buttonId: `${usedPrefix}ytmp3 ${url}`,
+                buttonId: `${usedPrefix}ytmp3 ${link}`,
                 buttonText: { displayText: '🎵 Descargar MP3' },
                 type: 1
             },
             {
-                buttonId: `${usedPrefix}ytmp4 ${url}`,
+                buttonId: `${usedPrefix}ytmp4 ${link}`,
                 buttonText: { displayText: '🎬 Descargar MP4' },
                 type: 1
             }
         ];
 
+        // Enviar mensaje con el título del video y los botones
         await conn.sendMessage(
             m.chat,
             {
@@ -41,12 +44,12 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
             { quoted: m }
         );
     } catch (e) {
+        // Si ocurre algún error, responder con un mensaje de error
         return conn.reply(m.chat, '❌ No se pudo obtener el título del video.', m);
     }
 };
 
-handler.customPrefix = /^https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/i;
-handler.command = new RegExp;
+handler.command = new RegExp;  // No usar comandos específicos
 handler.group = false;
 handler.register = true;
 
