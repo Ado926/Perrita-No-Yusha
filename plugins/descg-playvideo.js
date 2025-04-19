@@ -99,7 +99,6 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 ┃ 𖥨  *Título:* ${title}
 ┃ 𖥨  *Formato:* Video
 ┃ 𖥨  *Duración:* ${timestamp || 'Desconocida'}
-┃ > Nota: Si quieres el video en documento, pon .play2 y el name del video.
 ╰━━━━━━━━━━━━━━━━━⬣`
             }, { quoted: m });
 
@@ -120,7 +119,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = ['playvideo'];
+handler.command = ['play2'];
 handler.help = ['play2'];
 handler.tags = ['downloader'];
 
