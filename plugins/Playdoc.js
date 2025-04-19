@@ -50,7 +50,7 @@ let handler = async (m, { conn, text }) => {
 > ✰ Vistas: ${video.views.toLocaleString()}
 > ⴵ Duración: ${video.timestamp}
 > 🜸 Link: ${video.url}
-> Nota: Si quieres el audio, pon .playaudio y el name.
+> ${dev}
 `.trim();
 
     // Enviar mensaje de espera
@@ -88,7 +88,7 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.command = ['play']; // Aquí se cambió a 'play'
+handler.command = ['playdoc']; // Aquí se cambió a 'play'
 handler.help = ['play']; // Aquí también se cambió
 handler.tags = ['play'];
 
