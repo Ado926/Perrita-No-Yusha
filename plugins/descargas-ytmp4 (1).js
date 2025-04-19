@@ -18,7 +18,12 @@ let handler = async (m, { conn, text, usedPrefix, command, args }) => {
 
     const cap = `\`\`\`◜YouTube - MP4◞\`\`\`\n\n*${json.title}*\n≡ *🌴 \`URL:\`* ${args[0]}\n≡ *⚖️ \`Peso:\`* ${sizeStr}`;
 
-    conn.sendFile(m.chat, await (await fetch(json.url)).buffer(), `${json.title}.mp4`, cap, m, null, { asDocument: true, mimetype: "video/mp4" });
+    // Envío rápido sin buffer
+    await conn.sendMessage(m.chat, {
+      video: { url: json.url },
+      caption: cap,
+      mimetype: 'video/mp4'
+    }, { quoted: m });
 
     m.react('✅');
   } catch (e) {
@@ -92,4 +97,4 @@ async function getSize(url) {
     console.error("Error al obtener el tamaño:", error.message);
     return null;
   }
-}
+       }
