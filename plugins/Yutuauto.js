@@ -7,8 +7,8 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
     // Obtener el texto del mensaje
     const link = m.text.trim();
 
-    // Verificar si el texto contiene un enlace de YouTube
-    if (link.startsWith("https://youtu.be/") || link.startsWith("https://www.youtube.com/watch?v=")) {
+    // Verificar si el mensaje es solo un enlace y no contiene texto adicional
+    if (link.match(/^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+/)) {
         // Reaccionar al mensaje
         await m.react('🎶');
 
