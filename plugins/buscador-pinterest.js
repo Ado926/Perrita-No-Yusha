@@ -1,7 +1,7 @@
 import axios from 'axios';
 import baileys from '@whiskeysockets/baileys';
 
-async function sendAlbumMessage(jid, medias, options = {}) {
+async function sendAlbumMessage(conn, jid, medias, options = {}) {
   if (typeof jid !== "string") {
     throw new TypeError(`jid must be string, received: ${jid} (${jid?.constructor?.name})`);
   }
@@ -132,7 +132,7 @@ let handler = async (m, { conn, text }) => {
       });
     }
 
-    await sendAlbumMessage(m.chat, medias, {
+    await sendAlbumMessage(conn, m.chat, medias, {
       caption: `◜ Pinterest Search ◞\n\n≡ 🔎 \`Búsqueda :\` "${text}"\n≡ 📄 \`Resultados :\` ${maxImages}`,
       quoted: m
     });
@@ -140,6 +140,7 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
   } catch (error) {
+    console.error(error);
     conn.reply(m.chat, 'Error al obtener imágenes de Pinterest.', m);
   }
 };
