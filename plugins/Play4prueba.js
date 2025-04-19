@@ -2,7 +2,7 @@ import { exec } from 'child_process'
 import yts from 'yt-search'
 
 let limit = 100 // MB
-let maxDuration = 60 // minutos (1 hora)
+let maxDuration = 64 // minutos (1 hora)
 let maxSizeAllowed = 700 // MB
 
 let handler = async (m, { conn: star, args, usedPrefix, command }) => {
@@ -87,7 +87,7 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
 ✦ *Subido:* » ${ago}
 ✦ *Tamaño:* » ${sizeOutput}`
 
-          // Enviar el thumbnail y el enlace de descarga
+          // Aquí es donde debe ir el await ya que la función es async
           await star.sendFile(m.chat, thumbnail, 'thumb.jpg', caption, m)
 
           // Enviar el video como enlace de descarga
@@ -102,5 +102,5 @@ let handler = async (m, { conn: star, args, usedPrefix, command }) => {
   }
 }
 
-handler.command = ['ytmovie', 'playmovie', 'play4']
+handler.command = ['ytmovie', 'playmovie']
 export default handler
