@@ -1,41 +1,44 @@
 import axios from 'axios';
 
 const handler = async (m, { conn, usedPrefix, isCommand }) => {
-    // Si es un comando, no respondemos
+    // Asegurarse de que no sea un comando
     if (isCommand) return;
 
-    // Obtener el texto del mensaje
-    const link = m.text.trim();
+    // Obtener el mensaje del usuario y limpiarlo
+    const messageContent = m.text.trim();
 
-    // Verificar si el mensaje es solo un enlace y no contiene texto adicional
-    if (link.match(/^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+/)) {
-        // Reaccionar al mensaje
+    // Verificar si el enlace está al inicio del mensaje (sin texto antes)
+    const link = messageContent.match(/^https:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+/);
+
+    // Si el enlace es válido
+    if (link) {
+        // Reaccionar al mensaje con un emoji
         await m.react('🎶');
 
         try {
-            // Obtener el título del video usando noembed.com
-            const info = await axios.get(`https://noembed.com/embed?url=${link}`);
-            const title = info.data.title;
+            // Obtener el título del video usando la API de noembed.com
+            const videoInfo = await axios.get(`https://noembed.com/embed?url=${link[0]}`);
+            const videoTitle = videoInfo.data.title;
 
-            // Crear los botones para descargar el video en MP3 o MP4
+            // Crear botones de descarga para el video
             const buttons = [
                 {
-                    buttonId: `${usedPrefix}ytmp3 ${link}`,
+                    buttonId: `${usedPrefix}ytmp3 ${link[0]}`,
                     buttonText: { displayText: '🎵 Descargar MP3' },
                     type: 1
                 },
                 {
-                    buttonId: `${usedPrefix}ytmp4 ${link}`,
+                    buttonId: `${usedPrefix}ytmp4 ${link[0]}`,
                     buttonText: { displayText: '🎬 Descargar MP4' },
                     type: 1
                 }
             ];
 
-            // Enviar mensaje con el título del video y los botones
+            // Enviar mensaje con el título y botones
             await conn.sendMessage(
                 m.chat,
                 {
-                    text: `📽️ *${title}*`,
+                    text: `📽️ *${videoTitle}*`,
                     buttons: buttons,
                     footer: 'Selecciona una opción:',
                     viewOnce: true
@@ -43,7 +46,7 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
                 { quoted: m }
             );
         } catch (e) {
-            // Si ocurre un error, enviar un mensaje de error
+            // En caso de error, enviar un mensaje de error
             return conn.reply(m.chat, '❌ No se pudo obtener el título del video.', m);
         }
     }
