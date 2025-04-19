@@ -1,6 +1,6 @@
 import { igdl } from 'ruhend-scraper';
 
-const handler = async (m, { text, conn, args }) => {
+const handler = async (m, { text, conn, args, command }) => {
   if (!args[0]) {
     return conn.reply(m.chat, `⚠️ Por favor, ingresa un enlace de Facebook.`, m);
   }
@@ -35,10 +35,13 @@ const handler = async (m, { text, conn, args }) => {
     await conn.sendMessage(m.chat, {
       video: { url: video },
       caption: `✅ *Aquí tienes tu video descargado de Facebook!*`,
-      footer: `🎬 Resolución: ${data.resolution || 'Desconocida'}\n🌐 Url: ${args[0]}`,
-      templateButtons: [
-        { index: 1, quickReplyButton: { displayText: '↪ Menú Principal 🌸', id: '.menu' } }
-      ]
+      fileName: 'facebook.mp4',
+      mimetype: 'video/mp4',
+      footer: 'Selecciona una opción:',
+      buttons: [
+        { buttonId: '.menu', buttonText: { displayText: '↪ Menú Principal 🌸' }, type: 1 }
+      ],
+      headerType: 5
     }, { quoted: m });
 
     await m.react('✅');
@@ -50,7 +53,7 @@ const handler = async (m, { text, conn, args }) => {
 
 handler.help = ['facebook', 'fb'];
 handler.tags = ['descargas'];
-handler.command = ['facebooktest', 'fbtest'];
+handler.command = ['facebook', 'fb'];
 handler.group = true;
 handler.register = true;
 handler.coin = 1;
