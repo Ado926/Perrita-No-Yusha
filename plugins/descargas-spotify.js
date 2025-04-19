@@ -1,60 +1,46 @@
-import axios from 'axios'
+import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply('❗ Escribe el nombre de la canción. Ejemplo: .spotify La brujita Aniceto Molina')
-
-  try {
-    const search = await axios.get(`https://api.sylphy.xyz/search/spotify?query=${encodeURIComponent(text)}&apikey=sylph`)
-    const results = search.data?.result
-
-    if (!results || results.length === 0) throw '❌ No se encontraron resultados para esa canción.'
-
-    const song = results[0]
-    const songUrl = song?.external_urls?.spotify
-
-    if (!songUrl) throw '❌ No se pudo obtener el enlace de la canción.'
-
-    const res = await axios.get(`https://api.sylphy.xyz/download/spotify?url=${songUrl}&apikey=sylph`)
-    const info = res.data?.result
-
-    if (!info?.download) throw '⚠️ No se pudo obtener el enlace de descarga desde Sylphy.'
-
-    const message = `「✦」*Descargando:* ${info.title}\n\n> 👤 *Artista:* ${info.artis}\n> 💽 *Álbum:* ${info.album}\n> 🕒 *Duración:* ${info.durasi}\n> 🔗 *Link:* ${songUrl}`
-
-    await conn.sendMessage(m.chat, {
-      text: message,
-      contextInfo: {
-        forwardingScore: 999,
-        isForwarded: false,
-        externalAdReply: {
-          showAdAttribution: true,
-          title: info.title,
-          body: info.artis,
-          mediaType: 1,
-          renderLargerThumbnail: true,
-          thumbnailUrl: info.image,
-          mediaUrl: info.download,
-          sourceUrl: info.download
-        }
-      }
-    }, { quoted: m })
-
-    await conn.sendMessage(m.chat, {
-      audio: { url: info.download },
-      fileName: `${info.title}.mp3`,
-      mimetype: 'audio/mp4',
-      ptt: true
-    }, { quoted: m })
-
-  } catch (err) {
-    console.error(err)
-    m.reply(typeof err === 'string' ? err : '❌ Ocurrió un error al buscar o descargar la canción.')
+let MF = async (m, { conn, args, command, usedPrefix }) => {
+  if (!args[0]) {
+    return m.reply(`🌙 Ingrese el nombre o link de Spotify\n> *Ejemplo:* ${usedPrefix + command} la brujita`);
   }
-}
 
-handler.command = ['spotify', 'splay']
-handler.help = ['spotify <nombre de la canción>']
-handler.tags = ['downloader']
-handler.register = true
+  let texto = args.join(' ');
+  let url = '';
 
-export default handler
+  // Verifica si es un enlace de Spotify
+  if (texto.includes('spotify.com/track')) {
+    url = texto;
+  } else {
+    // Búsqueda por nombre
+    m.reply('🌙 Buscando en Spotify...');
+    let search = await fetch(`https://tanakadomp.onrender.com/spotify/search?query=${encodeURIComponent(texto)}`);
+    let json = await search.json();
+
+    if (!json.status || !json.data || !json.data[0]) {
+      return m.reply('⚠️ No se encontró la canción. Intenta con otro nombre.');
+    }
+
+    url = json.data[0].url;
+  }
+
+  // Descarga desde Spotify
+  let api = await (await fetch(`https://archive-ui.tanakadomp.biz.id/download/spotify?url=${url}`)).json();
+  let force = api.result.data;
+  let imagen = force.image;
+
+  let moon = `𝚂𝙿𝙾𝚃𝙸𝙵𝚈 𝑋 𝙳𝙴𝚂𝙲𝙰𝚁𝙶𝙰\n\n`;
+  moon += `☪︎ Título: ${force.title}\n`;
+  moon += `☪︎ Artista: ${force.artis}\n`;
+  moon += `☪︎ Duración: ${force.durasi}\n`;
+  moon += `───── ･ ｡ﾟ☆: .☽ . :☆ﾟ. ─────`;
+
+  m.react('🕒');
+  await conn.sendFile(m.chat, imagen, 'MoonForce.jpg', moon, m);
+  await conn.sendMessage(m.chat, { audio: { url: force.download }, mimetype: 'audio/mpeg' }, { quoted: m });
+  m.react('✅');
+};
+
+MF.command = ['spotify', 'spotifydl', 'spdl'];
+
+export default MF;
