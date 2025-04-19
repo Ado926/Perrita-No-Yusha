@@ -1,6 +1,6 @@
 import { igdl } from 'ruhend-scraper';
 
-const handler = async (m, { text, conn, args, command }) => {
+const handler = async (m, { text, conn, args }) => {
   if (!args[0]) {
     return conn.reply(m.chat, `⚠️ Por favor, ingresa un enlace de Facebook.`, m);
   }
@@ -32,22 +32,28 @@ const handler = async (m, { text, conn, args, command }) => {
   let video = data.url;
 
   try {
+    // Enviar el video primero
     await conn.sendMessage(m.chat, {
       video: { url: video },
       caption: `✅ *Aquí tienes tu video descargado de Facebook!*`,
       fileName: 'facebook.mp4',
-      mimetype: 'video/mp4',
+      mimetype: 'video/mp4'
+    }, { quoted: m });
+
+    // Luego, mensaje con botón .menu
+    await conn.sendMessage(m.chat, {
+      text: '¿Qué deseas hacer ahora?',
       footer: 'Selecciona una opción:',
       buttons: [
         { buttonId: '.menu', buttonText: { displayText: '↪ Menú Principal 🌸' }, type: 1 }
       ],
-      headerType: 5
+      headerType: 1
     }, { quoted: m });
 
     await m.react('✅');
   } catch (e) {
     await m.react('❌');
-    return conn.reply(m.chat, `🚫 Error al enviar el video.`, m);
+    return conn.reply(m.chat, `🚫 Error al enviar el video o los botones.`, m);
   }
 };
 
