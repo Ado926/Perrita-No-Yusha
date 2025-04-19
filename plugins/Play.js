@@ -1,23 +1,24 @@
 import fetch from "node-fetch";
 import yts from "yt-search";
 
-// API 😎
+// API principal (vreden)
 const encodedApi = "aHR0cHM6Ly9hcGkudnJlZGVuLndlYi5pZC9hcGkveXRtcDM=";
 const getApiUrl = () => Buffer.from(encodedApi, "base64").toString("utf-8");
 
-const fetchWithRetries = async (url, maxRetries = 2) => {
+// API secundaria (zenkey)
+const zenApi = "https://zenkey.vercel.app/api/youtube";
+
+const fetchWithRetries = async (url, maxRetries = 1) => {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      if (data?.status === 200 && data.result?.download?.url) {
-        return data.result;
-      }
+      if (data?.status === 200 && data.result?.download?.url) return data.result;
     } catch (error) {
       console.error(`Intento ${attempt + 1} fallido:`, error.message);
     }
   }
-  throw new Error("No se pudo obtener la música después de varios intentos.");
+  return null;
 };
 
 let handler = async (m, { conn, text }) => {
@@ -31,17 +32,13 @@ let handler = async (m, { conn, text }) => {
   }
 
   try {
-    // Reacción inicial
-    await conn.sendMessage(m.chat, { react: { text: "🕒", key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: "⚡", key: m.key } });
 
     const searchResults = await yts(text.trim());
     const video = searchResults.videos[0];
     if (!video) throw new Error("No se encontraron resultados.");
 
-    const apiUrl = `${getApiUrl()}?url=${encodeURIComponent(video.url)}`;
-    const apiData = await fetchWithRetries(apiUrl);
-
-    // Mensaje de espera decorado (sin errores)
+    // Mensaje de espera decorado con toda la info
     const waitMessage = `
 ╭━━━〔 *Descargando* 〕━━━╮
 ┃ 🎧 *Título:* ${video.title}
@@ -50,21 +47,38 @@ let handler = async (m, { conn, text }) => {
 ┃ ⏱ *Duración:* ${video.timestamp}
 ┃ 📅 *Publicado:* ${video.ago}
 ┃ 🔗 *Enlace:* ${video.url}
-╰━━━━━━━━━━━━━━━━━━╯`;
+╰━━━━━━━━━━━━━━━━━━╯`.trim();
 
-    await conn.sendMessage(m.chat, { text: waitMessage.trim() }, { quoted: m });
+    await conn.sendMessage(m.chat, { text: waitMessage }, { quoted: m });
 
-    // Enviar audio
-    const audioMessage = {
-      audio: { url: apiData.download.url },
+    // Intentar con Vreden
+    const vredenUrl = `${getApiUrl()}?url=${encodeURIComponent(video.url)}`;
+    let audio = await fetchWithRetries(vredenUrl);
+
+    // Si falla, usar ZenKey
+    if (!audio) {
+      const res = await fetch(`${zenApi}?url=${video.url}`);
+      const json = await res.json();
+      if (json?.music?.url) {
+        audio = {
+          download: {
+            url: json.music.url,
+          },
+        };
+      }
+    }
+
+    if (!audio || !audio.download?.url) throw new Error("No se pudo obtener el audio.");
+
+    await conn.sendMessage(m.chat, {
+      audio: { url: audio.download.url },
       mimetype: "audio/mpeg",
       ptt: false,
-      fileName: `${video.title}.mp3`,
-    };
-
-    await conn.sendMessage(m.chat, audioMessage, { quoted: m });
+      fileName: `audio.mp3`,
+    }, { quoted: m });
 
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+
   } catch (error) {
     console.error("Error:", error);
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
