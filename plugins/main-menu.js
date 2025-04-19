@@ -153,7 +153,8 @@ let handler = async (m, { conn, args }) => {
   🍃 ᰔᩚ #say / #decir + [texto] → Repetir mensaje.
   🌱 ᰔᩚ #todoc / #toducument → Crear documentos.
   🍀 ᰔᩚ #translate / #traducir / #trad → Traducir idiomas.
-
+  🌹 ᰔᩚ #foto perfil + Número → Obtener la foto de perfil de algun usuario.
+  
 ✨ *『 Perfil 』* ✨
 ❀ Comandos para gestionar tu perfil.
   🌿 ᰔᩚ #reg / #verificar / #register → Registrarse.
