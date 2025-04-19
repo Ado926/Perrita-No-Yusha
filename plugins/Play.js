@@ -51,6 +51,7 @@ let handler = async (m, { conn, text }) => {
 > ⴵ *Duración:* ${video.timestamp}
 > ✐ *Publicado:* ${video.ago}
 > 🜸 *Link:* ${video.url}
+> Nota: Si quieres el audio en documento, pon .play y el name.
 `.trim();
 
     // Enviar mensaje de espera
