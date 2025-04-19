@@ -1,53 +1,44 @@
 import fetch from "node-fetch";
 import yts from "yt-search";
 
-// API de y2mate
-const y2mateApi = "https://www.y2mate.com/mates/en68/analyze/ajax";
+// API Neoxr
+const neoxrApi = "https://api.neoxr.eu/api/youtube?url=";
 
-// Función para obtener audio
-const getAudioFromVideo = async (url) => {
-  const data = new URLSearchParams();
-  data.append('url', url);
-
-  const res = await fetch(y2mateApi, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: data
-  });
-
-  const json = await res.json();
-  if (json?.status === "success" && json?.result?.url) {
-    return json.result.url; // URL del audio MP3
+// Función para obtener el enlace de descarga de la API
+const getDownloadUrl = async (videoUrl) => {
+  const apiUrl = `${neoxrApi}${encodeURIComponent(videoUrl)}&type=video&quality=480p&apikey=GataDios`;
+  const res = await fetch(apiUrl);
+  const data = await res.json();
+  if (data?.status === "success" && data?.data?.url) {
+    return data.data.url; // URL de descarga del video
   }
-  throw new Error("No se pudo obtener el audio.");
+  throw new Error("No se pudo obtener el enlace de descarga.");
 };
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
     await conn.sendMessage(m.chat, { react: { text: "❓", key: m.key } });
-    return conn.reply(m.chat, "*Ingresa el nombre de una canción*", m);
+    return conn.reply(m.chat, "*Ingresa el nombre de una canción o el enlace de un video*", m);
   }
 
   // Reacción de inicio
   await conn.sendMessage(m.chat, { react: { text: "⏱️", key: m.key } });
 
   try {
-    // Buscar el video
+    // Buscar el video en YouTube
     const searchResults = await yts(text);
     const video = searchResults.videos[0];
     if (!video) throw "No se encontró el video.";
 
-    // Mensaje de espera
+    // Mensaje de espera (sin decoración)
     await conn.sendMessage(m.chat, {
       text: `🎧 *Título:* ${video.title}\n⏱ *Duración:* ${video.timestamp}\n🔗 *Link:* ${video.url}`,
     }, { quoted: m });
 
-    // Obtener URL de audio usando y2mate
-    const audioUrl = await getAudioFromVideo(video.url);
+    // Obtener URL de descarga usando la API Neoxr
+    const audioUrl = await getDownloadUrl(video.url);
 
-    // Enviar audio
+    // Enviar audio con las configuraciones previas
     await conn.sendMessage(m.chat, {
       audio: { url: audioUrl },
       mimetype: "audio/mpeg",
