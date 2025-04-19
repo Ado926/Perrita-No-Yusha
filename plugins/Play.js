@@ -33,7 +33,7 @@ let handler = async (m, { conn, text }) => {
 │ 🎵 *Título:* ${video.title}
 │ ⏱️ *Duración:* ${video.timestamp}
 │
-╰━━━━━━━━━━━━━━━━━━━━━━╯`.trim();
+╰━━━━━━━━━━━━━━━━━━━━━╯`.trim();
     await conn.sendMessage(m.chat, { text: waitMsg }, { quoted: m });
 
     const vredenUrl = `${getApiUrl()}?url=${encodeURIComponent(video.url)}`;
