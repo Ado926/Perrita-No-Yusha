@@ -51,6 +51,7 @@ let handler = async (m, { conn, text }) => {
 > ⴵ Duración: ${video.timestamp}
 > ❒ Tamaño: ${apiData.size ? apiData.size : 'Desconocido'}
 > 🜸 Link: ${video.url}
+> Nota: Si quieres el audio, pon .playaudio y el name.
 `.trim();
 
     // Enviar mensaje de espera
