@@ -119,7 +119,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = ['play2'];
+handler.command = ['playvideo'];
 handler.help = ['play2'];
 handler.tags = ['downloader'];
 
