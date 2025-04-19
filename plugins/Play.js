@@ -51,7 +51,7 @@ let handler = async (m, { conn, text }) => {
 > ⴵ *Duración:* ${video.timestamp}
 > ✐ *Publicado:* ${video.ago}
 > 🜸 *Link:* ${video.url}
-> ${dev}
+\`\`\`${dev}\`\`\`
 `.trim();
 
     // Enviar mensaje de espera
