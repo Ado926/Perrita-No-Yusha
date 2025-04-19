@@ -1,14 +1,11 @@
 import axios from 'axios';
 
-const handler = async (m, { conn, usedPrefix, isCommand }) => {
-    // Asegurarse de que no sea un comando
-    if (isCommand) return;
-
+const handler = async (m, { conn, usedPrefix }) => {
     // Obtener el mensaje del usuario y limpiarlo
     const messageContent = m.text.trim();
 
-    // Verificar si el enlace está al inicio del mensaje (sin texto antes)
-    const link = messageContent.match(/^https:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+/);
+    // Verificar si el enlace comienza con 'https://youtube.com' o 'https://youtu.be'
+    const link = messageContent.match(/^https:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+(\?[\w=&]+)?/);
 
     // Si el enlace es válido
     if (link) {
@@ -49,6 +46,9 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
             // En caso de error, enviar un mensaje de error
             return conn.reply(m.chat, '❌ No se pudo obtener el título del video.', m);
         }
+    } else {
+        // Si no es un enlace válido, no hacer nada
+        return;
     }
 };
 
