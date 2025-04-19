@@ -3,26 +3,23 @@ import fetch from 'node-fetch';
 let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('❗ Ingresa un link de YouTube o Shorts');
 
-  await conn.sendMessage(m.chat, { react: { text: "⏱️", key: m.key } });
+  await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
 
   let link = '';
 
-  // Intentamos primero con ZenKey (muy rápido)
+  // Intentamos primero con ZenKey (rápido)
   try {
     const zen = await fetch(`https://zenkey.vercel.app/api/youtube?url=${text}`);
     const z = await zen.json();
 
     if (z?.video && z?.video.startsWith('http')) {
       link = z.video;
-      console.log('[ZenKey OK]');
-    } else {
-      console.log('[ZenKey sin link válido]:', z);
     }
   } catch (e) {
     console.log('[Error en ZenKey]:', e);
   }
 
-  // Backups en caso de fallo
+  // Si ZenKey falla, intentamos con los backups
   if (!link) {
     const backups = [
       `https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`,
@@ -37,32 +34,30 @@ let handler = async (m, { conn, text }) => {
         let json = await res.json();
         let d = json?.data || json?.result || json;
         link = d?.url || d?.download_url || d?.dl_url || d?.downloads?.link?.[0];
-        if (link) {
-          console.log('[Backup API OK]');
-          break;
-        }
+        if (link) break;
       } catch (err) {
         console.log('[Backup API falló]:', err);
       }
     }
   }
 
+  // Si no encontramos el link del video
   if (!link) {
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
     return m.reply('⚠️ No se pudo descargar el video. Puede estar restringido o la URL es inválida.');
   }
 
-  // Mensaje de espera con diseño bonito
+  // Enviar el video sin retraso
   await conn.sendMessage(m.chat, {
     text: `╭───────◇◆◇───────╮\n│ ✅ *Video descargado*\n│ 📤 *Enviando videoo...*\n╰───────◇◆◇───────╯`,
     quoted: m
   });
 
-  // Envío del video
+  // Enviar el video de manera rápida
   await conn.sendMessage(m.chat, {
     video: { url: link },
     mimetype: "video/mp4",
-    caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)*\n🌸 𝘗𝘳𝘰𝘤𝘦𝘴𝘴𝘦𝘥 𝘉𝘺 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢`
+    caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)*\n🌸 𝘗𝘳𝘰𝘤𝘦𝘴𝘴𝘦𝘥 𝘉𝘺 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘙𝘦𝘢𝘢`
   }, { quoted: m });
 
   await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
