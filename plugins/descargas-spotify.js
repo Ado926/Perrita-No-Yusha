@@ -1,60 +1,60 @@
 import axios from 'axios'
 
-let handler = async (m, { conn, text, command }) => {
-  if (!text) return m.reply('❗ Por favor escribe el nombre de una canción para buscar.')
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+  if (!text) return m.reply('❗ Escribe el nombre de la canción. Ejemplo: .spotify La brujita Aniceto Molina')
 
   try {
-    await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } })
+    const search = await axios.get(`https://api.sylphy.xyz/search/spotify?query=${encodeURIComponent(text)}&apikey=sylph`)
+    const results = search.data?.result
 
-    // Buscar en la API de Sylphy por nombre
-    const searchRes = await axios.get(`https://api.sylphy.xyz/search/spotify?query=${encodeURIComponent(text)}&apikey=sylph`)
-    const tracks = searchRes.data?.result?.tracks
+    if (!results || results.length === 0) throw '❌ No se encontraron resultados para esa canción.'
 
-    if (!tracks || !tracks.length) return m.reply('⚠️ No se encontraron resultados.')
+    const song = results[0]
+    const songUrl = song?.external_urls?.spotify
 
-    const track = tracks[0] // Tomamos el primer resultado
+    if (!songUrl) throw '❌ No se pudo obtener el enlace de la canción.'
 
-    const downloadRes = await axios.get(`https://api.sylphy.xyz/download/spotify?url=${track.url}&apikey=sylph`)
-    const data = downloadRes.data?.result
+    const res = await axios.get(`https://api.sylphy.xyz/download/spotify?url=${songUrl}&apikey=sylph`)
+    const info = res.data?.result
 
-    if (!data || !data.url) return m.reply('⚠️ No se pudo obtener el enlace de descarga desde Sylphy.')
+    if (!info?.download) throw '⚠️ No se pudo obtener el enlace de descarga desde Sylphy.'
 
-    let info = `「✦」*Descargando...*\n\n> 🎵 *Título:* ${data.title}\n> 👤 *Artista:* ${data.artists}\n> 💽 *Álbum:* ${data.album}\n> 🕒 *Duración:* ${data.duration}`
+    const message = `「✦」*Descargando:* ${info.title}\n\n> 👤 *Artista:* ${info.artis}\n> 💽 *Álbum:* ${info.album}\n> 🕒 *Duración:* ${info.durasi}\n> 🔗 *Link:* ${songUrl}`
 
     await conn.sendMessage(m.chat, {
-      text: info,
+      text: message,
       contextInfo: {
+        forwardingScore: 999,
+        isForwarded: false,
         externalAdReply: {
-          title: data.title,
-          body: "Procesado por Perrita No Yusha",
-          thumbnailUrl: data.thumbnail,
+          showAdAttribution: true,
+          title: info.title,
+          body: info.artis,
           mediaType: 1,
           renderLargerThumbnail: true,
-          mediaUrl: track.url,
-          sourceUrl: track.url
+          thumbnailUrl: info.image,
+          mediaUrl: info.download,
+          sourceUrl: info.download
         }
       }
     }, { quoted: m })
 
     await conn.sendMessage(m.chat, {
-      audio: { url: data.url },
-      fileName: `${data.title}.mp3`,
+      audio: { url: info.download },
+      fileName: `${info.title}.mp3`,
       mimetype: 'audio/mp4',
       ptt: true
     }, { quoted: m })
 
-    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
-
-  } catch (e) {
-    console.error(e)
-    m.reply('❌ Hubo un error al buscar o descargar la canción desde la API de Sylphy.')
+  } catch (err) {
+    console.error(err)
+    m.reply(typeof err === 'string' ? err : '❌ Ocurrió un error al buscar o descargar la canción.')
   }
 }
 
 handler.command = ['spotify', 'splay']
-handler.help = ['spotify <nombre de canción>']
+handler.help = ['spotify <nombre de la canción>']
 handler.tags = ['downloader']
 handler.register = true
-handler.group = false
 
 export default handler
