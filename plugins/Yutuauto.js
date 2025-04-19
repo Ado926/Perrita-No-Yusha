@@ -7,48 +7,45 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
     // Obtener el texto del mensaje
     const link = m.text.trim();
 
-    // Expresión regular que detecta enlaces de YouTube
-    const ytRegex = /https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}([?&][\w=]*)?/;
+    // Verificar si el texto contiene un enlace de YouTube
+    if (link.startsWith("https://youtu.be/") || link.startsWith("https://www.youtube.com/watch?v=")) {
+        // Reaccionar al mensaje
+        await m.react('🎶');
 
-    // Verificar si el enlace es de YouTube
-    if (!ytRegex.test(link)) return;  // No es un enlace de YouTube, no hacemos nada.
+        try {
+            // Obtener el título del video usando noembed.com
+            const info = await axios.get(`https://noembed.com/embed?url=${link}`);
+            const title = info.data.title;
 
-    // Reaccionar al mensaje
-    await m.react('🎶');
+            // Crear los botones para descargar el video en MP3 o MP4
+            const buttons = [
+                {
+                    buttonId: `${usedPrefix}ytmp3 ${link}`,
+                    buttonText: { displayText: '🎵 Descargar MP3' },
+                    type: 1
+                },
+                {
+                    buttonId: `${usedPrefix}ytmp4 ${link}`,
+                    buttonText: { displayText: '🎬 Descargar MP4' },
+                    type: 1
+                }
+            ];
 
-    try {
-        // Obtener el título del video usando noembed.com
-        const info = await axios.get(`https://noembed.com/embed?url=${link}`);
-        const title = info.data.title;
-
-        // Crear los botones para descargar el video en MP3 o MP4
-        const buttons = [
-            {
-                buttonId: `${usedPrefix}ytmp3 ${link}`,
-                buttonText: { displayText: '🎵 Descargar MP3' },
-                type: 1
-            },
-            {
-                buttonId: `${usedPrefix}ytmp4 ${link}`,
-                buttonText: { displayText: '🎬 Descargar MP4' },
-                type: 1
-            }
-        ];
-
-        // Enviar mensaje con el título del video y los botones
-        await conn.sendMessage(
-            m.chat,
-            {
-                text: `📽️ *${title}*`,
-                buttons: buttons,
-                footer: 'Selecciona una opción:',
-                viewOnce: true
-            },
-            { quoted: m }
-        );
-    } catch (e) {
-        // Si ocurre un error, enviar un mensaje de error
-        return conn.reply(m.chat, '❌ No se pudo obtener el título del video.', m);
+            // Enviar mensaje con el título del video y los botones
+            await conn.sendMessage(
+                m.chat,
+                {
+                    text: `📽️ *${title}*`,
+                    buttons: buttons,
+                    footer: 'Selecciona una opción:',
+                    viewOnce: true
+                },
+                { quoted: m }
+            );
+        } catch (e) {
+            // Si ocurre un error, enviar un mensaje de error
+            return conn.reply(m.chat, '❌ No se pudo obtener el título del video.', m);
+        }
     }
 };
 
