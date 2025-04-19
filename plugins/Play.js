@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 import yts from "yt-search";
 
-// API rápida principal (ZenKey)
 const zenApi = "https://zenkey.vercel.app/api/youtube";
+const axeelApi = "https://api.axeel.repl.co/api/yta"; // respaldo
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
@@ -10,28 +10,43 @@ let handler = async (m, { conn, text }) => {
     return conn.reply(m.chat, "*Ingresa el nombre de una canción*", m);
   }
 
-  try {
-    await conn.sendMessage(m.chat, { react: { text: "⏱️", key: m.key } });
+  await conn.sendMessage(m.chat, { react: { text: "⏱️", key: m.key } });
 
-    // Buscar el video rápidamente
+  try {
     const searchResults = await yts(text);
     const video = searchResults.videos[0];
     if (!video) throw "No se encontró ningún video.";
 
-    // Enviar mensaje de espera rápido
     await conn.sendMessage(m.chat, {
       text: `🎧 *Título:* ${video.title}\n⏱ *Duración:* ${video.timestamp}\n🔗 *Link:* ${video.url}`,
     }, { quoted: m });
 
-    // Descargar desde ZenKey (super rápido)
-    const res = await fetch(`${zenApi}?url=${video.url}`);
-    const json = await res.json();
+    let audioUrl;
 
-    if (!json?.music?.url) throw "No se pudo obtener el audio.";
+    // PRIMER INTENTO: ZenKey
+    try {
+      const res = await fetch(`${zenApi}?url=${video.url}`);
+      const json = await res.json();
+      if (json?.music?.url) audioUrl = json.music.url;
+    } catch (e) {
+      console.warn("ZenKey falló:", e.message);
+    }
 
-    // Enviar el audio rápido
+    // SEGUNDO INTENTO: Axeel API
+    if (!audioUrl) {
+      try {
+        const res = await fetch(`${axeelApi}?url=${video.url}`);
+        const json = await res.json();
+        if (json?.url_audio) audioUrl = json.url_audio;
+      } catch (e) {
+        console.warn("Axeel API falló:", e.message);
+      }
+    }
+
+    if (!audioUrl) throw "No se pudo obtener el audio desde ninguna fuente.";
+
     await conn.sendMessage(m.chat, {
-      audio: { url: json.music.url },
+      audio: { url: audioUrl },
       mimetype: "audio/mpeg",
       ptt: true,
       fileName: `${video.title}.mp3`,
@@ -50,10 +65,10 @@ let handler = async (m, { conn, text }) => {
 
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    return conn.reply(m.chat, "*Error al enviar el audio.*", m);
+    conn.reply(m.chat, "*Error al enviar el audio.*", m);
   }
 };
 
