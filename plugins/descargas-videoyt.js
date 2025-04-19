@@ -3,11 +3,11 @@ import fetch from 'node-fetch';
 let handler = async (m, { conn, text }) => {
   if (!text) return m.reply('❗ Ingresa un link de YouTube o Shorts');
 
-  await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
+  await conn.sendMessage(m.chat, { react: { text: "⏱️", key: m.key } });
 
   let link = '';
 
-  // Intentamos con ZenKey API primero
+  // Intentamos primero con ZenKey (muy rápido)
   try {
     const zen = await fetch(`https://zenkey.vercel.app/api/youtube?url=${text}`);
     const z = await zen.json();
@@ -22,7 +22,7 @@ let handler = async (m, { conn, text }) => {
     console.log('[Error en ZenKey]:', e);
   }
 
-  // Si ZenKey falla, usar backups
+  // Backups en caso de fallo
   if (!link) {
     const backups = [
       `https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`,
@@ -36,7 +36,6 @@ let handler = async (m, { conn, text }) => {
         let res = await fetch(url);
         let json = await res.json();
         let d = json?.data || json?.result || json;
-
         link = d?.url || d?.download_url || d?.dl_url || d?.downloads?.link?.[0];
         if (link) {
           console.log('[Backup API OK]');
@@ -53,11 +52,13 @@ let handler = async (m, { conn, text }) => {
     return m.reply('⚠️ No se pudo descargar el video. Puede estar restringido o la URL es inválida.');
   }
 
+  // Mensaje de espera con diseño bonito
   await conn.sendMessage(m.chat, {
-    text: `╭─❍ *Descargando Video...*\n╰━━━━━━━━━━━━━⬣`,
+    text: `╭───────◇◆◇───────╮\n│ ✅ *Video descargado*\n│ 📤 *Enviando videoo...*\n╰───────◇◆◇───────╯`,
     quoted: m
   });
 
+  // Envío del video
   await conn.sendMessage(m.chat, {
     video: { url: link },
     mimetype: "video/mp4",
