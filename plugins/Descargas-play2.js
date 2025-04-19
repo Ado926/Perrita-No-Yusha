@@ -121,7 +121,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = ['play2'];
+handler.command = ['play22'];
 handler.help = ['play2'];
 handler.tags = ['downloader'];
 
