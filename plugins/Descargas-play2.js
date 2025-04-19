@@ -99,7 +99,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 ┃ 𖥨  *Título:* ${title}
 ┃ 𖥨  *Formato:* MP4
 ┃ 𖥨  *Duración:* ${timestamp || 'Desconocida'}
-┃ > Nota: Si quieres el video normal, pon .playvideo y el name del video.
+┃ \`\`\`Nota: Si quieres el video normal, pon .playvideo y el name del video.\`\`\`
 ╰━━━━━━━━━━━━━━━━━⬣`
             };
 
