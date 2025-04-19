@@ -3,7 +3,10 @@ import axios from 'axios';
 const handler = async (m, { conn, usedPrefix, isCommand }) => {
     if (isCommand) return; // No responde si es comando
 
-    const ytRegex = /^https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/;
+    // Expresión regular para detectar enlaces de YouTube sin texto adicional
+    const ytRegex = /^https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/i;
+    
+    // Verifica si el mensaje es solo un enlace de YouTube
     const isOnlyYouTubeLink = ytRegex.test(m.text.trim());
     if (!isOnlyYouTubeLink) return; // Solo responde si el mensaje es SOLO un enlace
 
@@ -16,7 +19,7 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
 
         const buttons = [
             {
-                buttonId: `${usedPrefix}play ${url}`,
+                buttonId: `${usedPrefix}ytmp3 ${url}`,
                 buttonText: { displayText: '🎵 Descargar MP3' },
                 type: 1
             },
