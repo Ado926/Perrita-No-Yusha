@@ -50,7 +50,7 @@ let handler = async (m, { conn, args, text }) => {
   m.react("✅");
 };
 
-handler.command = ['ytv', 'ytmp4', 'yt'];
+handler.command = ['ytvtest'];
 handler.register = true;
 handler.estrellas = 0;
 
