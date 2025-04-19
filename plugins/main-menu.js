@@ -19,295 +19,324 @@ let handler = async (m, { conn, args }) => {
   // global.channelRD
 
   let txt = `
-╔════ 🌸🌿✨ ${botname} ✨🌿🌸 ════╗
-║        ᴍᴇɴÚ ᴅᴇ ғᴜɴᴄɪᴏɴᴇs        ║
-╚════════════════════════════╝
+💖✨🌸🌿🍀🍃════════════🍃🍀🌿🌸✨💖
+             ${botname}
+          _ᴍᴇɴÚ ᴅᴇ ғᴜɴᴄɪᴏɴᴇs_
+💖✨🌸🌿🍀🍃════════════🍃🍀🌿🌸✨💖
 
-╭─═══ 🎀 Información General 🎀 ═══─╮
-│ 🌸 Cliente: @${userId.split('@')[0]}
-│ 🌷 Modo: Público
-│ 💖 Bot: ${(conn.user.jid == global.conn.user.jid ? 'Principal ```👑```' : 'Sub-Bot ✨')}
-│ ⏳ Activa: ${uptime}
-│ 🌿 Usuarios: ${totalreg}
-│ 🍀 Comandos: ${totalCommands}
-╰─═══════════════════════════─╯
+${''/* Espacio después del título principal */}
 
-🌱 Crea tu propio asistente: #serbot o #code 🌱
+╔═════ 🎀 Información General 🎀 ═════╗
+║ 🌸 Cliente: @${userId.split('@')[0]}
+║ 🌷 Modo: Público
+║ 💖 Bot: ${(conn.user.jid == global.conn.user.jid ? '```Principal 👑```' : 'Sub-Bot ✨')}
+║ ⏳ Activa: ${uptime}
+║ 🌿 Usuarios: ${totalreg}
+║ 🍀 Comandos: ${totalCommands}
+╚══════════════════════════════╝
 
-╭─═══ 🌐 Exploración Digital 🔍🌿 ═══─╮
-│ • #tiktoksearch [término]
-│ • #tweetposts [término]
-│ • #ytsearch / #yts [término]
-│ • #githubsearch [usuario]
-│ • #cuevana / #cuevanasearch [término]
-│ • #google [término]
-│ • #pin / #pinterest [término]
-│ • #imagen / #image [término]
-│ • #animesearch / #animess [término]
-│ • #animei / #animeinfo [nombre]
-│ • #infoanime [nombre]
-│ • #hentaisearch / #searchhentai [término]
-│ • #xnxxsearch / #xnxxs [término]
-│ • #xvsearch / #xvideossearch [término]
-│ • #pornhubsearch / #phsearch [término]
-│ • #npmjs [término]
-╰─═══════════════════════════─╯
-✨ _Encuentra información y contenido en la web._ ✨🍃
+${''/* Espacio antes y después de la línea de Sub-Bot */}
+✨🌱 Crea tu propio asistente: #serbot o #code 🌱✨
+${''/* Espacio antes del primer bloque de sección */}
 
-╭─═══ 💾 Almacén de Contenido 💾🌱 ═══─╮
-│ • #tiktok / #tt [enlace]
-│ • #mediafire / #mf [enlace]
-│ • #pinvid / #pinvideo [enlace]
-│ • #mega / #mg [enlace]
-│ • #play / #play2 [nombre/enlace]
-│ • #ytmp3 / #ytmp4 [enlace]
-│ • #fb / #facebook [enlace]
-│ • #twitter / #x [enlace]
-│ • #ig / #instagram [enlace]
-│ • #tts [texto]
-│ • #terabox / #tb [enlace]
-│ • #gdrive / #drive [enlace]
-│ • #ttimg / #ttmp3 [enlace]
-│ • #gitclone [enlace]
-╰─═══════════════════════════─╯
-💖 _Descarga tu contenido favorito._ 💖🌿
+╔═════ 🌐 *Exploración Digital* 🔍🌿 ═════╗
+║ • #tiktoksearch [término]
+║ • #tweetposts [término]
+║ • #ytsearch / #yts [término]
+║ • #githubsearch [usuario]
+║ • #cuevana / #cuevanasearch [término]
+║ • #google [término]
+║ • #pin / #pinterest [término]
+║ • #imagen / #image [término]
+║ • #animesearch / #animess [término]
+║ • #animei / #animeinfo [nombre]
+║ • #infoanime [nombre]
+║ • #hentaisearch / #searchhentai [término]
+║ • #xnxxsearch / #xnxxs [término]
+║ • #xvsearch / #xvideossearch [término]
+║ • #pornhubsearch / #phsearch [término]
+║ • #npmjs [término]
+╚═══════════════════════════════╝
+_✨ Encuentra información y contenido en la web con facilidad._ 🍃
 
-╭─═══ 💎 Fortuna y Fantasía 💎🍀 ═══─╮
-│ • #w / #work
-│ • #slut / #protituirse
-│ • #cf / #suerte
-│ • #crime / #crimen
-│ • #ruleta
-│ • #casino / #apostar
-│ • #slot
-│ • #cartera / #wallet
-│ • #banco / #bank
-│ • #deposit / #depositar
-│ • #with / #retirar / #withdraw
-│ • #transfer / #pay [mención] [cantidad]
-│ • #miming / #minar / #mine
-│ • #buyall / #buy [item] [cantidad]
-│ • #daily / #diario
-│ • #cofre
-│ • #weekly / #semanal
-│ • #monthly / #mensual
-│ • #steal / #robar / #rob [mención]
-│ • #robarxp / #robxp [mención]
-│ • #eboard / #baltop
-│ • #aventura / #adventure
-│ • #curar / #heal
-│ • #cazar / #hunt / #berburu
-│ • #inv / #inventario
-│ • #mazmorra / #explorar
-│ • #halloween
-│ • #christmas / #navidad
-╰─═══════════════════════════─╯
-✨ _Gestiona tus recursos y vive aventuras._ ✨🍃
+${''/* Espacio entre bloques de sección */}
 
-╭─═══ 🃏 Coleccionables Encantados 🃏🌱 ═══─╮
-│ • #rollwaifu / #rw / #roll
-│ • #claim / #c / #reclamar
-│ • #harem / #waifus / #claims
-│ • #charimage / #waifuimage / #wimage [nombre]
-│ • #charinfo / #winfo / #waifuinfo [nombre]
-│ • #givechar / #givewaifu / #regalar [mención] [nombre]
-│ • #vote / #votar [nombre]
-│ • #waifusboard / #waifustop / #topwaifus
-╰─═══════════════════════════════─╯
-💖 _Colecciona y gestiona personajes únicos._ 💖🍀
+╔═════ 💾 *Almacén de Contenido* 💾🌱 ═════╗
+║ • #tiktok / #tt [enlace]
+║ • #mediafire / #mf [enlace]
+║ • #pinvid / #pinvideo [enlace]
+║ • #mega / #mg [enlace]
+║ • #play / #play2 [nombre/enlace]
+║ • #ytmp3 / #ytmp4 [enlace]
+║ • #fb / #facebook [enlace]
+║ • #twitter / #x [enlace]
+║ • #ig / #instagram [enlace]
+║ • #tts [texto]
+║ • #terabox / #tb [enlace]
+║ • #gdrive / #drive [enlace]
+║ • #ttimg / #ttmp3 [enlace]
+║ • #gitclone [enlace]
+╚═══════════════════════════════╝
+_💖 Descarga tu contenido favorito rapidísimo._ 🌿
 
-╭─═══ ✨ Pinceladas Mágicas ✨🌿 ═══─╮
-│ • #sticker / #s [imagen/video/gif]
-│ • #setmeta [pack|autor]
-│ • #delmeta
-│ • #pfp / #getpic [mención/número]
-│ • #qc [texto|respuesta a mensaje]
-│ • #toimg / #img [sticker]
-│ • #brat / #ttp / #attp [texto]
-│ • #emojimix [emoji1+emoji2]
-│ • #wm [pack|autor] [sticker]
-╰─═══════════════════════════─╯
-🎨 _Crea stickers personalizados._ 🎨🍃
+${''/* Espacio entre bloques de sección */}
 
-╭─═══ 🛠️ Mi Caja de Secretos 🛠️🍀 ═══─╮
-│ • #calcular / #cal [ecuación]
-│ • #tiempo / #clima [país/ciudad]
-│ • #horario
-│ • #fake / #fakereply [texto|@mención]
-│ • #enhance / #remini / #hd [imagen]
-│ • #letra [texto]
-│ • #read / #readviewonce / #ver [mensaje de ver una vez]
-│ • #whatmusic / #shazam [audio]
-│ • #spamwa / #spam [número]|[texto]|[cantidad]
-│ • #ss / #ssweb [enlace]
-│ • #length / #tamaño [archivo]
-│ • #say / #decir [texto]
-│ • #todoc / #toducument [archivo]
-│ • #translate / #traducir / #trad [código]|[texto]
-│ • #fotoperfil [número]
-╰─═══════════════════════════─╯
-💖 _Herramientas útiles para diversas tareas._ 💖🌱
+╔═════ 💎 *Fortuna y Fantasía* 💎🍀 ═════╗
+║ • #w / #work
+║ • #slut / #protituirse
+║ • #cf / #suerte
+║ • #crime / #crimen
+║ • #ruleta
+║ • #casino / #apostar
+║ • #slot
+║ • #cartera / #wallet
+║ • #banco / #bank
+║ • #deposit / #depositar
+║ • #with / #retirar / #withdraw
+║ • #transfer / #pay [mención] [cantidad]
+║ • #miming / #minar / #mine
+║ • #buyall / #buy [item] [cantidad]
+║ • #daily / #diario
+║ • #cofre
+║ • #weekly / #semanal
+║ • #monthly / #mensual
+║ • #steal / #robar / #rob [mención]
+║ • #robarxp / #robxp [mención]
+║ • #eboard / #baltop
+║ • #aventura / #adventure
+║ • #curar / #heal
+║ • #cazar / #hunt / #berburu
+║ • #inv / #inventario
+║ • #mazmorra / #explorar
+║ • #halloween
+║ • #christmas / #navidad
+╚═══════════════════════════════╝
+_✨ Gestiona tus recursos y vive aventuras._ 🍃
 
-╭─═══ 👤 Mi Diario Personal 👤🌿 ═══─╮
-│ • #reg / #verificar / #register [edad]
-│ • #unreg [número de serie]
-│ • #profile [mención opcional]
-│ • #marry [mención]
-│ • #divorce
-│ • #setgenre / #setgenero [género]
-│ • #delgenre / #delgenero
-│ • #setbirth / #setnacimiento [dd/mm/yyyy]
-│ • #delbirth / #delnacimiento
-│ • #setdescription / #setdesc [texto]
-│ • #deldescription / #deldesc
-│ • #lb / #lboard [página]
-│ • #level / #lvl [mención opcional]
-│ • #comprarpremium / #premium
-│ • #confesiones / #confesar [texto]
-╰─═══════════════════════════─╯
-💞 _Personaliza tu perfil y relaciones._ 💞🌸
+${''/* Espacio entre bloques de sección */}
 
-╭─═══ 🏛️ Nuestro Club Privado 🏛️🍀 ═══─╮
-│ • #config / #on
-│ • #hidetag [texto]
-│ • #gp / #infogrupo
-│ • #linea / #listonline
-│ • #setwelcome [texto]
-│ • #setbye [texto]
-│ • #link
-│ • #admins / #admin
-│ • #restablecer / #revoke
-│ • #grupo / #group [abrir/cerrar]
-│ • #kick [mención]
-│ • #add / #añadir / #agregar [número(s)]
-│ • #promote [mención]
-│ • #demote [mención]
-│ • #gpbanner / #groupimg [imagen]
-│ • #gpname [nombre]
-│ • #gpdesc [descripción]
-│ • #advertir / #warn / #warning [mención] [motivo]
-│ • #unwarn / #delwarn [mención]
-│ • #advlist / #listadv
-│ • #bot on/off
-│ • #mute [mención]
-│ • #unmute [mención]
-│ • #encuesta / #poll [pregunta]|[opción1]|[opción2]...
-│ • #delete / #del [respuesta a mensaje]
-│ • #fantasmas
-│ • #kickfantasmas
-│ • #invocar / #tagall / #todos [texto opcional]
-│ • #setemoji [emoji]
-│ • #listnum [prefijo]
-│ • #kicknum [prefijo]
-╰─═════════════════════════════─╯
-👥 _Herramientas de administración grupal._ 👑🌳
+╔═════ 🃏 *Coleccionables Encantados* 🃏🌱 ═════╗
+║ • #rollwaifu / #rw / #roll
+║ • #claim / #c / #reclamar
+║ • #harem / #waifus / #claims
+║ • #charimage / #waifuimage / #wimage [nombre]
+║ • #charinfo / #winfo / #waifuinfo [nombre]
+║ • #givechar / #givewaifu / #regalar [mención] [nombre]
+║ • #vote / #votar [nombre]
+║ • #waifusboard / #waifustop / #topwaifus
+╚═══════════════════════════════╝
+_💖 Colecciona y gestiona personajes únicos._ 🍀
 
-╭─═══ 🌸 Reacciones Kawaii 💖🌿 ═══─╮
-│ • #angry 😠
-│ • #bite 💋
-│ • #bleh 😛
-│ • #blush 😊
-│ • #bored 🥱
-│ • #cry 😭
-│ • #cuddle 🤗
-│ • #dance 💃
-│ • #drunk 🥴
-│ • #eat 🍔
-│ • #facepalm 🤦‍♀️
-│ • #happy 😄
-│ • #hug 🥰
-│ • #impregnate 🤰
-│ • #kill 🔪
-│ • #kiss / #besar 💋
-│ • #laugh 😂
-│ • #lick 👅
-│ • #love / #amor ❤️
-│ • #pat 👋
-│ • #poke 👉
-│ • #pout 😟
-│ • #punch 👊
-│ • #run 🏃‍♀️
-│ • #sad / #triste 😢
-│ • #scared 😱
-│ • #seduce 😏
-│ • #shy / #timido 😳
-│ • #slap 👋💥
-│ • #dias ☀️
-│ • #noches 🌙
-│ • #sleep 😴
-│ • #smoke 🚬
-│ • #think 🤔
-╰─═══════════════════════════─╯
-✨ _Exprésate con reacciones de anime._ ✨🍃
+${''/* Espacio entre bloques de sección */}
+
+╔═════ ✨ *Pinceladas Mágicas* ✨🌿 ═════╗
+║ • #sticker / #s [imagen/video/gif]
+║ • #setmeta [pack|autor]
+║ • #delmeta
+║ • #pfp / #getpic [mención/número]
+║ • #qc [texto|respuesta a mensaje]
+║ • #toimg / #img [sticker]
+║ • #brat / #ttp / #attp [texto]
+║ • #emojimix [emoji1+emoji2]
+║ • #wm [pack|autor] [sticker]
+╚═══════════════════════════════╝
+_🎨 Crea stickers personalizados._ 🍃
+
+${''/* Espacio entre bloques de sección */}
+
+╔═════ 🛠️ *Mi Caja de Secretos* 🛠️🍀 ═════╗
+║ • #calcular / #cal [ecuación]
+║ • #tiempo / #clima [país/ciudad]
+║ • #horario
+║ • #fake / #fakereply [texto|@mención]
+║ • #enhance / #remini / #hd [imagen]
+║ • #letra [texto]
+║ • #read / #readviewonce / #ver [mensaje de ver una vez]
+║ • #whatmusic / #shazam [audio]
+║ • #spamwa / #spam [número]|[texto]|[cantidad]
+║ • #ss / #ssweb [enlace]
+║ • #length / #tamaño [archivo]
+║ • #say / #decir [texto]
+║ • #todoc / #toducument [archivo]
+║ • #translate / #traducir / #trad [código]|[texto]
+║ • #fotoperfil [número]
+╚═══════════════════════════════╝
+_💖 Herramientas útiles para diversas tareas._ 🌱
+
+${''/* Espacio entre bloques de sección */}
+
+╔═════ 👤 *Mi Diario Personal* 👤🌿 ═════╗
+║ • #reg / #verificar / #register [edad]
+║ • #unreg [número de serie]
+║ • #profile [mención opcional]
+║ • #marry [mención]
+║ • #divorce
+║ • #setgenre / #setgenero [género]
+║ • #delgenre / #delgenero
+║ • #setbirth / #setnacimiento [dd/mm/yyyy]
+║ • #delbirth / #delnacimiento
+║ • #setdescription / #setdesc [texto]
+║ • #deldescription / #deldesc
+║ • #lb / #lboard [página]
+║ • #level / #lvl [mención opcional]
+║ • #comprarpremium / #premium
+║ • #confesiones / #confesar [texto]
+╚═══════════════════════════════╝
+_💞 Personaliza tu perfil y relaciones._ 🌸
+
+${''/* Espacio entre bloques de sección */}
+
+╔═════ 🏛️ *Nuestro Club Privado* 🏛️🍀 ═════╗
+║ • #config / #on
+║ • #hidetag [texto]
+║ • #gp / #infogrupo
+║ • #linea / #listonline
+║ • #setwelcome [texto]
+║ • #setbye [texto]
+║ • #link
+║ • #admins / #admin
+║ • #restablecer / #revoke
+║ • #grupo / #group [abrir/cerrar]
+║ • #kick [mención]
+║ • #add / #añadir / #agregar [número(s)]
+║ • #promote [mención]
+║ • #demote [mención]
+║ • #gpbanner / #groupimg [imagen]
+║ • #gpname [nombre]
+║ • #gpdesc [descripción]
+║ • #advertir / #warn / #warning [mención] [motivo]
+║ • #unwarn / #delwarn [mención]
+║ • #advlist / #listadv
+║ • #bot on/off
+║ • #mute [mención]
+║ • #unmute [mención]
+║ • #encuesta / #poll [pregunta]|[opción1]|[opción2]...
+║ • #delete / #del [respuesta a mensaje]
+║ • #fantasmas
+║ • #kickfantasmas
+║ • #invocar / #tagall / #todos [texto opcional]
+║ • #setemoji [emoji]
+║ • #listnum [prefijo]
+║ • #kicknum [prefijo]
+╚═══════════════════════════════╝
+_👥 Herramientas de administración grupal._ 👑🌳
+
+${''/* Espacio entre bloques de sección */}
+
+╔═════ 🌸 *Reacciones Kawaii* 💖🌿 ═════╗
+║ • #angry 😠
+║ • #bite 💋
+║ • #bleh 😛
+║ • #blush 😊
+║ • #bored 🥱
+║ • #cry 😭
+║ • #cuddle 🤗
+║ • #dance 💃
+║ • #drunk 🥴
+║ • #eat 🍔
+║ • #facepalm 🤦‍♀️
+║ • #happy 😄
+║ • #hug 🥰
+║ • #impregnate 🤰
+║ • #kill 🔪
+║ • #kiss / #besar 💋
+║ • #laugh 😂
+║ • #lick 👅
+║ • #love / #amor ❤️
+║ • #pat 👋
+║ • #poke 👉
+║ • #pout 😟
+║ • #punch 👊
+║ • #run 🏃‍♀️
+║ • #sad / #triste 😢
+║ • #scared 😱
+║ • #seduce 😏
+║ • #shy / #timido 😳
+║ • #slap 👋💥
+║ • #dias ☀️
+║ • #noches 🌙
+║ • #sleep 😴
+║ • #smoke 🚬
+║ • #think 🤔
+╚═══════════════════════════════╝
+_✨ Exprésate con reacciones de anime._ 🍃
 _(¡Menciona a tu amix para interactuar! Ejemplo: #hug @amiguita)_
 
-╭─═══ 🔞 Zona Secreta (+18) 🔞💚 ═══─╮
-│ • #anal
-│ • #waifu
-│ • #bath 🛁
-│ • #blowjob / #mamada / #bj 👅
-│ • #boobjob 🍒
-│ • #cum 💦
-│ • #fap 🔥
-│ • #ppcouple / #ppcp 💑
-│ • #footjob 👣
-│ • #fuck / #coger / #fuck2 🔥
-│ • #cafe / #coffe ☕
-│ • #violar / #perra 💔
-│ • #grabboobs 👀
-│ • #grop 🤲
-│ • #lickpussy 👅
-│ • #rule34 / #r34 [Tags]
-│ • #sixnine / #69 ☯️
-│ • #spank / #nalgada 🍑
-│ • #suckboobs 🍓
-│ • #undress / #encuerar 👙
-│ • #yuri / #tijeras ✂️
-╰─═══════════════════════════─╯
-⚠️ _¡Solo para adultos! Bajo tu responsabilidad._ ⚠️🌿
+${''/* Espacio entre bloques de sección */}
+
+╔═════ 🔞 *Zona Secreta (+18)* 🔞💚 ═════╗
+║ • #anal
+║ • #waifu
+║ • #bath 🛁
+║ • #blowjob / #mamada / #bj 👅
+║ • #boobjob 🍒
+║ • #cum 💦
+║ • #fap 🔥
+║ • #ppcouple / #ppcp 💑
+║ • #footjob 👣
+║ • #fuck / #coger / #fuck2 🔥
+║ • #cafe / #coffe ☕
+║ • #violar / #perra 💔
+║ • #grabboobs 👀
+║ • #grop 🤲
+║ • #lickpussy 👅
+║ • #rule34 / #r34 [Tags]
+║ • #sixnine / #69 ☯️
+║ • #spank / #nalgada 🍑
+║ • #suckboobs 🍓
+║ • #undress / #encuerar 👙
+║ • #yuri / #tijeras ✂️
+╚═══════════════════════════════╝
+_⚠️ ¡Solo para adultos! Bajo tu responsabilidad._ 🌿
 _(¡Diviértete con precaución! Algunos comandos necesitan que menciones a alguien)_
 
-╭─═══ 🎮 ¡A Jugar se ha Dicho! 🎮🍀 ═══─╮
-│ • #amistad / #amigorandom 🤗
-│ • #chaqueta / #jalamela 👋
-│ • #chiste 😂
-│ • #consejo 💡
-│ • #doxeo / #doxear [mención] 😈
-│ • #facto 🤓
-│ • #formarpareja 💘
-│ • #formarpareja5 💖
-│ • #frase 📜
-│ • #huevo 🥚
-│ • #chupalo [mención] 😛
-│ • #aplauso [mención] 👏
-│ • #marron [mención] 🌰
-│ • #suicidar 💀
-│ • #iq / #iqtest [mención] 🧠
-│ • #meme 😂
-│ • #morse [texto] .--
-│ • #nombreninja [nombre] 🥷
-│ • #paja / #pajeame 🍆💦
-│ • #personalidad [mencion] 🤔
-│ • #piropo 😍
-│ • #pregunta [pregunta] ❓
-│ • #ship / #pareja [mención1] [mención2] 🚢💞
-│ • #sorteo [duración] [premio] 🎉
-│ • #top [número] [criterio] 🏆
-│ • #formartrio [mención1] [mención2] 🍌🍌🍑
-│ • #ahorcado 绞刑架
-│ • #genio [pregunta] 🧞‍♂️
-│ • #mates / #matematicas [ecuación] ➕➖✖️➗
-│ • #rpg (Juego Beta) 🗺️
-│ • #sopa / #buscarpalabra 🔡
-│ • #pvp / #suit [mención] ⚔️
-│ • #ttt  TIC TAC TOE
-╰─══════════════════════════════─╯
-🎮 _Variedad de juegos y actividades._ 🎉🌱
+${''/* Espacio entre bloques de sección */}
 
-╭─═══ ✨ Asistencia ✨ ═══─╮
-│ Comando Principal: #menu / #help
-│ Mi Creador: Usa #creador
-╰─═══════════════════─╯
+╔═════ 🎮 *¡A Jugar se ha Dicho!* 🎮🍀 ═════╗
+║ • #amistad / #amigorandom 🤗
+║ • #chaqueta / #jalamela 👋
+║ • #chiste 😂
+║ • #consejo 💡
+║ • #doxeo / #doxear [mención] 😈
+║ • #facto 🤓
+║ • #formarpareja 💘
+║ • #formarpareja5 💖
+║ • #frase 📜
+║ • #huevo 🥚
+║ • #chupalo [mención] 😛
+║ • #aplauso [mención] 👏
+║ • #marron [mención] 🌰
+║ • #suicidar 💀
+║ • #iq / #iqtest [mención] 🧠
+║ • #meme 😂
+║ • #morse [texto] .--
+║ • #nombreninja [nombre] 🥷
+║ • #paja / #pajeame 🍆💦
+║ • #personalidad [mencion] 🤔
+║ • #piropo 😍
+║ • • #pregunta [pregunta] ❓
+║ • #ship / #pareja [mención1] [mención2] 🚢💞
+║ • #sorteo [duración] [premio] 🎉
+║ • #top [número] [criterio] 🏆
+║ • #formartrio [mención1] [mención2] 🍌🍌🍑
+║ • #ahorcado 绞刑架
+║ • #genio [pregunta] 🧞‍♂️
+║ • #mates / #matematicas [ecuación] ➕➖✖️➗
+║ • #rpg (Juego Beta) 🗺️
+║ • #sopa / #buscarpalabra 🔡
+║ • #pvp / #suit [mención] ⚔️
+║ • #ttt  TIC TAC TOE
+╚═══════════════════════════════╝
+_🎮 Variedad de juegos y actividades._ 🌱
+
+${''/* Espacio entre el último bloque de sección y asistencia */}
+
+╔═════ ✨ Asistencia ✨ ═════╗
+║ • Comando Principal: #menu / #help
+║ • Mi Creador: Usa #creador
+╚═══════════════════════╝
+
+${''/* Espacio antes de los créditos finales */}
 
 _Desarrollado con dedicación._ ✨💖🌿
 `.trim()
