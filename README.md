@@ -104,7 +104,7 @@ npm start
 
 # Instalacion Automática 📂
 
-hecho por SoyMaycol
+Hecho Por SoyMaycol & Wirk
 ```
 termux-setup-storage
 ```
