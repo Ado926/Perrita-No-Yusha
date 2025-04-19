@@ -29,8 +29,6 @@ let handler = async (m, { conn, args }) => {
 ❀ Comandos para conocer el estado e información del Bot.
   🌷 #help / #menu → Ver lista de comandos.
   🌼 #uptime / #runtime → Tiempo de actividad.
-  🌸 #sc / #script → Repositorio oficial.
-  💖 #staff / #colaboradores → Desarrolladores.
   💫 #serbot / #serbot code → Crear Sub-Bot.
   🌻 #bots / #sockets → Sub-Bots activos.
   💚 #creador → Contacto del creador.
