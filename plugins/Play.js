@@ -28,12 +28,8 @@ let handler = async (m, { conn, text }) => {
     if (!video) throw "No se encontró nada.";
 
     const waitMsg = `
-╭─━━━『 *Enviando Audio* 』━━━─╮
-│
 │ 🎵 *Título:* ${video.title}
-│ ⏱️ *Duración:* ${video.timestamp}
-│
-╰━━━━━━━━━━━━━━━━━━━━━╯`.trim();
+│ ⏱️ *Duración:* ${video.timestamp}`.trim();
     await conn.sendMessage(m.chat, { text: waitMsg }, { quoted: m });
 
     const vredenUrl = `${getApiUrl()}?url=${encodeURIComponent(video.url)}`;
