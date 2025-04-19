@@ -95,10 +95,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
               document: { url: downloadUrl },
               mimetype: 'audio/mpeg',
               fileName: `${title}.mp3`,
-              caption: `╭━━━〔 *🎬 AUDIO DESCARGADO* 〕━━━⬣
+              caption: `╭━━━〔 *🎬 Video DESCARGADO* 〕━━━⬣
 ┃ 𖥨  *Título:* ${title}
-┃ 𖥨  *Formato:* MP3
+┃ 𖥨  *Formato:* MP4
 ┃ 𖥨  *Duración:* ${timestamp || 'Desconocida'}
+┃ > Nota: Si quieres el video normal, pon .playvideo y el name del video.
 ╰━━━━━━━━━━━━━━━━━⬣`
             };
 
