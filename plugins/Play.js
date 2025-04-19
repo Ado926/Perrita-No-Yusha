@@ -57,10 +57,10 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, { text: waitMessage }, { quoted: m });
 
     // Enviar audio
-    await conn.sendMessage(m.chat, {
+    const audioMessage = {
       audio: { url: apiData.download.url },
       mimetype: "audio/mpeg",
-      ptt: true,
+      ptt: false,
       fileName: `${video.title}.mp3`,
       contextInfo: {
         externalAdReply: {
@@ -73,7 +73,10 @@ let handler = async (m, { conn, text }) => {
           showAdAttribution: true
         }
       }
-    }, { quoted: m });
+    };
+
+    // Enviar el mensaje de audio
+    await conn.sendMessage(m.chat, audioMessage, { quoted: m });
 
     // Reacción de éxito
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
