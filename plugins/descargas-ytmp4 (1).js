@@ -15,7 +15,7 @@ let handler = async (m, { conn, text, usedPrefix, command, args }) => {
     let size = await getSize(json.url);
     let sizeStr = size ? await formatSize(size) : 'Desconocido';
 
-    const cap = `\`\`\`◜YouTube - MP4◞\`\`\`\n\n*${json.title}*\n≡ *🌴 \`URL:\`* ${args[0]}\n≡ *⚖️ \`Peso:\`* ${sizeStr}`;
+    const cap = `\`\`\`◜YouTube - MP4◞\`\`\`\n\n*${json.title}*\n≡ *🌴 \`URL:\`* ${args[0]}\n≡ *⚖️ \`Peso:\`* ${sizeStr}\n\n ❐ *Prosessed By 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢* 🌺`;
 
     // Intenta enviar como video directo desde URL
     try {
@@ -41,8 +41,8 @@ let handler = async (m, { conn, text, usedPrefix, command, args }) => {
   }
 };
 
-handler.help = ['ytmp4doc'];
-handler.command = ['ytv2', 'ytmp4doc', 'ytv'];
+handler.help = ['ytmp4'];
+handler.command = ['ytv', 'ytmp4', 'ytv'];
 handler.tags = ['dl'];
 handler.diamond = true;
 
