@@ -5,59 +5,63 @@ let handler = async (m, { conn, text }) => {
 
   await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
 
-  let data = {};
   let link = '';
-  let title = '';
 
-  // Intentamos primero con ZenKey API
+  // Intentamos con ZenKey API primero
   try {
-    let res = await fetch(`https://zenkey.vercel.app/api/youtube?url=${text}`);
-    let json = await res.json();
-    link = json.video;
-    title = json.title || 'Video de YouTube';
+    const zen = await fetch(`https://zenkey.vercel.app/api/youtube?url=${text}`);
+    const z = await zen.json();
+
+    if (z?.video && z?.video.startsWith('http')) {
+      link = z.video;
+      console.log('[ZenKey OK]');
+    } else {
+      console.log('[ZenKey sin link válido]:', z);
+    }
   } catch (e) {
-    console.log('[ZenKey Falló]', e);
+    console.log('[Error en ZenKey]:', e);
   }
 
-  // Si ZenKey falla, usamos las otras APIs como respaldo
+  // Si ZenKey falla, usar backups
   if (!link) {
-    const urls = [
+    const backups = [
       `https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`,
       `https://api.fgmods.xyz/api/downloader/ytmp4?url=${text}&quality=480p&apikey=be9NqGwC`,
       `https://api.alyachan.dev/api/ytv?url=${text}&apikey=uXxd7d`,
       `https://good-camel-seemingly.ngrok-free.app/download/mp4?url=${text}`
     ];
 
-    for (let url of urls) {
+    for (let url of backups) {
       try {
         let res = await fetch(url);
         let json = await res.json();
-        data = json?.data || json?.result || json;
-        link = data?.url || data?.download_url || data?.dl_url || data?.downloads?.link?.[0];
-        title = data?.title || data?.info_do_video?.title || "Video de YouTube";
-        if (link) break;
-      } catch (error) {
-        console.error('[API alternativa falló]', error);
+        let d = json?.data || json?.result || json;
+
+        link = d?.url || d?.download_url || d?.dl_url || d?.downloads?.link?.[0];
+        if (link) {
+          console.log('[Backup API OK]');
+          break;
+        }
+      } catch (err) {
+        console.log('[Backup API falló]:', err);
       }
     }
   }
 
   if (!link) {
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    return m.reply('⚠️ No se pudo descargar el video.');
+    return m.reply('⚠️ No se pudo descargar el video. Puede estar restringido o la URL es inválida.');
   }
 
-  // Mensaje de progreso decorado
   await conn.sendMessage(m.chat, {
-    text: `╭─❍ *Descargando Video...*\n├ Título: *${title}*\n╰━━━━━━━━━━━━━⬣`,
+    text: `╭─❍ *Descargando Video...*\n╰━━━━━━━━━━━━━⬣`,
     quoted: m
   });
 
-  // Enviar el video directamente desde la URL (super rápido)
   await conn.sendMessage(m.chat, {
     video: { url: link },
     mimetype: "video/mp4",
-    caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)*\n✨ *${title}*\n🌸 𝘗𝘳𝘰𝘤𝘦𝘴𝘴𝘦𝘥 𝘉𝘺 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢`
+    caption: `🎬 *Aquí tienes ꉂ(ˊᗜˋ)*\n🌸 𝘗𝘳𝘰𝘤𝘦𝘴𝘴𝘦𝘥 𝘉𝘺 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢`
   }, { quoted: m });
 
   await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
