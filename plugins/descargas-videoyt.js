@@ -1,102 +1,56 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('❗ Ingresa un link de YouTube o Shorts');
+let handler = async (m, { conn, args, text }) => {
+  if (!text) return m.reply('Ingrese un link de YouTube.');
 
-  await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
+  m.react("⏳");
 
-  let link = '';
-  let title = '';
-
-  const tryFetchJson = async (url) => {
+  let video, resolution = 'Desconocida';
+  try {
+    video = await (await fetch(`https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`)).json();
+    resolution = '480p';
+  } catch (error) {
     try {
-      const res = await fetch(url, { timeout: 15000 });
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const json = await res.json();
-      console.log(`[✅ API OK]: ${url}`);
-      return json;
-    } catch (e) {
-      console.log(`[❌ Error API]: ${url} → ${e.message}`);
-      return null;
-    }
-  };
-
-  // 1. ZenKey
-  const zen = await tryFetchJson(`https://zenkey.vercel.app/api/youtube?url=${encodeURIComponent(text)}`);
-  if (zen?.video?.startsWith('http')) {
-    link = zen.video;
-    title = zen.title || '';
-  }
-
-  // 2. FGMods
-  if (!link) {
-    const fg = await tryFetchJson(`https://api.fgmods.xyz/api/downloader/ytmp4?url=${encodeURIComponent(text)}&quality=480p&apikey=be9NqGwC`);
-    const d = fg?.result;
-    if (d?.url?.startsWith('http')) {
-      link = d.url;
-      title = d.title || '';
+      video = await (await fetch(`https://api.fgmods.xyz/api/downloader/ytmp4?url=${text}&quality=480p&apikey=be9NqGwC`)).json();
+      resolution = '480p';
+    } catch (error) {
+      try {
+        video = await (await fetch(`https://api.alyachan.dev/api/ytv?url=${text}&apikey=uXxd7d`)).json();
+        resolution = video?.result?.quality || 'Desconocida';
+      } catch (error) {
+        video = await (await fetch(`https://good-camel-seemingly.ngrok-free.app/download/mp4?url=${text}`)).json();
+        resolution = video?.resolution || 'Desconocida';
+      }
     }
   }
 
-  // 3. Alyachan
-  if (!link) {
-    const alya = await tryFetchJson(`https://api.alyachan.dev/api/ytv?url=${encodeURIComponent(text)}&apikey=uXxd7d`);
-    const d = alya?.data || alya?.result;
-    if (d?.url?.startsWith('http')) {
-      link = d.url;
-      title = d.title || '';
-    }
-  }
+  let link = video?.data?.url || video?.download_url || video?.result?.dl_url || video?.downloads?.link?.[0];
+  if (!link) return m.reply('《✧》Hubo un error al intentar acceder al link.\n> Si el problema persiste, repórtalo en el grupo de soporte.');
 
-  // 4. Neoxr
-  if (!link) {
-    const neo = await tryFetchJson(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(text)}&type=video&quality=480p&apikey=GataDios`);
-    const d = neo?.data || neo?.result;
-    if (d?.url?.startsWith('http')) {
-      link = d.url;
-      title = d.title || '';
-    }
-  }
+  // Enviar mensaje de espera rápido
+  await conn.sendMessage(m.chat, {
+    text: `⌛ *Procesando... Espera un momento mientras preparamos tu video...*`,
+  }, { quoted: m });
 
-  // 5. GataDios (extra)
-  if (!link) {
-    const gata = await tryFetchJson(`https://api.gatadios.com/api/download/ytmp4v2?url=${encodeURIComponent(text)}&apikey=GataDios`);
-    const d = gata?.result;
-    if (d?.url?.startsWith('http')) {
-      link = d.url;
-      title = d.title || '';
-    }
-  }
+  // Enviar video de forma rápida con caption decorado
+  await conn.sendMessage(m.chat, {
+    video: { url: link },
+    mimetype: "video/mp4",
+    caption: `🌟 *Tu video está listo* 🌟
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━⬣
+┃ 🎥 *Descarga exitosa de YouTube*
+┃ 🌐 *Resolución*: ${resolution}
+┃ 🔥 *¡Todo listo!*
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━⬣
 
-  if (!link) {
-    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    return m.reply('⚠️ No se pudo descargar el video. Intenta con otro enlace o espera unos minutos.');
-  }
+🎬 *Procesado con cariño por Perrita No Yūsha* 💫
+`
+  }, { quoted: m });
 
-  // Verificar el tamaño del archivo (aproximadamente)
-  const res = await fetch(link);
-  const size = parseInt(res.headers.get('content-length'), 10);
-
-  // Si el archivo pesa más de 64 MB, lo enviamos como documento
-  if (size > 64 * 1024 * 1024) {
-    await conn.sendMessage(m.chat, {
-      document: { url: link },
-      mimetype: "video/mp4",
-      fileName: `${title || 'video'}.mp4`
-    }, { quoted: m });
-  } else {
-    // Si es menor o igual a 64 MB, lo enviamos como video
-    await conn.sendMessage(m.chat, {
-      video: { url: link },
-      mimetype: "video/mp4",
-      caption: `🎬 *${title || 'Video de YouTube'}*\n⚡ Enviado por Perrita No Yusha`
-    }, { quoted: m });
-  }
-
-  await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+  m.react("✅");
 };
 
-handler.command = ['yt', 'ytmp4', 'ytvx'];
+handler.command = ['ytv', 'ytmp4', 'yt'];
 handler.register = true;
 handler.estrellas = 0;
 
