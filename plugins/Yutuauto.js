@@ -1,14 +1,14 @@
 import axios from 'axios';
 
 const handler = async (m, { conn, usedPrefix, isCommand }) => {
-    if (isCommand) return; // Evita que se dispare con comandos como .ytmp3 o .ytmp4
+    if (isCommand) return; // No responde si es comando
 
-    const ytRegex = /https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
-    const match = m.text.match(ytRegex);
-    if (!match) return;
+    const ytRegex = /^https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/;
+    const isOnlyYouTubeLink = ytRegex.test(m.text.trim());
+    if (!isOnlyYouTubeLink) return; // Solo responde si el mensaje es SOLO un enlace
 
-    const url = match[0];
-    await m.react('❤️'); // Reacciona al mensaje con el enlace
+    const url = m.text.trim();
+    await m.react('🎶');
 
     try {
         const info = await axios.get(`https://noembed.com/embed?url=${url}`);
@@ -42,7 +42,7 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
     }
 };
 
-handler.customPrefix = /https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[^\s]+/i;
+handler.customPrefix = /^https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11}$/i;
 handler.command = new RegExp;
 handler.group = false;
 handler.register = true;
