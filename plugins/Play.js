@@ -21,16 +21,19 @@ let handler = async (m, { conn, text }) => {
   }
 
   try {
-    await conn.sendMessage(m.chat, { react: { text: "⚡", key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: "⏱️", key: m.key } });
 
     const searchResults = await yts(text);
     const video = searchResults.videos[0];
     if (!video) throw "No se encontró nada.";
 
     const waitMsg = `
-╭━━━〔 *Descargando* 〕━━━╮
-┃ 🎧 *${video.title}*
-╰━━━━━━━━━━━━━━━━━━╯`.trim();
+╭─━━━『 *Enviando Audio* 』━━━─╮
+│
+│ 🎵 *Título:* ${video.title}
+│ ⏱️ *Duración:* ${video.timestamp}
+│
+╰━━━━━━━━━━━━━━━━━━━━━━╯`.trim();
     await conn.sendMessage(m.chat, { text: waitMsg }, { quoted: m });
 
     const vredenUrl = `${getApiUrl()}?url=${encodeURIComponent(video.url)}`;
@@ -49,7 +52,7 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, {
       audio: { url: audio.download.url },
       mimetype: "audio/mpeg",
-      ptt: true // Nota de voz = más rápido
+      ptt: true
     }, { quoted: m });
 
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
