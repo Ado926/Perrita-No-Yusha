@@ -118,24 +118,24 @@ apt update -y && yes | apt upgrade && pkg install -y bash wget figlet && wget -O
 <details>
  <summary><b> 🜸 Enlaces Oficiales </b></summary>
 
- * Canal Oficial  [`¡Click aquí!`](https://whatsapp.com/channel/0029Vb6AEZRKGGGJpWWSfo1L)
-* Grupo Oficial [`¡Click aquí!`](https://whatsapp.com/channel/0029Vb6AEZRKGGGJpWWSfo1L)
-* Comunidad Oficial [`¡Click aquí!`](https://whatsapp.com/channel/0029Vb6AEZRKGGGJpWWSfo1L)
+ * Canal Oficial  [`Clickea 🤘`](https://whatsapp.com/channel/0029Vb5UfTC4CrfeKSamhp1f)
+* Grupo Oficial [`Click Aqui 👻`](https://chat.whatsapp.com/GBcSWbfm3JO1HhmbdbnrsH)
+* Comunidad Oficial [`Click aca 🐻‍❄️`](https://chat.whatsapp.com/KqkJwla1aq1LgaPiuFFtEY)
 </details>
 
 <details>
 <summary><b> ✰ Contáctos</b></summary>
 
 * WhatsApp: [`Aquí`](https:/Wa.me/50493732693)
-
+* WhatsApp: [`Aquí`](https:/Wa.me/51921826291)
 </details>
 
-### **`ᥫ᭡ Propietario`**
+### **`👻 Propietario`**
 <a
 href="https://github.com/Ado926"><img src="https://github.com/Ado926.png" width="130" height="130" alt="
 ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜"/></a>
 
-### **`🜸 Créditos`**
+### **`Propiertario 2 💚`**
 <a href="https://github.com/SoySapo6" style="display:inline-block; text-decoration: none;">
     <img src="https://github.com/SoySapo6.png" width="130" height="130" alt="SoyMaycol" style="border-radius: 50%;"/>
 </a>
