@@ -1,24 +1,27 @@
 import axios from 'axios';
 
 const handler = async (m, { conn, usedPrefix, isCommand }) => {
-    // No responde si es un comando
+    // Si es un comando, no respondemos
     if (isCommand) return;
 
-    // Extraer el enlace (sin texto adicional) del mensaje
+    // Obtener el texto del mensaje
     const link = m.text.trim();
 
-    // Comprobar que el mensaje sea solo un enlace de YouTube (sin texto adicional)
-    const ytRegex = /^(https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11})/;
-    if (!ytRegex.test(link)) return;  // Si no es un enlace válido de YouTube, no responde.
+    // Expresión regular que detecta enlaces de YouTube
+    const ytRegex = /https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}([?&][\w=]*)?/;
 
-    await m.react('🎶'); // Reaccionar al mensaje
+    // Verificar si el enlace es de YouTube
+    if (!ytRegex.test(link)) return;  // No es un enlace de YouTube, no hacemos nada.
+
+    // Reaccionar al mensaje
+    await m.react('🎶');
 
     try {
-        // Obtener información del video de YouTube
+        // Obtener el título del video usando noembed.com
         const info = await axios.get(`https://noembed.com/embed?url=${link}`);
         const title = info.data.title;
 
-        // Crear botones para descargar como MP3 o MP4
+        // Crear los botones para descargar el video en MP3 o MP4
         const buttons = [
             {
                 buttonId: `${usedPrefix}ytmp3 ${link}`,
@@ -44,7 +47,7 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
             { quoted: m }
         );
     } catch (e) {
-        // Si ocurre algún error, responder con un mensaje de error
+        // Si ocurre un error, enviar un mensaje de error
         return conn.reply(m.chat, '❌ No se pudo obtener el título del video.', m);
     }
 };
