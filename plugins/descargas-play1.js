@@ -147,7 +147,7 @@ m.react('🌸')
   }
 };
 
-handler.command = handler.help = ['playvideo', 'mp4', 'ytv']; 
+handler.command = handler.help = ['play2', 'mp4', 'ytvx']; 
 handler.tags = ['downloader'];
 
 export default handler;
