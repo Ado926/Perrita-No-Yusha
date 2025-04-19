@@ -8,7 +8,7 @@ const handler = async (m, { conn, usedPrefix, isCommand }) => {
     const link = m.text.trim();
 
     // Comprobar que el mensaje sea solo un enlace de YouTube (sin texto adicional)
-    const ytRegex = /^(https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11})$/;
+    const ytRegex = /^(https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[a-zA-Z0-9_-]{11})/;
     if (!ytRegex.test(link)) return;  // Si no es un enlace válido de YouTube, no responde.
 
     await m.react('🎶'); // Reaccionar al mensaje
