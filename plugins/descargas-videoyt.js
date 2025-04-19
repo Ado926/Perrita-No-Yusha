@@ -11,18 +11,18 @@ let handler = async (m, { conn, text }) => {
   const tryFetchJson = async (url) => {
     try {
       const res = await fetch(url, { timeout: 15000 });
+      if (!res.ok) throw new Error(`Status ${res.status}`);
       const json = await res.json();
       console.log(`[✅ API OK]: ${url}`);
-      console.log(JSON.stringify(json, null, 2));
       return json;
     } catch (e) {
-      console.log(`[❌ Error API]: ${url}`, e.message);
+      console.log(`[❌ Error API]: ${url} → ${e.message}`);
       return null;
     }
   };
 
   // 1. ZenKey
-  const zen = await tryFetchJson(`https://zenkey.vercel.app/api/youtube?url=${text}`);
+  const zen = await tryFetchJson(`https://zenkey.vercel.app/api/youtube?url=${encodeURIComponent(text)}`);
   if (zen?.video?.startsWith('http')) {
     link = zen.video;
     title = zen.title || '';
@@ -30,7 +30,7 @@ let handler = async (m, { conn, text }) => {
 
   // 2. FGMods
   if (!link) {
-    const fg = await tryFetchJson(`https://api.fgmods.xyz/api/downloader/ytmp4?url=${text}&quality=480p&apikey=be9NqGwC`);
+    const fg = await tryFetchJson(`https://api.fgmods.xyz/api/downloader/ytmp4?url=${encodeURIComponent(text)}&quality=480p&apikey=be9NqGwC`);
     const d = fg?.result;
     if (d?.url?.startsWith('http')) {
       link = d.url;
@@ -40,7 +40,7 @@ let handler = async (m, { conn, text }) => {
 
   // 3. Alyachan
   if (!link) {
-    const alya = await tryFetchJson(`https://api.alyachan.dev/api/ytv?url=${text}&apikey=uXxd7d`);
+    const alya = await tryFetchJson(`https://api.alyachan.dev/api/ytv?url=${encodeURIComponent(text)}&apikey=uXxd7d`);
     const d = alya?.data || alya?.result;
     if (d?.url?.startsWith('http')) {
       link = d.url;
@@ -50,7 +50,7 @@ let handler = async (m, { conn, text }) => {
 
   // 4. Neoxr
   if (!link) {
-    const neo = await tryFetchJson(`https://api.neoxr.eu/api/youtube?url=${text}&type=video&quality=480p&apikey=GataDios`);
+    const neo = await tryFetchJson(`https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(text)}&type=video&quality=480p&apikey=GataDios`);
     const d = neo?.data || neo?.result;
     if (d?.url?.startsWith('http')) {
       link = d.url;
@@ -58,10 +58,19 @@ let handler = async (m, { conn, text }) => {
     }
   }
 
-  // Verificación final
+  // 5. GataDios (extra)
+  if (!link) {
+    const gata = await tryFetchJson(`https://api.gatadios.com/api/download/ytmp4v2?url=${encodeURIComponent(text)}&apikey=GataDios`);
+    const d = gata?.result;
+    if (d?.url?.startsWith('http')) {
+      link = d.url;
+      title = d.title || '';
+    }
+  }
+
   if (!link) {
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    return m.reply('⚠️ No se pudo descargar el video. Prueba con otro enlace o espera unos minutos.');
+    return m.reply('⚠️ No se pudo descargar el video. Intenta con otro enlace o espera unos minutos.');
   }
 
   // Envío rápido del video
