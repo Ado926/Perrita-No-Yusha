@@ -49,7 +49,6 @@ let handler = async (m, { conn, text }) => {
 > ✦ Canal: ${video.author.name}
 > ✰ Vistas: ${video.views.toLocaleString()}
 > ⴵ Duración: ${video.timestamp}
-> ❒ Tamaño: ${apiData.size ? apiData.size : 'Desconocido'}
 > 🜸 Link: ${video.url}
 > Nota: Si quieres el audio, pon .playaudio y el name.
 `.trim();
