@@ -1,12 +1,14 @@
 import axios from 'axios';
 
-const handler = async (m, { conn, usedPrefix }) => {
+const handler = async (m, { conn, usedPrefix, isCommand }) => {
+    if (isCommand) return; // Evita que se dispare con comandos como .ytmp3 o .ytmp4
+
     const ytRegex = /https?:\/\/(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
     const match = m.text.match(ytRegex);
     if (!match) return;
 
     const url = match[0];
-    await m.react('❤️'); // Emoji de reacción
+    await m.react('❤️'); // Reacciona al mensaje con el enlace
 
     try {
         const info = await axios.get(`https://noembed.com/embed?url=${url}`);
@@ -14,7 +16,7 @@ const handler = async (m, { conn, usedPrefix }) => {
 
         const buttons = [
             {
-                buttonId: `${usedPrefix}ytmp3 ${url}`,
+                buttonId: `${usedPrefix}play ${url}`,
                 buttonText: { displayText: '🎵 Descargar MP3' },
                 type: 1
             },
