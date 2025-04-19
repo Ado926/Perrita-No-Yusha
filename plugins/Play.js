@@ -88,7 +88,7 @@ let handler = async (m, { conn, text }) => {
   }
 };
 
-handler.command = ['play']; // Aquí se cambió a 'play'
+handler.command = ['playaudio']; // Aquí se cambió a 'play'
 handler.help = ['play']; // Aquí también se cambió
 handler.tags = ['play'];
 
