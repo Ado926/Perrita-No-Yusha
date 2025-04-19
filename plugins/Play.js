@@ -1,8 +1,28 @@
 import fetch from "node-fetch";
 import yts from "yt-search";
 
-const zenApi = "https://zenkey.vercel.app/api/youtube";
-const axeelApi = "https://api.axeel.repl.co/api/yta"; // respaldo
+// API de y2mate
+const y2mateApi = "https://www.y2mate.com/mates/en68/analyze/ajax";
+
+// Función para obtener audio
+const getAudioFromVideo = async (url) => {
+  const data = new URLSearchParams();
+  data.append('url', url);
+
+  const res = await fetch(y2mateApi, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: data
+  });
+
+  const json = await res.json();
+  if (json?.status === "success" && json?.result?.url) {
+    return json.result.url; // URL del audio MP3
+  }
+  throw new Error("No se pudo obtener el audio.");
+};
 
 let handler = async (m, { conn, text }) => {
   if (!text) {
@@ -10,41 +30,24 @@ let handler = async (m, { conn, text }) => {
     return conn.reply(m.chat, "*Ingresa el nombre de una canción*", m);
   }
 
+  // Reacción de inicio
   await conn.sendMessage(m.chat, { react: { text: "⏱️", key: m.key } });
 
   try {
+    // Buscar el video
     const searchResults = await yts(text);
     const video = searchResults.videos[0];
-    if (!video) throw "No se encontró ningún video.";
+    if (!video) throw "No se encontró el video.";
 
+    // Mensaje de espera
     await conn.sendMessage(m.chat, {
       text: `🎧 *Título:* ${video.title}\n⏱ *Duración:* ${video.timestamp}\n🔗 *Link:* ${video.url}`,
     }, { quoted: m });
 
-    let audioUrl;
+    // Obtener URL de audio usando y2mate
+    const audioUrl = await getAudioFromVideo(video.url);
 
-    // PRIMER INTENTO: ZenKey
-    try {
-      const res = await fetch(`${zenApi}?url=${video.url}`);
-      const json = await res.json();
-      if (json?.music?.url) audioUrl = json.music.url;
-    } catch (e) {
-      console.warn("ZenKey falló:", e.message);
-    }
-
-    // SEGUNDO INTENTO: Axeel API
-    if (!audioUrl) {
-      try {
-        const res = await fetch(`${axeelApi}?url=${video.url}`);
-        const json = await res.json();
-        if (json?.url_audio) audioUrl = json.url_audio;
-      } catch (e) {
-        console.warn("Axeel API falló:", e.message);
-      }
-    }
-
-    if (!audioUrl) throw "No se pudo obtener el audio desde ninguna fuente.";
-
+    // Enviar audio
     await conn.sendMessage(m.chat, {
       audio: { url: audioUrl },
       mimetype: "audio/mpeg",
@@ -63,10 +66,11 @@ let handler = async (m, { conn, text }) => {
       },
     }, { quoted: m });
 
+    // Reacción de éxito
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
 
   } catch (err) {
-    console.error(err);
+    console.error("Error al procesar:", err);
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
     conn.reply(m.chat, "*Error al enviar el audio.*", m);
   }
