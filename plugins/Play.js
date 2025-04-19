@@ -27,9 +27,7 @@ let handler = async (m, { conn, text }) => {
     const video = searchResults.videos[0];
     if (!video) throw "No se encontró nada.";
 
-    const waitMsg = `
-│ 🎵 *Título:* ${video.title}
-│ ⏱️ *Duración:* ${video.timestamp}`.trim();
+    const waitMsg = `🎧 *Título:* ${video.title}\n⏱ *Duración:* ${video.timestamp}\n🔗 *Link:* ${video.url}`;
     await conn.sendMessage(m.chat, { text: waitMsg }, { quoted: m });
 
     const vredenUrl = `${getApiUrl()}?url=${encodeURIComponent(video.url)}`;
@@ -48,7 +46,19 @@ let handler = async (m, { conn, text }) => {
     await conn.sendMessage(m.chat, {
       audio: { url: audio.download.url },
       mimetype: "audio/mpeg",
-      ptt: true
+      ptt: true,
+      fileName: `${video.title}.mp3`,
+      contextInfo: {
+        externalAdReply: {
+          title: video.title,
+          body: "Descargas Play",
+          thumbnailUrl: video.thumbnail,
+          mediaType: 2,
+          mediaUrl: video.url,
+          sourceUrl: video.url,
+          showAdAttribution: true
+        }
+      }
     }, { quoted: m });
 
     await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
