@@ -53,7 +53,7 @@ const handler = async (m, { text, conn, args, command }) => {
 
 handler.help = ['facebook', 'fb'];
 handler.tags = ['descargas'];
-handler.command = ['facebook', 'fb'];
+handler.command = ['facebooktest', 'fbtest'];
 handler.group = true;
 handler.register = true;
 handler.coin = 1;
