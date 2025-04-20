@@ -20,6 +20,6 @@ await conn.sendMessage(m.chat, {
     m.react(done);
  }
 
-handler.command = ['ytv', 'ytmp4', 'ymp4']
+handler.command = ['ytx', 'ytmp4', 'ymp4']
 
 export default handler;
