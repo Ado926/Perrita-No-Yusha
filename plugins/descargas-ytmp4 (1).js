@@ -1,25 +1,41 @@
-import fetch from 'node-fetch';
-import fg from 'senna-fg';
+import axios from 'axios';
 
-let handler = async(m, { conn, args, text }) => {
+const downloadHandler = {
+  download: async (url) => {
+    const apiUrl = `https://api.siputzx.my.id/api/d/ytmp4?url=${encodeURIComponent(url)}`;
+    
+    try {
+      const response = await axios.get(apiUrl);
 
-if (!text) return m.reply(`🍭 Ingresa Un Link De YouTube\n> *Ejemplo:* https://youtube.com/shorts/ZisXJqH1jtw?si=0RZacIJU5zhoCmWh`);
+      if (response.data && response.data.status) {
+        return response.data.data;
+      } else {
+        throw new Error('Fallo al obtener los detalles del video.');
+      }
+    } catch (error) {
+      console.error('Error en la descarga:');
+      throw error;
+    }
+  }
+};
 
-m.react(rwait);
+const handler = async (m, { conn, text }) => {
+  try {
+    if (!text.trim()) {
+      return conn.reply(m.chat, `❀ Ingresa el enlace de YouTube para descargar.`, m);
+    }
+    const videoInfo = await downloadHandler.download(text);
+    const videoTitle = videoInfo.title;
+    const videoUrl = videoInfo.dl;
 
-let data = await fg.ytmp4(text);
-let url = data.dl_url;
+    await conn.sendMessage(m.chat, { video: { url: videoUrl }, mimetype: 'video/mp4', caption: `*Título:* ${videoTitle}` }, { quoted: m });
 
-if (!url) return m.reply('《✧》Hubo un error al intentar acceder al link.\n> Si el problema persiste, reportalo en el grupo de soporte.');
+  } catch (error) {
+    return m.reply(`Error: ${error.message}`);
+  }
+};
 
-await conn.sendMessage(m.chat, {
-      video: { url: url },
-      mimetype: "video/mp4",
-      caption: `${dev}`,
-    }, { quoted: m });
-    m.react(done);
- }
-
-handler.command = ['ytx', 'ytmp4', 'ymp4']
+handler.command = handler.help = ['ytmp4', 'ytv'];
+handler.tags = ['downloader'];
 
 export default handler;
