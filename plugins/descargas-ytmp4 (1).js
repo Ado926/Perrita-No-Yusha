@@ -24,6 +24,15 @@ const handler = async (m, { conn, text }) => {
     if (!text.trim()) {
       return conn.reply(m.chat, `❀ Ingresa el enlace de YouTube para descargar.`, m);
     }
+
+    // Reacción de reloj para mostrar que está procesando
+    if (conn.sendMessage) {
+      await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key }});
+    }
+
+    // Mensaje de espera decorado
+    await conn.reply(m.chat, `*⌛ Descargando tu video...*\nEspera un momento, por favor.`, m);
+
     const videoInfo = await downloadHandler.download(text);
     const videoTitle = videoInfo.title;
     const videoUrl = videoInfo.dl;
