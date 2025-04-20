@@ -1,76 +1,82 @@
-import fetch from "node-fetch";
-import yts from 'yt-search';
+import fetch from 'node-fetch';
 
 const handler = async (m, { conn, text, command }) => {
-  try {
-    const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=|shorts\/)?[\w\-]{11}/;
+  if (!text || !text.match(/(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i)) {
+    return m.reply(`✿ Ingresa un enlace válido de YouTube o Shorts.`);
+  }
 
-    if (!ytRegex.test(text)) {
-      return conn.reply(m.chat, `✎ Ingresa un enlace válido de YouTube (video o short).`, m);
+  try {
+    m.react('⏳');
+
+    // List of multiple APIs to try
+    const sources = [
+      `https://ytmp4-alpha.vercel.app/api?url=${encodeURIComponent(text)}`,
+      `https://api.siputzx.my.id/api/d/ytmp4?url=${encodeURIComponent(text)}`,
+      `https://api.zenkey.my.id/api/download/ytmp4?apikey=zenkey&url=${encodeURIComponent(text)}`,
+      `https://axeel.my.id/api/download/video?url=${encodeURIComponent(text)}`,
+      `https://delirius-apiofc.vercel.app/download/ytmp4?url=${encodeURIComponent(text)}`
+    ];
+
+    let success = false;
+    let downloadUrl = '';
+    let title = '';
+    let thumbnail = '';
+
+    for (let api of sources) {
+      try {
+        const res = await fetch(api);
+        const json = await res.json();
+
+        if (json && json.result && json.result.url) {
+          downloadUrl = json.result.url;
+          title = json.result.title;
+          thumbnail = json.result.thumbnail;
+          success = true;
+          break; // Exit the loop once we find a working API
+        }
+      } catch (e) {
+        console.error(`Error con la API ${api}:`, e.message);
+      }
     }
 
-    const url = text.trim();
-    const id = url.match(/(?:v=|\/)([\w\-]{11})/)[1];
-    const search = await yts({ videoId: id });
-    const videoInfo = search;
+    if (!success || !downloadUrl) {
+      throw new Error('No se pudo obtener un enlace de descarga válido.');
+    }
 
-    const { title, thumbnail, timestamp, views, ago } = videoInfo;
-    const vistas = formatViews(views);
-    const infoMessage = `「✦」Descargando *<${title}>*\n\n> ✦ Canal » *${videoInfo.author?.name || 'Desconocido'}*\n> ✰ Vistas » *${vistas}*\n> ⴵ Duración » *${timestamp}*\n> ✐ Publicación » *${ago}*\n> 🜸 Link » ${url}`;
+    const info = `「✦」Descargando *${title}*\n\n> ✦ Link: ${text}`;
+    const thumb = await (await conn.getFile(thumbnail)).data;
 
-    const thumb = (await conn.getFile(thumbnail))?.data;
-
-    m.react('🌸');
-
-    const JT = {
+    const decor = {
       contextInfo: {
         externalAdReply: {
           title: title,
-          body: "Descarga en progreso",
+          body: 'YTMP4 Downloader',
           mediaType: 1,
           previewType: 0,
-          mediaUrl: url,
-          sourceUrl: url,
+          mediaUrl: text,
+          sourceUrl: text,
           thumbnail: thumb,
           renderLargerThumbnail: true,
         },
       },
     };
 
-    await conn.reply(m.chat, infoMessage, m, JT);
-
-    // Solo usamos YTMP4
-    const res = await fetch(`https://api.zenkey.my.id/api/download/ytmp4?apikey=zenkey&url=${url}`);
-    const json = await res.json();
-    const downloadUrl = json?.result?.download?.url;
-
-    if (!downloadUrl) {
-      return m.reply(`✱ *No se pudo descargar el video:* No se encontró un enlace válido.`);
-    }
+    await conn.reply(m.chat, info, m, decor);
 
     await conn.sendMessage(m.chat, {
       video: { url: downloadUrl },
-      fileName: `${title}.mp4`,
       mimetype: 'video/mp4',
-      caption: `「📥」*Video descargado con éxito.*`,
-      thumbnail: thumb
+      fileName: `${title}.mp4`,
     }, { quoted: m });
 
-  } catch (error) {
-    return m.reply(`✿ *Error:* ${error.message}`);
+  } catch (err) {
+    console.error(err);
+    return m.reply(`✿ Error: ${err.message}`);
   }
 };
 
 handler.command = ['ytmp4'];
+handler.help = ['tsg'];
 handler.tags = ['downloader'];
-handler.help = ['ytmp4 <link de YouTube>'];
 
 export default handler;
-
-function formatViews(views) {
-  if (views >= 1000) {
-    return (views / 1000).toFixed(1) + 'k (' + views.toLocaleString() + ')';
-  } else {
-    return views.toString();
-  }
-}
