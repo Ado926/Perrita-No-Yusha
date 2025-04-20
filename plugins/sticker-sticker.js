@@ -9,8 +9,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     let q = m.quoted ? m.quoted : m
     let mime = (q.msg || q).mimetype || q.mediaType || ''
     if (/webp|image|video/g.test(mime)) {
-      if (/video/g.test(mime) && (q.msg || q).seconds > 15) {
-        return m.reply(`✧ ¡El video no puede durar más de 15 segundos!...`)
+      if (/video/g.test(mime) && (q.msg || q).seconds > 25) {
+        return m.reply(`✧ ¡El video no puede durar más de 25 segundos!...`)
       }
       let img = await q.download?.()
 
@@ -46,7 +46,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (stiker) {
       conn.sendFile(m.chat, stiker, 'sticker.webp', '', m)
     } else {
-      return conn.reply(m.chat, `❀ Por favor, envía una imagen o video para hacer un sticker.`, m)
+      return conn.reply(m.chat, `🌸 Envía una imagen o video para hacer un sticker 👻`, m)
     }
   }
 }
