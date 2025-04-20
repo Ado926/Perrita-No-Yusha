@@ -12,12 +12,13 @@ let handler = async (m, { conn, text, usedPrefix, command, args }) => {
     m.react('🕒');
 
     let json = await ytdl(args[0]);
+    if (!json || !json.url) throw new Error("No se pudo obtener el enlace de descarga.");
+
     let size = await getSize(json.url);
     let sizeStr = size ? await formatSize(size) : 'Desconocido';
 
     const cap = `\`\`\`◜YouTube - Video◞\`\`\`\n\n*${json.title}*\n▶ *🌻 \`URL:\`* ${args[0]}\n▶ *⚖️ \`Peso:\`* ${sizeStr}\n\n> ❐ *Sent By 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢* 🌺`;
 
-    // Intenta enviar como video directo desde URL
     try {
       await conn.sendMessage(m.chat, {
         video: { url: json.url },
@@ -26,7 +27,6 @@ let handler = async (m, { conn, text, usedPrefix, command, args }) => {
         fileName: `${json.title}.mp4`
       }, { quoted: m });
     } catch (e) {
-      // Si falla, usa buffer como respaldo
       const buffer = await (await fetch(json.url)).buffer();
       await conn.sendFile(m.chat, buffer, `${json.title}.mp4`, cap, m, null, {
         asDocument: true,
@@ -37,7 +37,7 @@ let handler = async (m, { conn, text, usedPrefix, command, args }) => {
     m.react('✅');
   } catch (e) {
     console.error(e);
-    m.reply(`Ocurrió un error:\n${e.message}`);
+    m.reply(`*❌ Ocurrió un error:*\n${e.message}`);
   }
 };
 
@@ -62,25 +62,36 @@ async function ytdl(url) {
     "Referrer-Policy": "strict-origin-when-cross-origin"
   };
 
-  const initial = await fetch(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers });
-  const init = await initial.json();
-  const id = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
-  const convertURL = init.convertURL + `&v=${id}&f=mp4&_=${Math.random()}`;
+  try {
+    const initial = await fetch(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers });
+    const initText = await initial.text();
+    const init = JSON.parse(initText || '{}');
+    if (!init?.convertURL) throw new Error("Error en el paso inicial");
 
-  const converts = await fetch(convertURL, { headers });
-  const convert = await converts.json();
+    const id = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
+    const convertURL = init.convertURL + `&v=${id}&f=mp4&_=${Math.random()}`;
 
-  let info = {};
-  for (let i = 0; i < 3; i++) {
-    const progressResponse = await fetch(convert.progressURL, { headers });
-    info = await progressResponse.json();
-    if (info.progress === 3) break;
+    const converts = await fetch(convertURL, { headers });
+    const convertText = await converts.text();
+    const convert = JSON.parse(convertText || '{}');
+    if (!convert?.progressURL || !convert?.downloadURL) throw new Error("No se pudo obtener los datos de conversión");
+
+    let info = {};
+    for (let i = 0; i < 3; i++) {
+      const progressRes = await fetch(convert.progressURL, { headers });
+      const progressText = await progressRes.text();
+      info = JSON.parse(progressText || '{}');
+      if (info.progress === 3) break;
+    }
+
+    return {
+      url: convert.downloadURL,
+      title: info.title || 'video'
+    };
+  } catch (err) {
+    console.error("Error en ytdl:", err.message);
+    return null;
   }
-
-  return {
-    url: convert.downloadURL,
-    title: info.title || 'video'
-  };
 }
 
 async function formatSize(bytes) {
