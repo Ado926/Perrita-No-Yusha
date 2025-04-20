@@ -1,120 +1,76 @@
 import fetch from "node-fetch";
-import axios from 'axios';
+import yts from 'yt-search';
 
-let handler = async (m, { conn, text, usedPrefix, command, args }) => {
+const handler = async (m, { conn, text, command }) => {
   try {
-    if (!text) return conn.reply(m.chat, `*🧇 Ingresa la URL del vídeo de YouTube.*`, m);
+    const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=|shorts\/)?[\w\-]{11}/;
 
-    if (!/^(?:https?:\/\/)?(?:www\.|m\.|music\.)?youtu\.?be(?:\.com)?\/?.*(?:watch|embed)?(?:.*v=|v\/|\/)([\w\-_]+)\&?/.test(args[0])) {
-      return m.reply(`*⚠️ Enlace inválido, por favor coloca un enlace válido de YouTube.*`);
+    if (!ytRegex.test(text)) {
+      return conn.reply(m.chat, `✎ Ingresa un enlace válido de YouTube (video o short).`, m);
     }
 
-    m.react('🕒');
+    const url = text.trim();
+    const id = url.match(/(?:v=|\/)([\w\-]{11})/)[1];
+    const search = await yts({ videoId: id });
+    const videoInfo = search;
 
-    let json = await ytdl(args[0]);
-    if (!json || !json.url) throw new Error("No se pudo obtener el enlace de descarga.");
+    const { title, thumbnail, timestamp, views, ago } = videoInfo;
+    const vistas = formatViews(views);
+    const infoMessage = `「✦」Descargando *<${title}>*\n\n> ✦ Canal » *${videoInfo.author?.name || 'Desconocido'}*\n> ✰ Vistas » *${vistas}*\n> ⴵ Duración » *${timestamp}*\n> ✐ Publicación » *${ago}*\n> 🜸 Link » ${url}`;
 
-    let size = await getSize(json.url);
-    let sizeStr = size ? await formatSize(size) : 'Desconocido';
+    const thumb = (await conn.getFile(thumbnail))?.data;
 
-    const cap = `\`\`\`◜YouTube - Video◞\`\`\`\n\n*${json.title}*\n▶ *🌻 \`URL:\`* ${args[0]}\n▶ *⚖️ \`Peso:\`* ${sizeStr}\n\n> ❐ *Sent By 𝘗𝘦𝘳𝘳𝘪𝘵𝘢 𝘕𝘰 𝘠𝘶𝘴𝘩𝘢* 🌺`;
+    m.react('🌸');
 
-    try {
-      await conn.sendMessage(m.chat, {
-        video: { url: json.url },
-        caption: cap,
-        mimetype: 'video/mp4',
-        fileName: `${json.title}.mp4`
-      }, { quoted: m });
-    } catch (e) {
-      const buffer = await (await fetch(json.url)).buffer();
-      await conn.sendFile(m.chat, buffer, `${json.title}.mp4`, cap, m, null, {
-        asDocument: true,
-        mimetype: 'video/mp4'
-      });
+    const JT = {
+      contextInfo: {
+        externalAdReply: {
+          title: title,
+          body: "Descarga en progreso",
+          mediaType: 1,
+          previewType: 0,
+          mediaUrl: url,
+          sourceUrl: url,
+          thumbnail: thumb,
+          renderLargerThumbnail: true,
+        },
+      },
+    };
+
+    await conn.reply(m.chat, infoMessage, m, JT);
+
+    // Solo usamos YTMP4
+    const res = await fetch(`https://api.zenkey.my.id/api/download/ytmp4?apikey=zenkey&url=${url}`);
+    const json = await res.json();
+    const downloadUrl = json?.result?.download?.url;
+
+    if (!downloadUrl) {
+      return m.reply(`✱ *No se pudo descargar el video:* No se encontró un enlace válido.`);
     }
 
-    m.react('✅');
-  } catch (e) {
-    console.error(e);
-    m.reply(`*❌ Ocurrió un error:*\n${e.message}`);
+    await conn.sendMessage(m.chat, {
+      video: { url: downloadUrl },
+      fileName: `${title}.mp4`,
+      mimetype: 'video/mp4',
+      caption: `「📥」*Video descargado con éxito.*`,
+      thumbnail: thumb
+    }, { quoted: m });
+
+  } catch (error) {
+    return m.reply(`✿ *Error:* ${error.message}`);
   }
 };
 
-handler.help = ['ytmp4'];
-handler.command = ['ytv', 'ytmp4', 'ytv'];
-handler.tags = ['dl'];
-handler.diamond = true;
+handler.command = ['ytmp4'];
+handler.tags = ['downloader'];
+handler.help = ['ytmp4 <link de YouTube>'];
 
 export default handler;
 
-async function ytdl(url) {
-  const headers = {
-    "accept": "*/*",
-    "accept-language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
-    "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\"",
-    "sec-ch-ua-mobile": "?1",
-    "sec-ch-ua-platform": "\"Android\"",
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "cross-site",
-    "Referer": "https://id.ytmp3.mobi/",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
-  };
-
-  try {
-    const initial = await fetch(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers });
-    const initText = await initial.text();
-    const init = JSON.parse(initText || '{}');
-    if (!init?.convertURL) throw new Error("Error en el paso inicial");
-
-    const id = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
-    const convertURL = init.convertURL + `&v=${id}&f=mp4&_=${Math.random()}`;
-
-    const converts = await fetch(convertURL, { headers });
-    const convertText = await converts.text();
-    const convert = JSON.parse(convertText || '{}');
-    if (!convert?.progressURL || !convert?.downloadURL) throw new Error("No se pudo obtener los datos de conversión");
-
-    let info = {};
-    for (let i = 0; i < 3; i++) {
-      const progressRes = await fetch(convert.progressURL, { headers });
-      const progressText = await progressRes.text();
-      info = JSON.parse(progressText || '{}');
-      if (info.progress === 3) break;
-    }
-
-    return {
-      url: convert.downloadURL,
-      title: info.title || 'video'
-    };
-  } catch (err) {
-    console.error("Error en ytdl:", err.message);
-    return null;
-  }
-}
-
-async function formatSize(bytes) {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let i = 0;
-  if (!bytes || isNaN(bytes)) return 'Desconocido';
-
-  while (bytes >= 1024 && i < units.length - 1) {
-    bytes /= 1024;
-    i++;
-  }
-
-  return `${bytes.toFixed(2)} ${units[i]}`;
-}
-
-async function getSize(url) {
-  try {
-    const response = await axios.head(url);
-    const contentLength = response.headers['content-length'];
-    if (!contentLength) return null;
-    return parseInt(contentLength, 10);
-  } catch (error) {
-    console.error("Error al obtener el tamaño:", error.message);
-    return null;
+function formatViews(views) {
+  if (views >= 1000) {
+    return (views / 1000).toFixed(1) + 'k (' + views.toLocaleString() + ')';
+  } else {
+    return views.toString();
   }
 }
